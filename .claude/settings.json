@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(adb uninstall *)",
+      "Bash(grep -rn \"ProductPrice::create\\\\|ProductPrice::updateOrCreate\\\\|ProductPrice::firstOrCreate\" app/)",
+      "Bash(ls -la app/Observers)",
+      "Bash(grep -rn \"observe\\(\" app/Providers/*.php)",
+      "Bash(grep -rln \"unit_sale\\\\|profit_percent\" app/ database/)",
+      "Bash(grep -rln \"ProductPrice\" app/)",
+      "Bash(grep -rn \"product.price\\\\|product_price\" routes/)",
+      "Bash(grep -rln \"selling_price\\\\|retail_price\\\\|sell_price\\\\|mrp\" resources/js)",
+      "Bash(grep -rln \"product-prices\\\\|ProductPrice\" resources/js)",
+      "Bash(docker cp *)",
+      "Bash(curl -s -X POST http://localhost:8210/api/pos/buy -H 'Authorization: Bearer 13|RDsRtWx7lr8jSQ8MVbQeNHXCaexZcVtJy5w3uJPf325cfb18' -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{\"company_id\":1,\"outlet_id\":1,\"location_id\":1,\"supplier_name\":\"Test Vendor\",\"items\":[{\"product_id\":1,\"qty\":2,\"unit_cost\":180}]}')",
+      "Bash(curl -s 'http://localhost:8210/api/pos/products?company_id=1&outlet_id=1&location_id=1' -H 'Authorization: Bearer 13|RDsRtWx7lr8jSQ8MVbQeNHXCaexZcVtJy5w3uJPf325cfb18' -H 'Accept: application/json')",
+      "Bash(grep -rln \"ProductPrice\\\\|product_price\" resources/js/)",
+      "Bash(grep -rl \"PosTerminal\" resources/js/)",
+      "Bash(php -l app/Http/Controllers/Api/Admin/GrnController.php)",
+      "Bash(php -l app/Http/Controllers/Api/Admin/PurchaseBillController.php)",
+      "Bash(curl -s -X POST http://localhost:8210/api/admin/grns -H 'Authorization: Bearer 14|H1vJpNLJE7T3RuSw1jaWzy06WemtSR4991BJsbONdaf9eab6' -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{\"company_id\":1,\"outlet_id\":1,\"fiscal_year_id\":1,\"vendor_id\":1,\"grn_date\":\"2026-07-02\",\"lines\":[{\"product_id\":3,\"location_id\":1,\"qty\":5,\"unit_cost\":95}]}')",
+      "Bash(curl -s -X POST http://localhost:8210/api/admin/grns/7/post -H 'Authorization: Bearer 14|H1vJpNLJE7T3RuSw1jaWzy06WemtSR4991BJsbONdaf9eab6' -H 'Accept: application/json')",
+      "Bash(curl -s 'http://localhost:8210/api/pos/products?company_id=1&outlet_id=1&location_id=1' -H 'Authorization: Bearer __TRACKED_VAR__' -H 'Accept: application/json')",
+      "Bash(curl -s -X POST http://localhost:8210/api/admin/grns -H 'Authorization: Bearer 14|H1vJpNLJE7T3RuSw1jaWzy06WemtSR4991BJsbONdaf9eab6' -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{\"company_id\":1,\"outlet_id\":1,\"fiscal_year_id\":1,\"vendor_id\":1,\"grn_date\":\"2026-07-02\",\"lines\":[{\"product_id\":3,\"location_id\":1,\"qty\":3,\"unit_cost\":110}]}')",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d['data']['id']\\)\")",
+      "Bash(curl -s -X POST http://localhost:8210/api/admin/grns/8/post -H 'Authorization: Bearer 14|H1vJpNLJE7T3RuSw1jaWzy06WemtSR4991BJsbONdaf9eab6' -H 'Accept: application/json')",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d.get\\('data',{}\\).get\\('status'\\), d.get\\('message'\\)\\)\")",
+      "Bash(curl -s 'http://localhost:8210/api/pos/products?company_id=1&outlet_id=1&location_id=1' -H 'Authorization: Bearer 14|H1vJpNLJE7T3RuSw1jaWzy06WemtSR4991BJsbONdaf9eab6' -H 'Accept: application/json')",
+      "Bash(curl -s -X POST http://localhost:8210/api/admin/purchase-bills -H 'Authorization: Bearer 14|H1vJpNLJE7T3RuSw1jaWzy06WemtSR4991BJsbONdaf9eab6' -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{\"company_id\":1,\"outlet_id\":1,\"vendor_id\":1,\"bill_no\":\"TESTBILL-1\",\"bill_date\":\"2026-07-02\",\"lines\":[{\"product_id\":4,\"location_id\":1,\"qty\":2,\"rate\":60}]}')",
+      "Bash(curl -s -X POST http://localhost:8210/api/admin/purchase-bills/3/post -H 'Authorization: Bearer 14|H1vJpNLJE7T3RuSw1jaWzy06WemtSR4991BJsbONdaf9eab6' -H 'Accept: application/json')",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d\\)\")",
+      "Bash(curl -s -X POST http://localhost:8210/api/admin/purchase-bills/3/approve -H 'Authorization: Bearer 14|H1vJpNLJE7T3RuSw1jaWzy06WemtSR4991BJsbONdaf9eab6' -H 'Accept: application/json')",
+      "Bash(curl -s -X POST http://localhost:8210/api/admin/purchase-bills -H 'Authorization: Bearer 14|H1vJpNLJE7T3RuSw1jaWzy06WemtSR4991BJsbONdaf9eab6' -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{\"company_id\":1,\"outlet_id\":1,\"vendor_id\":1,\"bill_no\":\"TESTBILL-2\",\"bill_date\":\"2026-07-02\",\"lines\":[{\"product_id\":4,\"location_id\":1,\"qty\":2,\"rate\":100,\"discount\":20}]}')",
+      "Bash(curl -s -X POST http://localhost:8210/api/admin/purchase-bills/6/approve -H 'Authorization: Bearer 14|H1vJpNLJE7T3RuSw1jaWzy06WemtSR4991BJsbONdaf9eab6' -H 'Accept: application/json')",
+      "Bash(curl -s -X POST http://localhost:8210/api/admin/purchase-bills/6/post -H 'Authorization: Bearer 14|H1vJpNLJE7T3RuSw1jaWzy06WemtSR4991BJsbONdaf9eab6' -H 'Accept: application/json')",
+      "Bash(echo \"started with pid $!\")",
+      "Bash(break)",
+      "Bash(adb pull *)",
+      "Bash(echo \"started pid $!\")"
+    ]
+  }
+}

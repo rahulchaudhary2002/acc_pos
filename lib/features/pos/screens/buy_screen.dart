@@ -1,0 +1,514 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+import '../../../core/network/api_exception.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/error_banner.dart';
+import '../models/party.dart';
+import '../models/purchase_cart_item.dart';
+import '../providers/buy_cart_provider.dart';
+import '../providers/pos_config_provider.dart';
+import '../providers/pos_data_provider.dart';
+import '../providers/voice_announcer.dart';
+import '../services/pos_service.dart';
+import '../widgets/action_row_button.dart';
+import '../widgets/cart_panel_header.dart';
+import '../widgets/grn_confirmation_dialog.dart';
+import '../widgets/pos_screen_header.dart';
+import '../widgets/product_picker_dialog.dart';
+import '../widgets/purchase_cart_line_tile.dart';
+
+/// Buy tab: New Purchase plus an inline Purchase Return mode — mirrors
+/// `PosTerminal.jsx`'s `buyMode: "purchase" | "return"` toggle.
+class BuyScreen extends StatefulWidget {
+  const BuyScreen({super.key});
+
+  @override
+  State<BuyScreen> createState() => _BuyScreenState();
+}
+
+class _BuyScreenState extends State<BuyScreen> {
+  String _mode = 'purchase'; // 'purchase' | 'return'
+  Party? _selectedVendor;
+  final _vendorNameController = TextEditingController();
+  final _invoiceNumberController = TextEditingController();
+  bool _isSubmitting = false;
+  String? _errorMessage;
+
+  final List<PurchaseCartItem> _returnItems = [];
+  Party? _returnVendor;
+
+  double get _returnTotal => _returnItems.fold(0, (sum, i) => sum + i.lineTotal);
+
+  @override
+  void dispose() {
+    _invoiceNumberController.dispose();
+    _vendorNameController.dispose();
+    super.dispose();
+  }
+
+  void _announce(String key) => context.read<VoiceAnnouncer>().announceAction(key);
+
+  Future<void> _submit() async {
+    final cart = context.read<BuyCartProvider>();
+    final config = context.read<PosConfigProvider>();
+    if (cart.isEmpty) return;
+    final vendorName = _vendorNameController.text.trim();
+    if (_selectedVendor == null && vendorName.isEmpty) {
+      setState(() => _errorMessage = 'Please select or enter a vendor.');
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final service = context.read<PosService>();
+      final result = await service.buy(
+        companyId: config.selectedCompanyId!,
+        outletId: config.selectedOutletId!,
+        locationId: config.selectedLocationId,
+        vendorId: _selectedVendor?.id,
+        supplierName: _selectedVendor == null ? vendorName : null,
+        invoiceNumber: _invoiceNumberController.text.trim(),
+        items: cart.items,
+      );
+      if (!mounted) return;
+      _clearForm(cart);
+      _announce('purchaseCompleted');
+      // Mirrors PosTerminal.jsx: refetch products after a purchase so stock
+      // reflects this transaction immediately instead of a stale cache.
+      unawaited(context.read<PosDataProvider>().loadProducts(
+            companyId: config.selectedCompanyId,
+            outletId: config.selectedOutletId,
+            locationId: config.selectedLocationId,
+          ));
+      await showGrnConfirmation(context, result);
+    } on ApiException catch (e) {
+      setState(() => _errorMessage = e.message);
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  void _clearForm(BuyCartProvider cart) {
+    cart.clear();
+    setState(() {
+      _selectedVendor = null;
+      _vendorNameController.clear();
+      _invoiceNumberController.clear();
+    });
+  }
+
+  Future<void> _submitReturn() async {
+    if (_returnItems.isEmpty) return;
+    if (_returnVendor == null) {
+      setState(() => _errorMessage = 'Please select a supplier to return to.');
+      return;
+    }
+    final config = context.read<PosConfigProvider>();
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+    try {
+      final service = context.read<PosService>();
+      final result = await service.purchaseReturn(
+        companyId: config.selectedCompanyId!,
+        outletId: config.selectedOutletId!,
+        locationId: config.selectedLocationId,
+        vendorId: _returnVendor!.id,
+        items: _returnItems,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Return ${result.documentNo} completed — Rs ${result.total.toStringAsFixed(2)}')),
+      );
+      setState(() {
+        _returnItems.clear();
+        _returnVendor = null;
+      });
+      unawaited(context.read<PosDataProvider>().loadProducts(
+            companyId: config.selectedCompanyId,
+            outletId: config.selectedOutletId,
+            locationId: config.selectedLocationId,
+          ));
+    } on ApiException catch (e) {
+      setState(() => _errorMessage = e.message);
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cart = context.watch<BuyCartProvider>();
+    final data = context.watch<PosDataProvider>();
+
+    return Column(
+      children: [
+        const PosScreenHeader(title: 'Buy Stock', subtitle: 'Purchase from suppliers', icon: Icons.local_gas_station),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.card),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (_errorMessage != null)
+                  ErrorBanner(message: _errorMessage!, onDismiss: () => setState(() => _errorMessage = null)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ActionRowButton(
+                        icon: Icons.shopping_bag,
+                        label: 'New Purchase',
+                        subtitle: 'From suppliers',
+                        active: _mode == 'purchase',
+                        activeColor: AppColors.info,
+                        activeBorderColor: AppColors.borderInfoActive,
+                        onTap: () => setState(() => _mode = 'purchase'),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.field),
+                    Expanded(
+                      child: ActionRowButton(
+                        icon: Icons.undo,
+                        label: 'Purchase Return',
+                        subtitle: 'Return to vendor',
+                        active: _mode == 'return',
+                        activeColor: AppColors.warningDark,
+                        activeBorderColor: AppColors.borderWarningActive,
+                        onTap: () => setState(() => _mode = 'return'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.card),
+                if (_mode == 'return') ..._buildReturnMode(data) else ..._buildPurchaseMode(cart, data),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildPurchaseMode(BuyCartProvider cart, PosDataProvider data) {
+    return [
+      Container(
+        padding: const EdgeInsets.all(AppSpacing.card),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.section),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: const [
+                Icon(Icons.storefront_outlined, color: AppColors.textSecondary),
+                SizedBox(width: AppSpacing.field),
+                Text('Purchase from Supplier', style: AppTextStyles.cardHeader),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.card),
+            TextField(
+              controller: _invoiceNumberController,
+              decoration: const InputDecoration(labelText: 'Invoice Number'),
+            ),
+            const SizedBox(height: AppSpacing.item),
+            InputDecorator(
+              decoration: const InputDecoration(labelText: 'Purchase Date'),
+              child: Text(DateFormat('MM/dd/yyyy').format(DateTime.now())),
+            ),
+            const SizedBox(height: AppSpacing.item),
+            DropdownButtonFormField<Party>(
+              isExpanded: true,
+              initialValue: _selectedVendor,
+              decoration: const InputDecoration(labelText: 'Vendor'),
+              items: data.suppliers
+                  .map((s) => DropdownMenuItem(value: s, child: Text(s.name, overflow: TextOverflow.ellipsis)))
+                  .toList(),
+              onChanged: (v) => setState(() => _selectedVendor = v),
+            ),
+            const SizedBox(height: AppSpacing.item),
+            TextField(
+              controller: _vendorNameController,
+              enabled: _selectedVendor == null,
+              decoration: const InputDecoration(labelText: 'Vendor Name (if not listed above)'),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: AppSpacing.card),
+      // Purchase Summary + Totals live in one continuous white card, matching
+      // the reference design — not two separate boxes.
+      Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.section),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            CartPanelHeader(
+              icon: Icons.shopping_bag,
+              title: 'Purchase Summary',
+              itemCount: cart.itemCount,
+              total: cart.netTotal,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.card),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  cart.isEmpty
+                      ? EmptyState(
+                          icon: Icons.inventory_2_outlined,
+                          title: 'No items selected',
+                          subtitle: 'Click the button below to add products',
+                          action: ElevatedButton(
+                            onPressed: () => showProductPicker(context, showPrice: false, onSelected: (p) {
+                              cart.addProduct(p);
+                              _announce('productAdded');
+                            }),
+                            style: ElevatedButton.styleFrom(
+                              shape: const StadiumBorder(),
+                              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                            ),
+                            child: const Text('Add Products'),
+                          ),
+                        )
+                      : Column(
+                          children: List.generate(cart.items.length, (index) {
+                            final item = cart.items[index];
+                            return PurchaseCartLineTile(
+                              name: item.product.name,
+                              qty: item.qty,
+                              unitCost: item.unitCost,
+                              lineTotal: item.lineTotal,
+                              onIncrement: () => cart.incrementQty(index),
+                              onDecrement: () => cart.decrementQty(index),
+                              onUnitCostChanged: (v) => cart.updateUnitCost(index, v),
+                              onRemove: () {
+                                cart.removeAt(index);
+                                _announce('productRemoved');
+                              },
+                            );
+                          }),
+                        ),
+                  if (!cart.isEmpty) const SizedBox(height: AppSpacing.card),
+                  if (!cart.isEmpty)
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => showProductPicker(context, showPrice: false, onSelected: (p) {
+                              cart.addProduct(p);
+                              _announce('productAdded');
+                            }),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add More Products'),
+                      ),
+                    ),
+                  const SizedBox(height: AppSpacing.card),
+                  _row('Subtotal:', 'Rs ${cart.netTotal.toStringAsFixed(2)}'),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: AppSpacing.field),
+                    child: Divider(height: 1, color: AppColors.border),
+                  ),
+                  _row('Total Purchase:', 'Rs ${cart.netTotal.toStringAsFixed(2)}', bold: true),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: AppSpacing.card),
+      Row(
+        children: [
+          Expanded(
+            child: OutlinedButton(
+              onPressed: cart.isEmpty
+                  ? null
+                  : () {
+                      _clearForm(cart);
+                      _announce('cartClearedBuy');
+                    },
+              style: AppButtonStyles.filled(AppColors.danger),
+              child: const Text('Clear Purchase'),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.field),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: (cart.isEmpty || _isSubmitting) ? null : _submit,
+              style: AppButtonStyles.filled(AppColors.success),
+              child: _isSubmitting
+                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Text('Save Purchase'),
+            ),
+          ),
+        ],
+      ),
+    ];
+  }
+
+  List<Widget> _buildReturnMode(PosDataProvider data) {
+    return [
+      Container(
+        padding: const EdgeInsets.all(AppSpacing.card),
+        decoration: BoxDecoration(
+          color: AppColors.warningTint,
+          borderRadius: BorderRadius.circular(AppRadius.section),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.trending_up, color: AppColors.warningDark),
+                SizedBox(width: AppSpacing.field),
+                Text('Purchase Return', style: AppTextStyles.subsectionTitle),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.item),
+            const Text('Supplier', style: AppTextStyles.label),
+            const SizedBox(height: 4),
+            DropdownButtonFormField<Party>(
+              isExpanded: true,
+              initialValue: _returnVendor,
+              decoration: const InputDecoration(filled: true, fillColor: AppColors.surface),
+              items: data.suppliers
+                  .map((s) => DropdownMenuItem(value: s, child: Text(s.name, overflow: TextOverflow.ellipsis)))
+                  .toList(),
+              onChanged: (v) => setState(() => _returnVendor = v),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: AppSpacing.card),
+      Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.section),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            CartPanelHeader(
+              icon: Icons.trending_up,
+              title: 'Return Items',
+              itemCount: _returnItems.length,
+              total: _returnTotal,
+              background: AppColors.warningDark,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.card),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _returnItems.isEmpty
+                      ? EmptyState(
+                          icon: Icons.assignment_return_outlined,
+                          title: 'No items to return',
+                          action: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.warningDark,
+                              shape: const StadiumBorder(),
+                              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                            ),
+                            onPressed: () => showProductPicker(
+                              context,
+                              showPrice: false,
+                              onSelected: (p) => setState(() => _returnItems.add(PurchaseCartItem(product: p))),
+                            ),
+                            child: const Text('Add Products'),
+                          ),
+                        )
+                      : Column(
+                          children: List.generate(_returnItems.length, (index) {
+                            final item = _returnItems[index];
+                            return PurchaseCartLineTile(
+                              name: item.product.name,
+                              qty: item.qty,
+                              unitCost: item.unitCost,
+                              lineTotal: item.lineTotal,
+                              onIncrement: () => setState(() => item.qty += 1),
+                              onDecrement: () => setState(() => item.qty = item.qty > 1 ? item.qty - 1 : 1),
+                              onUnitCostChanged: (v) => setState(() => item.unitCost = v),
+                              onRemove: () => setState(() => _returnItems.removeAt(index)),
+                            );
+                          }),
+                        ),
+                  if (_returnItems.isNotEmpty) const SizedBox(height: AppSpacing.card),
+                  if (_returnItems.isNotEmpty)
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(foregroundColor: AppColors.warningDark),
+                        onPressed: () => showProductPicker(
+                          context,
+                          showPrice: false,
+                          onSelected: (p) => setState(() => _returnItems.add(PurchaseCartItem(product: p))),
+                        ),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add More Products'),
+                      ),
+                    ),
+                  const SizedBox(height: AppSpacing.card),
+                  _row('Total Amount', 'Rs ${_returnTotal.toStringAsFixed(2)}', bold: true),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: AppSpacing.card),
+      Row(
+        children: [
+          Expanded(
+            child: OutlinedButton(
+              onPressed: _returnItems.isEmpty
+                  ? null
+                  : () => setState(() {
+                        _returnItems.clear();
+                        _returnVendor = null;
+                      }),
+              style: AppButtonStyles.filled(AppColors.danger),
+              child: const Text('Clear Return'),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.field),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: (_returnItems.isEmpty || _isSubmitting) ? null : _submitReturn,
+              style: AppButtonStyles.filled(AppColors.warningDark),
+              child: _isSubmitting
+                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Text('Post Return'),
+            ),
+          ),
+        ],
+      ),
+    ];
+  }
+
+  Widget _row(String label, String value, {bool bold = false}) {
+    final style = TextStyle(
+      fontSize: bold ? 15 : 13,
+      fontWeight: bold ? FontWeight.w700 : FontWeight.normal,
+      color: bold ? AppColors.textPrimary : AppColors.textTertiary,
+    );
+    return Row(
+      children: [Expanded(child: Text(label, style: style)), Text(value, style: style)],
+    );
+  }
+}

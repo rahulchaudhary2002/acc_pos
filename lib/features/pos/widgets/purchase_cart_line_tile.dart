@@ -1,0 +1,113 @@
+import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_theme.dart';
+
+/// Buy-cart row: qty stepper + unit cost input + line total, no tax column
+/// (matches `/pos/buy`'s request shape, which has no tax fields).
+class PurchaseCartLineTile extends StatelessWidget {
+  final String name;
+  final double qty;
+  final double unitCost;
+  final double lineTotal;
+  final VoidCallback onIncrement;
+  final VoidCallback onDecrement;
+  final ValueChanged<double> onUnitCostChanged;
+  final VoidCallback onRemove;
+
+  const PurchaseCartLineTile({
+    super.key,
+    required this.name,
+    required this.qty,
+    required this.unitCost,
+    required this.lineTotal,
+    required this.onIncrement,
+    required this.onDecrement,
+    required this.onUnitCostChanged,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.item),
+      padding: const EdgeInsets.all(AppSpacing.item),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.control),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text(name, style: const TextStyle(fontWeight: FontWeight.w600))),
+              InkWell(
+                onTap: onRemove,
+                borderRadius: BorderRadius.circular(AppRadius.full),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(color: AppColors.dangerTint, shape: BoxShape.circle),
+                  child: const Icon(Icons.delete_outline, size: 18, color: AppColors.danger),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.item),
+          Row(
+            children: [
+              _stepperButton(Icons.remove, onDecrement),
+              Container(
+                width: 44,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(border: Border.all(color: AppColors.border)),
+                child: Text(qty.toStringAsFixed(qty.truncateToDouble() == qty ? 0 : 2), style: const TextStyle(fontWeight: FontWeight.w600)),
+              ),
+              _stepperButton(Icons.add, onIncrement),
+              const SizedBox(width: AppSpacing.field),
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: TextFormField(
+                    initialValue: unitCost.toStringAsFixed(2),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    textAlign: TextAlign.center,
+                    decoration: const InputDecoration(labelText: 'Unit Cost', contentPadding: EdgeInsets.symmetric(horizontal: 8)),
+                    onChanged: (v) => onUnitCostChanged(double.tryParse(v) ?? unitCost),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.field),
+              Container(
+                height: 40,
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.field),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceLight,
+                  border: Border.all(color: AppColors.border),
+                  borderRadius: BorderRadius.circular(AppRadius.input),
+                ),
+                child: Text('Rs ${lineTotal.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _stepperButton(IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 40,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(color: AppColors.surfaceTotals, border: Border.all(color: AppColors.border)),
+        child: Icon(icon, size: 16),
+      ),
+    );
+  }
+}
