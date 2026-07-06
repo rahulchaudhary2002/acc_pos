@@ -51,10 +51,22 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Sellable cap for a product's cart qty, or null when unlimited (services,
+  /// untracked items, and items with negative-stock override all skip the
+  /// stock check — the server re-validates authoritatively at checkout).
+  double? _maxQty(Product product) {
+    if (product.isService || !product.trackInventory || product.allowNegativeStock) return null;
+    return product.currentStock;
+  }
+
   void addProduct(Product product) {
     final existingIndex = items.indexWhere((i) => i.product.id == product.id);
     if (existingIndex != -1) {
-      items[existingIndex].qty += 1;
+      final item = items[existingIndex];
+      final maxQty = _maxQty(item.product);
+      if (maxQty == null || item.qty < maxQty) {
+        item.qty += 1;
+      }
     } else {
       items.add(SaleCartItem(product: product));
     }
@@ -63,12 +75,16 @@ class CartProvider extends ChangeNotifier {
 
   void updateQty(int index, double qty) {
     if (qty <= 0) return;
-    items[index].qty = qty;
+    final maxQty = _maxQty(items[index].product);
+    items[index].qty = (maxQty != null && qty > maxQty) ? maxQty : qty;
     notifyListeners();
   }
 
   void incrementQty(int index) {
-    items[index].qty += 1;
+    final maxQty = _maxQty(items[index].product);
+    if (maxQty == null || items[index].qty < maxQty) {
+      items[index].qty += 1;
+    }
     notifyListeners();
   }
 

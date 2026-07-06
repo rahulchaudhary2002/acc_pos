@@ -14,6 +14,7 @@ Future<void> showProductPicker(
   BuildContext context, {
   required void Function(Product) onSelected,
   bool showPrice = true,
+  bool disableOutOfStock = false,
 }) {
   return showDialog(
     context: context,
@@ -22,7 +23,7 @@ Future<void> showProductPicker(
       insetPadding: const EdgeInsets.all(AppSpacing.section),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 420, maxHeight: 640),
-        child: _ProductPickerContent(onSelected: onSelected, showPrice: showPrice),
+        child: _ProductPickerContent(onSelected: onSelected, showPrice: showPrice, disableOutOfStock: disableOutOfStock),
       ),
     ),
   );
@@ -31,8 +32,9 @@ Future<void> showProductPicker(
 class _ProductPickerContent extends StatefulWidget {
   final void Function(Product) onSelected;
   final bool showPrice;
+  final bool disableOutOfStock;
 
-  const _ProductPickerContent({required this.onSelected, required this.showPrice});
+  const _ProductPickerContent({required this.onSelected, required this.showPrice, required this.disableOutOfStock});
 
   @override
   State<_ProductPickerContent> createState() => _ProductPickerContentState();
@@ -50,6 +52,7 @@ class _ProductPickerContentState extends State<_ProductPickerContent> {
   @override
   Widget build(BuildContext context) {
     final data = context.watch<PosDataProvider>();
+    final visibleProducts = data.filteredProducts;
 
     return Container(
       decoration: BoxDecoration(
@@ -109,7 +112,7 @@ class _ProductPickerContentState extends State<_ProductPickerContent> {
           ),
           const SizedBox(height: AppSpacing.field),
           Expanded(
-            child: data.filteredProducts.isEmpty
+            child: visibleProducts.isEmpty
                 ? const EmptyState(
                     icon: Icons.inventory_2_outlined,
                     title: 'No records found',
@@ -126,14 +129,15 @@ class _ProductPickerContentState extends State<_ProductPickerContent> {
                       // name, price, stock and pill always fit.
                       mainAxisExtent: 110 + MediaQuery.textScalerOf(context).scale(85),
                     ),
-                    itemCount: data.filteredProducts.length,
+                    itemCount: visibleProducts.length,
                     itemBuilder: (context, index) {
-                      final product = data.filteredProducts[index];
+                      final product = visibleProducts[index];
                       return ProductCard(
                         product: product,
                         showPrice: widget.showPrice,
-                        onTap: () {
+                        onTap: (widget.disableOutOfStock && product.outOfStock) ? null : () {
                           widget.onSelected(product);
+                          Navigator.of(context).pop();
                         },
                       );
                     },

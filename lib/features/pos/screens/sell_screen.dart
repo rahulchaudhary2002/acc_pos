@@ -303,7 +303,7 @@ class _SellScreenState extends State<SellScreen> {
                           title: 'No items added yet',
                           subtitle: 'Click the button below to add products',
                           action: ElevatedButton(
-                            onPressed: () => showProductPicker(context, onSelected: (p) {
+                            onPressed: () => showProductPicker(context, disableOutOfStock: true, onSelected: (p) {
                               cart.addProduct(p);
                               _announce('productAdded');
                             }),
@@ -339,7 +339,7 @@ class _SellScreenState extends State<SellScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
-                        onPressed: () => showProductPicker(context, onSelected: (p) {
+                        onPressed: () => showProductPicker(context, disableOutOfStock: true, onSelected: (p) {
                               cart.addProduct(p);
                               _announce('productAdded');
                             }),
