@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Persists the Sanctum bearer token and cached user/session bits across launches.
@@ -15,7 +16,24 @@ class TokenStorage {
   TokenStorage({FlutterSecureStorage? storage})
       : _storage = storage ?? const FlutterSecureStorage();
 
-  Future<String?> readToken() => _storage.read(key: _tokenKey);
+  /// Reads a key, treating undecryptable storage as absent. When the app is
+  /// reinstalled (or the Android Keystore key is otherwise lost), the old
+  /// encrypted prefs survive but can no longer be decrypted — secure_storage
+  /// then throws a PlatformException (BadPaddingException/BAD_DECRYPT) that
+  /// would otherwise kill bootstrap() and leave the app stuck on the splash
+  /// spinner. Wipe the orphaned data and report "no session" instead.
+  Future<String?> _read(String key) async {
+    try {
+      return await _storage.read(key: key);
+    } on PlatformException {
+      try {
+        await _storage.deleteAll();
+      } catch (_) {}
+      return null;
+    }
+  }
+
+  Future<String?> readToken() => _read(_tokenKey);
 
   Future<void> saveSession({
     required String token,
@@ -30,9 +48,9 @@ class TokenStorage {
   }
 
   Future<Map<String, String>?> readCachedUser() async {
-    final id = await _storage.read(key: _userIdKey);
-    final name = await _storage.read(key: _userNameKey);
-    final email = await _storage.read(key: _userEmailKey);
+    final id = await _read(_userIdKey);
+    final name = await _read(_userNameKey);
+    final email = await _read(_userEmailKey);
     if (id == null || name == null || email == null) return null;
     return {'id': id, 'name': name, 'email': email};
   }
@@ -50,9 +68,9 @@ class TokenStorage {
   }
 
   Future<Map<String, int?>> readSelection() async {
-    final companyId = await _storage.read(key: _companyIdKey);
-    final outletId = await _storage.read(key: _outletIdKey);
-    final locationId = await _storage.read(key: _locationIdKey);
+    final companyId = await _read(_companyIdKey);
+    final outletId = await _read(_outletIdKey);
+    final locationId = await _read(_locationIdKey);
     return {
       'companyId': companyId != null ? int.tryParse(companyId) : null,
       'outletId': outletId != null ? int.tryParse(outletId) : null,

@@ -35,6 +35,7 @@ class BuyScreen extends StatefulWidget {
 class _BuyScreenState extends State<BuyScreen> {
   String _mode = 'purchase'; // 'purchase' | 'return'
   Party? _selectedVendor;
+  DateTime _purchaseDate = DateTime.now();
   final _vendorNameController = TextEditingController();
   final _invoiceNumberController = TextEditingController();
   bool _isSubmitting = false;
@@ -78,6 +79,7 @@ class _BuyScreenState extends State<BuyScreen> {
         vendorId: _selectedVendor?.id,
         supplierName: _selectedVendor == null ? vendorName : null,
         invoiceNumber: _invoiceNumberController.text.trim(),
+        transactionDate: DateFormat('yyyy-MM-dd').format(_purchaseDate),
         items: cart.items,
       );
       if (!mounted) return;
@@ -102,9 +104,22 @@ class _BuyScreenState extends State<BuyScreen> {
     cart.clear();
     setState(() {
       _selectedVendor = null;
+      _purchaseDate = DateTime.now();
       _vendorNameController.clear();
       _invoiceNumberController.clear();
     });
+  }
+
+  Future<void> _pickPurchaseDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _purchaseDate,
+      // Backend rejects future dates (`before_or_equal:today`).
+      firstDate: DateTime(now.year - 2),
+      lastDate: now,
+    );
+    if (picked != null) setState(() => _purchaseDate = picked);
   }
 
   Future<void> _submitReturn() async {
@@ -225,9 +240,16 @@ class _BuyScreenState extends State<BuyScreen> {
               decoration: const InputDecoration(labelText: 'Invoice Number'),
             ),
             const SizedBox(height: AppSpacing.item),
-            InputDecorator(
-              decoration: const InputDecoration(labelText: 'Purchase Date'),
-              child: Text(DateFormat('MM/dd/yyyy').format(DateTime.now())),
+            InkWell(
+              onTap: _pickPurchaseDate,
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              child: InputDecorator(
+                decoration: const InputDecoration(
+                  labelText: 'Purchase Date',
+                  suffixIcon: Icon(Icons.calendar_today_outlined, size: 18),
+                ),
+                child: Text(DateFormat('MM/dd/yyyy').format(_purchaseDate)),
+              ),
             ),
             const SizedBox(height: AppSpacing.item),
             DropdownButtonFormField<Party>(
@@ -297,6 +319,7 @@ class _BuyScreenState extends State<BuyScreen> {
                               lineTotal: item.lineTotal,
                               onIncrement: () => cart.incrementQty(index),
                               onDecrement: () => cart.decrementQty(index),
+                              onQtyChanged: (v) => cart.updateQty(index, v),
                               onUnitCostChanged: (v) => cart.updateUnitCost(index, v),
                               onRemove: () {
                                 cart.removeAt(index);
@@ -443,6 +466,7 @@ class _BuyScreenState extends State<BuyScreen> {
                               lineTotal: item.lineTotal,
                               onIncrement: () => setState(() => item.qty += 1),
                               onDecrement: () => setState(() => item.qty = item.qty > 1 ? item.qty - 1 : 1),
+                              onQtyChanged: (v) => setState(() => item.qty = v),
                               onUnitCostChanged: (v) => setState(() => item.unitCost = v),
                               onRemove: () => setState(() => _returnItems.removeAt(index)),
                             );

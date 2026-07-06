@@ -325,6 +325,7 @@ class _SellScreenState extends State<SellScreen> {
                               lineTotal: item.lineTotal,
                               onIncrement: () => cart.incrementQty(index),
                               onDecrement: () => cart.decrementQty(index),
+                              onQtyChanged: (v) => cart.updateQty(index, v),
                               onRateChanged: (v) => cart.updateRate(index, v),
                               onRemove: () {
                                 cart.removeAt(index);
@@ -486,6 +487,7 @@ class _SellScreenState extends State<SellScreen> {
                               lineTotal: item.lineTotal,
                               onIncrement: () => setState(() => item.qty += 1),
                               onDecrement: () => setState(() => item.qty = item.qty > 1 ? item.qty - 1 : 1),
+                              onQtyChanged: (v) => setState(() => item.qty = v),
                               onRateChanged: (v) => setState(() => item.rate = v),
                               onRemove: () => setState(() => _returnItems.removeAt(index)),
                             );

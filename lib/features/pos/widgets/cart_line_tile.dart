@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
+import 'qty_stepper_field.dart';
 
 /// One cart row: name/category header + delete button, then a 3-column
-/// Qty(stepper) / Rate(input) / Line-total(readonly) row — matches the
-/// "Current Sale" cart item layout in `PosTerminal.jsx`.
+/// Qty(stepper + editable input) / Rate(input) / Line-total(readonly) row —
+/// matches the "Current Sale" cart item layout in `PosTerminal.jsx`.
 class CartLineTile extends StatelessWidget {
   final String name;
   final String category;
@@ -15,6 +16,7 @@ class CartLineTile extends StatelessWidget {
   final String rateLabel;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
+  final ValueChanged<double> onQtyChanged;
   final ValueChanged<double> onRateChanged;
   final VoidCallback onRemove;
 
@@ -28,6 +30,7 @@ class CartLineTile extends StatelessWidget {
     this.rateLabel = 'Rate',
     required this.onIncrement,
     required this.onDecrement,
+    required this.onQtyChanged,
     required this.onRateChanged,
     required this.onRemove,
   });
@@ -76,20 +79,11 @@ class CartLineTile extends StatelessWidget {
               Expanded(
                 child: _labeledColumn(
                   'Qty',
-                  Row(
-                    children: [
-                      _stepperButton(Icons.remove, onDecrement),
-                      Expanded(
-                        child: Container(
-                          height: 40,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(border: Border.all(color: AppColors.border)),
-                          child: Text(qty.toStringAsFixed(qty.truncateToDouble() == qty ? 0 : 2),
-                              style: const TextStyle(fontWeight: FontWeight.w600)),
-                        ),
-                      ),
-                      _stepperButton(Icons.add, onIncrement),
-                    ],
+                  QtyStepperField(
+                    qty: qty,
+                    onIncrement: onIncrement,
+                    onDecrement: onDecrement,
+                    onQtyChanged: onQtyChanged,
                   ),
                 ),
               ),
@@ -144,16 +138,4 @@ class CartLineTile extends StatelessWidget {
     );
   }
 
-  Widget _stepperButton(IconData icon, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width: 36,
-        height: 40,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(color: AppColors.surfaceTotals, border: Border.all(color: AppColors.border)),
-        child: Icon(icon, size: 16),
-      ),
-    );
-  }
 }

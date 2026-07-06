@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
+import 'qty_stepper_field.dart';
 
-/// Buy-cart row: qty stepper + unit cost input + line total, no tax column
-/// (matches `/pos/buy`'s request shape, which has no tax fields).
+/// Buy-cart row: qty stepper + editable qty input + unit cost input + line
+/// total, no tax column (matches `/pos/buy`'s request shape, which has no
+/// tax fields).
 class PurchaseCartLineTile extends StatelessWidget {
   final String name;
   final double qty;
@@ -12,6 +14,7 @@ class PurchaseCartLineTile extends StatelessWidget {
   final double lineTotal;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
+  final ValueChanged<double> onQtyChanged;
   final ValueChanged<double> onUnitCostChanged;
   final VoidCallback onRemove;
 
@@ -23,6 +26,7 @@ class PurchaseCartLineTile extends StatelessWidget {
     required this.lineTotal,
     required this.onIncrement,
     required this.onDecrement,
+    required this.onQtyChanged,
     required this.onUnitCostChanged,
     required this.onRemove,
   });
@@ -57,15 +61,13 @@ class PurchaseCartLineTile extends StatelessWidget {
           const SizedBox(height: AppSpacing.item),
           Row(
             children: [
-              _stepperButton(Icons.remove, onDecrement),
-              Container(
-                width: 44,
-                height: 40,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(border: Border.all(color: AppColors.border)),
-                child: Text(qty.toStringAsFixed(qty.truncateToDouble() == qty ? 0 : 2), style: const TextStyle(fontWeight: FontWeight.w600)),
+              QtyStepperField(
+                qty: qty,
+                fieldWidth: 52,
+                onIncrement: onIncrement,
+                onDecrement: onDecrement,
+                onQtyChanged: onQtyChanged,
               ),
-              _stepperButton(Icons.add, onIncrement),
               const SizedBox(width: AppSpacing.field),
               Expanded(
                 child: SizedBox(
@@ -98,16 +100,4 @@ class PurchaseCartLineTile extends StatelessWidget {
     );
   }
 
-  Widget _stepperButton(IconData icon, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width: 36,
-        height: 40,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(color: AppColors.surfaceTotals, border: Border.all(color: AppColors.border)),
-        child: Icon(icon, size: 16),
-      ),
-    );
-  }
 }

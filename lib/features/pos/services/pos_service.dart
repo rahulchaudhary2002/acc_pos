@@ -136,6 +136,7 @@ class PosService {
     int? vendorId,
     String? supplierName,
     String? invoiceNumber,
+    String? transactionDate,
     required List<PurchaseCartItem> items,
   }) async {
     final response = await _client.post('/pos/buy', data: {
@@ -145,6 +146,7 @@ class PosService {
       if (vendorId != null) 'vendor_id': vendorId,
       if (supplierName != null && supplierName.isNotEmpty) 'supplier_name': supplierName,
       if (invoiceNumber != null && invoiceNumber.isNotEmpty) 'invoice_number': invoiceNumber,
+      if (transactionDate != null) 'transaction_date': transactionDate,
       'items': items.map((e) => e.toBuyJson()).toList(),
     });
     return TransactionResult.fromBuyJson(response);
