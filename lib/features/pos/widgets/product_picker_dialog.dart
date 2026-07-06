@@ -117,11 +117,14 @@ class _ProductPickerContentState extends State<_ProductPickerContent> {
                   )
                 : GridView.builder(
                     padding: const EdgeInsets.all(AppSpacing.card),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       mainAxisSpacing: AppSpacing.item,
                       crossAxisSpacing: AppSpacing.item,
-                      childAspectRatio: 0.78,
+                      // Fixed chrome (padding, icon, gaps) + text rows that
+                      // grow with the user's system font scale, so the 2-line
+                      // name, price, stock and pill always fit.
+                      mainAxisExtent: 110 + MediaQuery.textScalerOf(context).scale(85),
                     ),
                     itemCount: data.filteredProducts.length,
                     itemBuilder: (context, index) {
