@@ -232,12 +232,16 @@ class PosService {
     int? companyId,
     int? outletId,
     int limit = 10,
+    String? fromDate,
+    String? toDate,
   }) async {
     final response = await _client.get('/pos/reports/top-products', query: {
       'period': period,
       'limit': limit,
       if (companyId != null) 'company_id': companyId,
       if (outletId != null) 'outlet_id': outletId,
+      if (fromDate != null) 'from_date': fromDate,
+      if (toDate != null) 'to_date': toDate,
     });
     return (response['data'] as List).map((e) => TopProduct.fromJson(e as Map<String, dynamic>)).toList();
   }
@@ -246,56 +250,70 @@ class PosService {
     required String period,
     int? companyId,
     int? outletId,
+    String? fromDate,
+    String? toDate,
   }) async {
     final response = await _client.get('/pos/reports/payment-modes', query: {
       'period': period,
       if (companyId != null) 'company_id': companyId,
       if (outletId != null) 'outlet_id': outletId,
+      if (fromDate != null) 'from_date': fromDate,
+      if (toDate != null) 'to_date': toDate,
     });
     return (response['data'] as List).map((e) => PaymentModeStat.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  Future<List<BreakdownRow>> fetchStoreWiseReport({String? period, int? companyId, int? outletId}) async {
+  Future<List<BreakdownRow>> fetchStoreWiseReport({String? period, int? companyId, int? outletId, String? fromDate, String? toDate}) async {
     final response = await _client.get('/pos/reports/store-wise', query: {
       if (period != null) 'period': period,
       if (companyId != null) 'company_id': companyId,
       if (outletId != null) 'outlet_id': outletId,
+      if (fromDate != null) 'from_date': fromDate,
+      if (toDate != null) 'to_date': toDate,
     });
     return (response['data'] as List).map((e) => BreakdownRow.fromJson(e)).toList();
   }
 
-  Future<List<BreakdownRow>> fetchVendorWiseReport({String? period, int? companyId}) async {
+  Future<List<BreakdownRow>> fetchVendorWiseReport({String? period, int? companyId, String? fromDate, String? toDate}) async {
     final response = await _client.get('/pos/reports/vendor-wise', query: {
       if (period != null) 'period': period,
       if (companyId != null) 'company_id': companyId,
+      if (fromDate != null) 'from_date': fromDate,
+      if (toDate != null) 'to_date': toDate,
     });
     return (response['data'] as List).map((e) => BreakdownRow.fromJson(e)).toList();
   }
 
-  Future<List<BreakdownRow>> fetchCustomerWiseReport({String? period, int? companyId, int? outletId}) async {
+  Future<List<BreakdownRow>> fetchCustomerWiseReport({String? period, int? companyId, int? outletId, String? fromDate, String? toDate}) async {
     final response = await _client.get('/pos/reports/customer-wise', query: {
       if (period != null) 'period': period,
       if (companyId != null) 'company_id': companyId,
       if (outletId != null) 'outlet_id': outletId,
+      if (fromDate != null) 'from_date': fromDate,
+      if (toDate != null) 'to_date': toDate,
     });
     return (response['data'] as List).map((e) => BreakdownRow.fromJson(e)).toList();
   }
 
-  Future<List<TransactionSummary>> fetchSalesList({String? period, int? companyId, int? outletId, String? search}) async {
+  Future<List<TransactionSummary>> fetchSalesList({String? period, int? companyId, int? outletId, String? search, String? fromDate, String? toDate}) async {
     final response = await _client.get('/pos/sales-list', query: {
       if (period != null) 'period': period,
       if (companyId != null) 'company_id': companyId,
       if (outletId != null) 'outlet_id': outletId,
       if (search != null && search.isNotEmpty) 'search': search,
+      if (fromDate != null) 'from_date': fromDate,
+      if (toDate != null) 'to_date': toDate,
     });
     return (response['data'] as List).map((e) => TransactionSummary.fromSaleJson(e)).toList();
   }
 
-  Future<List<TransactionSummary>> fetchPurchasesList({String? period, int? companyId, int? outletId, String? search}) async {
+  Future<List<TransactionSummary>> fetchPurchasesList({String? period, int? companyId, int? outletId, String? search, String? fromDate, String? toDate}) async {
     final response = await _client.get('/pos/purchases-list', query: {
       if (period != null) 'period': period,
       if (companyId != null) 'company_id': companyId,
       if (outletId != null) 'outlet_id': outletId,
+      if (fromDate != null) 'from_date': fromDate,
+      if (toDate != null) 'to_date': toDate,
       if (search != null && search.isNotEmpty) 'search': search,
     });
     return (response['data'] as List).map((e) => TransactionSummary.fromPurchaseJson(e)).toList();

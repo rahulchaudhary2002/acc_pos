@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/network/api_exception.dart';
@@ -28,6 +29,7 @@ const _periods = [
   ('this_month', 'This Month'),
   ('last_month', 'Last Month'),
   ('lifetime', 'Lifetime'),
+  ('custom', 'Custom Range'),
 ];
 
 const _tabs = ['Overview', 'Stores', 'Vendors', 'Customers', 'More'];
@@ -44,6 +46,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
   late final TabController _tabController;
 
   String _period = 'this_month';
+  DateTimeRange? _customRange;
   bool _isLoading = false;
   String? _error;
   ReportMetrics? _metrics;
@@ -89,6 +92,25 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
     }
   }
 
+  String? get _fromDate => _period == 'custom' && _customRange != null ? DateFormat('yyyy-MM-dd').format(_customRange!.start) : null;
+  String? get _toDate => _period == 'custom' && _customRange != null ? DateFormat('yyyy-MM-dd').format(_customRange!.end) : null;
+
+  Future<void> _pickCustomRange() async {
+    final now = DateTime.now();
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(now.year - 5),
+      lastDate: now,
+      initialDateRange: _customRange ?? DateTimeRange(start: now.subtract(const Duration(days: 6)), end: now),
+    );
+    if (picked == null) return;
+    setState(() {
+      _customRange = picked;
+      _period = 'custom';
+    });
+    _load();
+  }
+
   Future<void> _load() async {
     final config = context.read<PosConfigProvider>();
     if (!config.isReady) return;
@@ -103,11 +125,15 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
           period: _period,
           companyId: config.selectedCompanyId,
           outletId: config.selectedOutletId,
+          fromDate: _fromDate,
+          toDate: _toDate,
         ),
         service.fetchReportTrend(
           period: _period,
           companyId: config.selectedCompanyId,
           outletId: config.selectedOutletId,
+          fromDate: _fromDate,
+          toDate: _toDate,
         ),
       ]);
       if (!mounted) return;
@@ -140,10 +166,10 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
     try {
       final service = context.read<PosService>();
       final results = await Future.wait([
-        service.fetchTopProducts(period: _period, companyId: config.selectedCompanyId, outletId: config.selectedOutletId),
-        service.fetchPaymentModeBreakdown(period: _period, companyId: config.selectedCompanyId, outletId: config.selectedOutletId),
-        service.fetchSalesList(period: _period, companyId: config.selectedCompanyId, outletId: config.selectedOutletId),
-        service.fetchPurchasesList(period: _period, companyId: config.selectedCompanyId, outletId: config.selectedOutletId),
+        service.fetchTopProducts(period: _period, companyId: config.selectedCompanyId, outletId: config.selectedOutletId, fromDate: _fromDate, toDate: _toDate),
+        service.fetchPaymentModeBreakdown(period: _period, companyId: config.selectedCompanyId, outletId: config.selectedOutletId, fromDate: _fromDate, toDate: _toDate),
+        service.fetchSalesList(period: _period, companyId: config.selectedCompanyId, outletId: config.selectedOutletId, fromDate: _fromDate, toDate: _toDate),
+        service.fetchPurchasesList(period: _period, companyId: config.selectedCompanyId, outletId: config.selectedOutletId, fromDate: _fromDate, toDate: _toDate),
       ]);
       if (!mounted) return;
       setState(() {
@@ -178,10 +204,12 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
             period: _period,
             companyId: config.selectedCompanyId,
             outletId: config.selectedOutletId,
+            fromDate: _fromDate,
+            toDate: _toDate,
           );
           break;
         case 2:
-          rows = await service.fetchVendorWiseReport(period: _period, companyId: config.selectedCompanyId);
+          rows = await service.fetchVendorWiseReport(period: _period, companyId: config.selectedCompanyId, fromDate: _fromDate, toDate: _toDate);
           break;
         case 3:
         default:
@@ -189,6 +217,8 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
             period: _period,
             companyId: config.selectedCompanyId,
             outletId: config.selectedOutletId,
+            fromDate: _fromDate,
+            toDate: _toDate,
           );
       }
       if (!mounted) return;
@@ -201,7 +231,13 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
     }
   }
 
-  String get _periodLabel => _periods.firstWhere((p) => p.$1 == _period).$2;
+  String get _periodLabel {
+    if (_period == 'custom' && _customRange != null) {
+      final fmt = DateFormat('d MMM');
+      return '${fmt.format(_customRange!.start)} – ${fmt.format(_customRange!.end)}';
+    }
+    return _periods.firstWhere((p) => p.$1 == _period).$2;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -374,14 +410,33 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
                 isExpanded: true,
                 value: _period,
                 items: _periods.map((p) => DropdownMenuItem(value: p.$1, child: Text(p.$2))).toList(),
+                selectedItemBuilder: (context) {
+                  return _periods.map((p) {
+                    final label = p.$1 == 'custom' && _customRange != null ? _periodLabel : p.$2;
+                    return Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(label, overflow: TextOverflow.ellipsis),
+                    );
+                  }).toList();
+                },
                 onChanged: (value) {
                   if (value == null) return;
+                  if (value == 'custom') {
+                    _pickCustomRange();
+                    return;
+                  }
                   setState(() => _period = value);
                   _load();
                 },
               ),
             ),
           ),
+          if (_period == 'custom')
+            IconButton(
+              icon: const Icon(Icons.edit_calendar, size: 20, color: AppColors.info),
+              tooltip: 'Change date range',
+              onPressed: _pickCustomRange,
+            ),
         ],
       ),
     );
