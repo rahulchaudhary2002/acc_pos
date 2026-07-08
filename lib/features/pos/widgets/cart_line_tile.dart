@@ -81,6 +81,7 @@ class CartLineTile extends StatelessWidget {
                   'Qty',
                   QtyStepperField(
                     qty: qty,
+                    fieldWidth: 44,
                     onIncrement: onIncrement,
                     onDecrement: onDecrement,
                     onQtyChanged: onQtyChanged,

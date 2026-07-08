@@ -63,7 +63,7 @@ class PurchaseCartLineTile extends StatelessWidget {
             children: [
               QtyStepperField(
                 qty: qty,
-                fieldWidth: 52,
+                fieldWidth: 44,
                 onIncrement: onIncrement,
                 onDecrement: onDecrement,
                 onQtyChanged: onQtyChanged,
@@ -82,16 +82,25 @@ class PurchaseCartLineTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.field),
-              Container(
-                height: 40,
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.field),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceLight,
-                  border: Border.all(color: AppColors.border),
-                  borderRadius: BorderRadius.circular(AppRadius.input),
+              Expanded(
+                child: Container(
+                  height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceLight,
+                    border: Border.all(color: AppColors.border),
+                    borderRadius: BorderRadius.circular(AppRadius.input),
+                  ),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'Rs ${lineTotal.toStringAsFixed(2)}',
+                      maxLines: 1,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                  ),
                 ),
-                child: Text('Rs ${lineTotal.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
               ),
             ],
           ),

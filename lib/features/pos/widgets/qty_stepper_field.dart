@@ -90,7 +90,7 @@ class _QtyStepperFieldState extends State<QtyStepperField> {
       ),
     );
 
-    return Row(
+    final stepper = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         _stepperButton(Icons.remove, widget.onDecrement),
@@ -98,13 +98,16 @@ class _QtyStepperFieldState extends State<QtyStepperField> {
         _stepperButton(Icons.add, widget.onIncrement),
       ],
     );
+
+    // Guards against overflow on narrow screens when fieldWidth is fixed.
+    return widget.fieldWidth == null ? stepper : FittedBox(fit: BoxFit.scaleDown, child: stepper);
   }
 
   Widget _stepperButton(IconData icon, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
       child: Container(
-        width: 36,
+        width: 28,
         height: 40,
         alignment: Alignment.center,
         decoration: BoxDecoration(color: AppColors.surfaceTotals, border: Border.all(color: AppColors.border)),

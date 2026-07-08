@@ -35,7 +35,8 @@
       "Bash(echo \"started with pid $!\")",
       "Bash(break)",
       "Bash(adb pull *)",
-      "Bash(echo \"started pid $!\")"
+      "Bash(echo \"started pid $!\")",
+      "Bash(flutter run *)"
     ]
   }
 }
