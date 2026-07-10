@@ -37,6 +37,9 @@
       "Bash(adb pull *)",
       "Bash(echo \"started pid $!\")",
       "Bash(flutter run *)"
+    ],
+    "additionalDirectories": [
+      "/home/rahul/projects/oil-corp-accounting/app/Http/Controllers/Api"
     ]
   }
 }

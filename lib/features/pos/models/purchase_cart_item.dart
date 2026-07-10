@@ -16,6 +16,8 @@ class PurchaseCartItem {
         'product_id': product.id,
         'qty': qty,
         'unit_cost': unitCost,
+        'tax_code_id': product.taxCodeId,
+        'tax_rate': product.taxRate,
       };
 
   /// Purchase-return items additionally carry tax fields.

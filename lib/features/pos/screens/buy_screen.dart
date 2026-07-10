@@ -9,6 +9,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_banner.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../models/company.dart';
 import '../models/party.dart';
 import '../models/purchase_cart_item.dart';
 import '../providers/buy_cart_provider.dart';
@@ -18,10 +20,10 @@ import '../providers/voice_announcer.dart';
 import '../services/pos_service.dart';
 import '../widgets/action_row_button.dart';
 import '../widgets/cart_panel_header.dart';
-import '../widgets/grn_confirmation_dialog.dart';
 import '../widgets/pos_screen_header.dart';
 import '../widgets/product_picker_dialog.dart';
 import '../widgets/purchase_cart_line_tile.dart';
+import '../widgets/purchase_invoice_preview_dialog.dart';
 
 /// Buy tab: New Purchase plus an inline Purchase Return mode — mirrors
 /// `PosTerminal.jsx`'s `buyMode: "purchase" | "return"` toggle.
@@ -83,6 +85,15 @@ class _BuyScreenState extends State<BuyScreen> {
         items: cart.items,
       );
       if (!mounted) return;
+      final company = config.companies.firstWhere((c) => c.id == config.selectedCompanyId, orElse: () => Company(id: 0, name: 'Company'));
+      final matchingOutlets = config.outlets.where((o) => o.id == config.selectedOutletId);
+      final outlet = matchingOutlets.isEmpty ? null : matchingOutlets.first;
+      final itemsSnapshot = List.of(cart.items);
+      final vendorNameSnapshot = _selectedVendor?.name ?? vendorName;
+      final vendorVatSnapshot = _selectedVendor?.panVatNo;
+      final vendorInvoiceNoSnapshot = _invoiceNumberController.text.trim();
+      final billDateSnapshot = _purchaseDate;
+      final preparedBy = context.read<AuthProvider>().user?.name;
       _clearForm(cart);
       _announce('purchaseCompleted');
       // Mirrors PosTerminal.jsx: refetch products after a purchase so stock
@@ -92,7 +103,18 @@ class _BuyScreenState extends State<BuyScreen> {
             outletId: config.selectedOutletId,
             locationId: config.selectedLocationId,
           ));
-      await showGrnConfirmation(context, result);
+      await showPurchaseInvoicePreview(
+        context,
+        result: result,
+        items: itemsSnapshot,
+        company: company,
+        outlet: outlet,
+        vendorName: vendorNameSnapshot,
+        vendorVatNumber: vendorVatSnapshot,
+        vendorInvoiceNo: vendorInvoiceNoSnapshot,
+        billDate: billDateSnapshot,
+        preparedBy: preparedBy,
+      );
     } on ApiException catch (e) {
       setState(() => _errorMessage = e.message);
     } finally {

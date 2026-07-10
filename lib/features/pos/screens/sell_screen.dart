@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_banner.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../models/company.dart';
 import '../models/sale_cart_item.dart';
 import '../providers/cart_provider.dart';
@@ -111,10 +112,16 @@ class _SellScreenState extends State<SellScreen> {
       );
 
       if (!mounted) return;
-      final companyName = config.companies.firstWhere((c) => c.id == config.selectedCompanyId, orElse: () => Company(id: 0, name: 'Company')).name;
+      final company = config.companies.firstWhere((c) => c.id == config.selectedCompanyId, orElse: () => Company(id: 0, name: 'Company'));
+      final matchingOutlets = config.outlets.where((o) => o.id == config.selectedOutletId);
+      final outlet = matchingOutlets.isEmpty ? null : matchingOutlets.first;
       final itemsSnapshot = List.of(cart.items);
       final paymentMode = cart.paymentMode;
+      final paymentReferenceSnapshot = cart.paymentReference;
+      final paymentNoteSnapshot = cart.paymentMode == 'cash' ? cart.remarks : cart.paymentNote;
       final customerNameSnapshot = _selectedCustomer?.name ?? (walkInName.isEmpty ? null : walkInName);
+      final customerVatSnapshot = _selectedCustomer?.panVatNo ?? (vatNumber.isEmpty ? null : vatNumber);
+      final preparedBy = context.read<AuthProvider>().user?.name;
       cart.clear();
       setState(_resetCustomerForm);
       _announce('saleCompleted');
@@ -131,9 +138,14 @@ class _SellScreenState extends State<SellScreen> {
         context,
         result: result,
         items: itemsSnapshot,
-        companyName: companyName,
+        company: company,
+        outlet: outlet,
         customerName: customerNameSnapshot,
+        customerVatNumber: customerVatSnapshot,
         paymentMode: paymentMode,
+        paymentReference: paymentReferenceSnapshot,
+        paymentNote: paymentNoteSnapshot,
+        preparedBy: preparedBy,
       );
     } on ApiException catch (e) {
       setState(() => _errorMessage = e.message);

@@ -4,29 +4,31 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../models/company.dart';
 import '../models/outlet.dart';
-import '../models/sale_cart_item.dart';
+import '../models/purchase_cart_item.dart';
 import '../models/transaction_result.dart';
 import '../utils/invoice_format_utils.dart';
 import 'invoice_document.dart';
 
-/// Post-sale receipt — mirrors the "TAX INVOICE" preview modal in
-/// `PosTerminal.jsx`: company header, metadata grid, line items table, VAT
-/// summary, amount-in-words, signature block, and actions.
-Future<void> showInvoicePreview(
+/// Post-purchase receipt — mirrors the purchase "TAX INVOICE" preview modal
+/// in `PosTerminal.jsx` (same layout as the sale receipt, but with vendor
+/// fields, no Print button, and "Supplier" on the signature line).
+Future<void> showPurchaseInvoicePreview(
   BuildContext context, {
   required TransactionResult result,
-  required List<SaleCartItem> items,
+  required List<PurchaseCartItem> items,
   required Company company,
   Outlet? outlet,
-  String? customerName,
-  String? customerVatNumber,
-  required String paymentMode,
-  String? paymentReference,
-  String? paymentNote,
+  required String vendorName,
+  String? vendorVatNumber,
+  String? vendorInvoiceNo,
+  required DateTime billDate,
   String? preparedBy,
 }) {
   final now = DateTime.now();
-  final taxSummary = computeTaxSummary(items.map((i) => (i.taxRate, i.lineTotal)));
+  final itemsSubtotal = items.fold(0.0, (sum, i) => sum + i.lineTotal);
+  final subtotal = result.subtotal ?? itemsSubtotal;
+  final tax = result.taxTotal ?? 0;
+  final taxSummary = computeTaxSummary(items.map((i) => (i.product.taxRate, i.lineTotal)));
   final counterNo = outlet?.code ?? outlet?.id.toString() ?? '';
 
   return showTaxInvoiceDialog(
@@ -37,44 +39,34 @@ Future<void> showInvoicePreview(
       companyPhone: company.phone,
       companyVatNo: company.panVatNo,
       metaRows: [
-        [('Invoice No', result.documentNo), ('Ref. No.', result.documentNo)],
-        [('Invoice Date', _formatDate(now)), ('Counter No.', counterNo)],
-        [('Customer Name', customerName ?? 'Walk-in Customer'), ('Payment Mode', paymentMode == 'cash' ? 'Cash' : 'Credit')],
-        [('Customer Pan', customerVatNumber ?? ''), null],
-        if ((paymentReference ?? '').isNotEmpty || (paymentNote ?? '').isNotEmpty)
-          [
-            (paymentReference ?? '').isNotEmpty ? ('Payment Ref.', paymentReference!) : null,
-            (paymentNote ?? '').isNotEmpty ? ('Payment Note', paymentNote!) : null,
-          ],
+        [
+          ('Bill No', result.billNo ?? result.documentNo),
+          ('Vendor Inv. No.', (vendorInvoiceNo ?? '').isNotEmpty ? vendorInvoiceNo! : '-'),
+        ],
+        [('Bill Date', _formatDate(billDate)), ('MRN No.', result.documentNo)],
+        [('Vendor Name', vendorName), ('Counter No.', counterNo)],
+        if ((vendorVatNumber ?? '').isNotEmpty) [('Vendor Pan', vendorVatNumber!), null],
       ],
       items: items
           .map((i) => InvoiceLineData(
                 hsCode: i.product.hsCode ?? '',
                 description: i.product.name,
                 qty: i.qty,
-                rate: i.rate,
+                rate: i.unitCost,
                 total: i.lineTotal,
-                taxRate: i.taxRate,
+                taxRate: i.product.taxRate,
               ))
           .toList(),
       printedAt: now,
       taxable: taxSummary.taxable,
       nonTaxable: taxSummary.nonTaxable,
-      subtotal: result.subtotal ?? 0,
+      subtotal: subtotal,
       vatRateLabel: taxSummary.vatRateLabel,
-      tax: result.taxTotal ?? 0,
-      total: result.total,
+      tax: tax,
+      total: subtotal + tax,
       preparedBy: preparedBy ?? '',
-      signatureRightLabel: 'Customer',
+      signatureRightLabel: 'Supplier',
       actions: [
-        ElevatedButton.icon(
-          onPressed: () {},
-          style: AppButtonStyles.filled(AppColors.info).copyWith(
-            padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
-          ),
-          icon: const Icon(Icons.print, size: 18),
-          label: const Text('Print'),
-        ),
         ElevatedButton.icon(
           onPressed: () {},
           style: AppButtonStyles.filled(AppColors.share).copyWith(

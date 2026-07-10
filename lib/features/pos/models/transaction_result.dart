@@ -9,6 +9,7 @@ class TransactionResult {
   final double? subtotal;
   final double? taxTotal;
   final double? delivery;
+  final String? billNo;
   final String status;
   final String message;
 
@@ -19,6 +20,7 @@ class TransactionResult {
     this.subtotal,
     this.taxTotal,
     this.delivery,
+    this.billNo,
     required this.status,
     required this.message,
   });
@@ -43,6 +45,9 @@ class TransactionResult {
       documentNo: data['grn_no'] as String,
       documentId: asInt(data['grn_id']),
       total: (data['net_total'] as num).toDouble(),
+      subtotal: (data['subtotal'] as num?)?.toDouble(),
+      taxTotal: (data['tax_total'] as num?)?.toDouble(),
+      billNo: data['bill_no'] as String?,
       status: data['status'] as String,
       message: json['message'] as String? ?? '',
     );
