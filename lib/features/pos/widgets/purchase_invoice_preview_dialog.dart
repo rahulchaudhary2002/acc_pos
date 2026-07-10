@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:printing/printing.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
@@ -7,6 +10,7 @@ import '../models/outlet.dart';
 import '../models/purchase_cart_item.dart';
 import '../models/transaction_result.dart';
 import '../utils/invoice_format_utils.dart';
+import '../utils/invoice_pdf.dart';
 import 'invoice_document.dart';
 
 /// Post-purchase receipt — mirrors the purchase "TAX INVOICE" preview modal
@@ -31,6 +35,44 @@ Future<void> showPurchaseInvoicePreview(
   final taxSummary = computeTaxSummary(items.map((i) => (i.product.taxRate, i.lineTotal)));
   final counterNo = outlet?.code ?? outlet?.id.toString() ?? '';
 
+  final metaRows = [
+    [
+      ('Bill No', result.billNo ?? result.documentNo),
+      ('Vendor Inv. No.', (vendorInvoiceNo ?? '').isNotEmpty ? vendorInvoiceNo! : '-'),
+    ],
+    [('Bill Date', _formatDate(billDate)), ('MRN No.', result.documentNo)],
+    [('Vendor Name', vendorName), ('Counter No.', counterNo)],
+    if ((vendorVatNumber ?? '').isNotEmpty) [('Vendor Pan', vendorVatNumber!), null],
+  ];
+  final invoiceLines = items
+      .map((i) => InvoiceLineData(
+            hsCode: i.product.hsCode ?? '',
+            description: i.product.name,
+            qty: i.qty,
+            rate: i.unitCost,
+            total: i.lineTotal,
+            taxRate: i.product.taxRate,
+          ))
+      .toList();
+
+  Future<Uint8List> buildPdf() => buildInvoicePdfBytes(
+        companyName: company.name,
+        companyAddress: company.address ?? outlet?.address,
+        companyPhone: company.phone,
+        companyVatNo: company.panVatNo,
+        metaRows: metaRows,
+        items: invoiceLines,
+        printedAt: now,
+        taxable: taxSummary.taxable,
+        nonTaxable: taxSummary.nonTaxable,
+        subtotal: subtotal,
+        vatRateLabel: taxSummary.vatRateLabel,
+        tax: tax,
+        total: subtotal + tax,
+        preparedBy: preparedBy ?? '',
+        signatureRightLabel: 'Supplier',
+      );
+
   return showTaxInvoiceDialog(
     context,
     document: TaxInvoiceDocument(
@@ -38,25 +80,8 @@ Future<void> showPurchaseInvoicePreview(
       companyAddress: company.address ?? outlet?.address,
       companyPhone: company.phone,
       companyVatNo: company.panVatNo,
-      metaRows: [
-        [
-          ('Bill No', result.billNo ?? result.documentNo),
-          ('Vendor Inv. No.', (vendorInvoiceNo ?? '').isNotEmpty ? vendorInvoiceNo! : '-'),
-        ],
-        [('Bill Date', _formatDate(billDate)), ('MRN No.', result.documentNo)],
-        [('Vendor Name', vendorName), ('Counter No.', counterNo)],
-        if ((vendorVatNumber ?? '').isNotEmpty) [('Vendor Pan', vendorVatNumber!), null],
-      ],
-      items: items
-          .map((i) => InvoiceLineData(
-                hsCode: i.product.hsCode ?? '',
-                description: i.product.name,
-                qty: i.qty,
-                rate: i.unitCost,
-                total: i.lineTotal,
-                taxRate: i.product.taxRate,
-              ))
-          .toList(),
+      metaRows: metaRows,
+      items: invoiceLines,
       printedAt: now,
       taxable: taxSummary.taxable,
       nonTaxable: taxSummary.nonTaxable,
@@ -68,7 +93,7 @@ Future<void> showPurchaseInvoicePreview(
       signatureRightLabel: 'Supplier',
       actions: [
         ElevatedButton.icon(
-          onPressed: () {},
+          onPressed: () async => Printing.sharePdf(bytes: await buildPdf(), filename: 'Purchase-${result.billNo ?? result.documentNo}.pdf'),
           style: AppButtonStyles.filled(AppColors.share).copyWith(
             padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
           ),
