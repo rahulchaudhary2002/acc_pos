@@ -81,19 +81,25 @@ Future<void> showInvoicePreview(
                   children: [
                     ElevatedButton.icon(
                       onPressed: () {},
-                      style: AppButtonStyles.filled(AppColors.info),
+                      style: AppButtonStyles.filled(AppColors.info).copyWith(
+                        padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
+                      ),
                       icon: const Icon(Icons.print, size: 18),
                       label: const Text('Print'),
                     ),
                     ElevatedButton.icon(
                       onPressed: () {},
-                      style: AppButtonStyles.filled(AppColors.share),
+                      style: AppButtonStyles.filled(AppColors.share).copyWith(
+                        padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
+                      ),
                       icon: const Icon(Icons.share, size: 18),
                       label: const Text('Share'),
                     ),
                     ElevatedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      style: AppButtonStyles.filled(AppColors.textFaint),
+                      style: AppButtonStyles.filled(AppColors.textFaint).copyWith(
+                        padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
+                      ),
                       child: const Text('Close'),
                     ),
                   ],
