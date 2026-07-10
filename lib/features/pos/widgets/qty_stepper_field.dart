@@ -71,9 +71,9 @@ class _QtyStepperFieldState extends State<QtyStepperField> {
         focusNode: _focusNode,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         textAlign: TextAlign.center,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
         decoration: const InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 4),
+          contentPadding: EdgeInsets.zero,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.zero,
             borderSide: BorderSide(color: AppColors.border),
@@ -107,11 +107,11 @@ class _QtyStepperFieldState extends State<QtyStepperField> {
     return InkWell(
       onTap: onTap,
       child: Container(
-        width: 28,
+        width: 22,
         height: 40,
         alignment: Alignment.center,
         decoration: BoxDecoration(color: AppColors.surfaceTotals, border: Border.all(color: AppColors.border)),
-        child: Icon(icon, size: 16),
+        child: Icon(icon, size: 14),
       ),
     );
   }

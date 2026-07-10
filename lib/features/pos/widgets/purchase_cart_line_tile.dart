@@ -63,7 +63,7 @@ class PurchaseCartLineTile extends StatelessWidget {
             children: [
               QtyStepperField(
                 qty: qty,
-                fieldWidth: 44,
+                fieldWidth: 56,
                 onIncrement: onIncrement,
                 onDecrement: onDecrement,
                 onQtyChanged: onQtyChanged,
@@ -95,7 +95,7 @@ class PurchaseCartLineTile extends StatelessWidget {
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
-                      'Rs ${lineTotal.toStringAsFixed(2)}',
+                      lineTotal.toStringAsFixed(2),
                       maxLines: 1,
                       style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                     ),
