@@ -5,7 +5,6 @@ import 'package:printing/printing.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../l10n/app_localizations.dart';
 import '../models/company.dart';
 import '../models/outlet.dart';
 import '../models/sale_cart_item.dart';
@@ -33,20 +32,19 @@ Future<void> showInvoicePreview(
   final now = DateTime.now();
   final taxSummary = computeTaxSummary(items.map((i) => (i.taxRate, i.lineTotal)));
   final counterNo = outlet?.code ?? outlet?.id.toString() ?? '';
-  final l10n = AppLocalizations.of(context)!;
 
   final metaRows = [
-    [(l10n.invoicePreviewInvoiceNoLabel, result.documentNo), (l10n.invoicePreviewRefNoLabel, result.documentNo)],
-    [(l10n.invoicePreviewInvoiceDateLabel, _formatDate(now)), (l10n.invoicePreviewCounterNoLabel, counterNo)],
+    [('Invoice No', result.documentNo), ('Ref. No.', result.documentNo)],
+    [('Invoice Date', _formatDate(now)), ('Counter No.', counterNo)],
     [
-      (l10n.invoicePreviewCustomerNameLabel, customerName ?? l10n.invoicePreviewWalkInCustomer),
-      (l10n.invoicePreviewPaymentModeLabel, paymentMode == 'cash' ? l10n.invoicePreviewCashLabel : l10n.invoicePreviewCreditLabel),
+      ('Customer Name', customerName ?? 'Walk-in Customer'),
+      ('Payment Mode', paymentMode == 'cash' ? 'Cash' : 'Credit'),
     ],
-    [(l10n.invoicePreviewCustomerPanLabel, customerVatNumber ?? ''), null],
+    [('Customer Pan', customerVatNumber ?? ''), null],
     if ((paymentReference ?? '').isNotEmpty || (paymentNote ?? '').isNotEmpty)
       [
-        (paymentReference ?? '').isNotEmpty ? (l10n.invoicePreviewPaymentRefLabel, paymentReference!) : null,
-        (paymentNote ?? '').isNotEmpty ? (l10n.invoicePreviewPaymentNoteLabel, paymentNote!) : null,
+        (paymentReference ?? '').isNotEmpty ? ('Payment Ref.', paymentReference!) : null,
+        (paymentNote ?? '').isNotEmpty ? ('Payment Note', paymentNote!) : null,
       ],
   ];
   final invoiceLines = items
@@ -75,28 +73,28 @@ Future<void> showInvoicePreview(
         tax: result.taxTotal ?? 0,
         total: result.total,
         preparedBy: preparedBy ?? '',
-        signatureRightLabel: l10n.invoicePreviewSignatureCustomerLabel,
-        labels: PosInvoiceLabels(
-          phone: l10n.posInvoicePhoneLabel,
-          vat: l10n.posInvoiceVatLabel,
-          srHeader: l10n.posInvoiceSrHeader,
-          hsCodeHeader: l10n.posInvoiceHsCodeHeader,
-          descriptionHeader: l10n.posInvoiceDescriptionHeader,
-          qtyHeader: l10n.posInvoiceQtyHeader,
-          rateHeader: l10n.posInvoiceRateHeader,
-          totalAmtHeader: l10n.posInvoiceTotalAmtHeader,
-          printDateTime: l10n.posInvoicePrintDateTimeLabel,
-          nepaliDate: l10n.posInvoiceNepaliDateLabel,
-          original: l10n.posInvoiceOriginalLabel,
-          taxable: l10n.posInvoiceTaxableLabel,
-          nonTaxable: l10n.posInvoiceNonTaxableLabel,
-          subTotal: l10n.posInvoiceSubTotalLabel,
-          discount: l10n.posInvoiceDiscountLabel,
-          vatAmount: l10n.posInvoiceVatAmountLabel,
-          vatAmountWithRate: l10n.posInvoiceVatAmountWithRateLabel,
-          netTotal: l10n.posInvoiceNetTotalLabel,
-          preparedByFallback: l10n.posInvoicePreparedByFallback,
-          prepareBy: l10n.posInvoicePrepareByLabel,
+        signatureRightLabel: 'Customer',
+        labels: const PosInvoiceLabels(
+          phone: _englishPhoneLabel,
+          vat: _englishVatLabel,
+          srHeader: 'Sr.',
+          hsCodeHeader: 'H.S. Code',
+          descriptionHeader: 'Description',
+          qtyHeader: 'Qty.',
+          rateHeader: 'Rate',
+          totalAmtHeader: 'Total Amt.',
+          printDateTime: 'Print Date/Time :',
+          nepaliDate: 'Nepali Date :',
+          original: 'Original',
+          taxable: 'Taxable :',
+          nonTaxable: 'Non Taxable :',
+          subTotal: 'Sub Total :',
+          discount: 'Discount :',
+          vatAmount: 'VAT Amount :',
+          vatAmountWithRate: _englishVatAmountWithRate,
+          netTotal: 'Net Total :',
+          preparedByFallback: 'Prepared By',
+          prepareBy: 'Prepare By',
         ),
       );
 
@@ -117,7 +115,7 @@ Future<void> showInvoicePreview(
       tax: result.taxTotal ?? 0,
       total: result.total,
       preparedBy: preparedBy ?? '',
-      signatureRightLabel: l10n.invoicePreviewSignatureCustomerLabel,
+      signatureRightLabel: 'Customer',
       actions: [
         ElevatedButton.icon(
           onPressed: () async => Printing.layoutPdf(onLayout: (_) => buildPdf(), name: 'Invoice-${result.documentNo}'),
@@ -125,7 +123,7 @@ Future<void> showInvoicePreview(
             padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
           ),
           icon: const Icon(Icons.print, size: 18),
-          label: Text(l10n.invoicePreviewPrintButton),
+          label: const Text('Print'),
         ),
         ElevatedButton.icon(
           onPressed: () async => Printing.sharePdf(bytes: await buildPdf(), filename: 'Invoice-${result.documentNo}.pdf'),
@@ -133,14 +131,14 @@ Future<void> showInvoicePreview(
             padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
           ),
           icon: const Icon(Icons.share, size: 18),
-          label: Text(l10n.invoicePreviewShareButton),
+          label: const Text('Share'),
         ),
         ElevatedButton(
           onPressed: () => Navigator.of(context).pop(),
           style: AppButtonStyles.filled(AppColors.textFaint).copyWith(
             padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
           ),
-          child: Text(l10n.invoicePreviewCloseButton),
+          child: const Text('Close'),
         ),
       ],
     ),
@@ -151,3 +149,7 @@ String _formatDate(DateTime date) {
   String two(int n) => n.toString().padLeft(2, '0');
   return '${two(date.day)}/${two(date.month)}/${date.year}';
 }
+
+String _englishPhoneLabel(String phone) => 'Phone No : $phone';
+String _englishVatLabel(String vatNo) => 'VAT # : $vatNo';
+String _englishVatAmountWithRate(String rate) => 'VAT Amount ($rate) :';
