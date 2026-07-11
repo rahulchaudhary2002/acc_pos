@@ -161,7 +161,7 @@ abstract class AppLocalizations {
   /// No description provided for @sellScreenReturnCompletedMessage.
   ///
   /// In en, this message translates to:
-  /// **'Return {documentNo} completed — Rs {total}'**
+  /// **'Return {documentNo} completed — NPR {total}'**
   String sellScreenReturnCompletedMessage(String documentNo, String total);
 
   /// No description provided for @sellScreenCashSaleLabel.
@@ -173,7 +173,7 @@ abstract class AppLocalizations {
   /// No description provided for @sellScreenCashSaleSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Up to Rs 25,000'**
+  /// **'Up to NPR 25,000'**
   String get sellScreenCashSaleSubtitle;
 
   /// No description provided for @sellScreenCustomerSaleLabel.
@@ -353,7 +353,7 @@ abstract class AppLocalizations {
   /// No description provided for @buyScreenReturnCompletedMessage.
   ///
   /// In en, this message translates to:
-  /// **'Return {documentNo} completed — Rs {total}'**
+  /// **'Return {documentNo} completed — NPR {total}'**
   String buyScreenReturnCompletedMessage(String documentNo, String total);
 
   /// No description provided for @buyScreenTitle.
@@ -887,7 +887,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportsScreenNetTaxSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Net tax Rs {amount}'**
+  /// **'Net tax NPR {amount}'**
   String reportsScreenNetTaxSubtitle(String amount);
 
   /// No description provided for @reportsScreenVatPaidTitle.
@@ -917,7 +917,7 @@ abstract class AppLocalizations {
   /// No description provided for @cartPanelHeaderItemsTotalLabel.
   ///
   /// In en, this message translates to:
-  /// **'Items: {itemCount} | Total: Rs {total}'**
+  /// **'Items: {itemCount} | Total: NPR {total}'**
   String cartPanelHeaderItemsTotalLabel(int itemCount, String total);
 
   /// No description provided for @productPickerTitle.

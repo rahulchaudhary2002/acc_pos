@@ -91,7 +91,7 @@ class BreakdownChartList extends StatelessWidget {
               barTouchData: BarTouchData(
                 touchTooltipData: BarTouchTooltipData(
                   getTooltipItem: (group, groupIndex, rod, rodIndex) => BarTooltipItem(
-                    '${nameOf(top[group.x.toInt()])}\nRs ${rod.toY.toStringAsFixed(0)}',
+                    '${nameOf(top[group.x.toInt()])}\nNPR ${rod.toY.toStringAsFixed(0)}',
                     const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 11),
                   ),
                 ),
@@ -138,7 +138,7 @@ class BreakdownChartList extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('Rs ${valueOf(row).toStringAsFixed(0)}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: color)),
+              Text('NPR ${valueOf(row).toStringAsFixed(0)}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: color)),
               Text(
                 AppLocalizations.of(context)!.breakdownChartListTransactionsCount(row.count),
                 style: AppTextStyles.tiny,

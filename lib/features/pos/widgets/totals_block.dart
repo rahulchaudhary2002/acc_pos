@@ -30,9 +30,9 @@ class TotalsBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _row(AppLocalizations.of(context)!.totalsBlockSubtotalLabel, 'Rs ${subtotal.toStringAsFixed(2)}'),
+        _row(AppLocalizations.of(context)!.totalsBlockSubtotalLabel, 'NPR ${subtotal.toStringAsFixed(2)}'),
         const SizedBox(height: AppSpacing.field),
-        _row(AppLocalizations.of(context)!.totalsBlockVatLabel, 'Rs ${taxTotal.toStringAsFixed(2)}'),
+        _row(AppLocalizations.of(context)!.totalsBlockVatLabel, 'NPR ${taxTotal.toStringAsFixed(2)}'),
         if (deliveryCharge != null) ...[
           const SizedBox(height: AppSpacing.field),
           Row(
@@ -70,7 +70,7 @@ class TotalsBlock extends StatelessWidget {
               ),
             ),
             Text(
-              'Rs ${grandTotal.toStringAsFixed(2)}',
+              'NPR ${grandTotal.toStringAsFixed(2)}',
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
             ),
           ],

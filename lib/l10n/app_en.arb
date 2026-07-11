@@ -10,7 +10,7 @@
   "sellScreenSubtitle": "Easy POS for Vendors",
   "sellScreenSelectCustomerOrNameError": "Select an existing customer or enter a full name for a customer sale.",
   "sellScreenVatNumberLengthError": "VAT number must be exactly 10 alphanumeric characters.",
-  "sellScreenReturnCompletedMessage": "Return {documentNo} completed — Rs {total}",
+  "sellScreenReturnCompletedMessage": "Return {documentNo} completed — NPR {total}",
   "@sellScreenReturnCompletedMessage": {
     "placeholders": {
       "documentNo": {
@@ -22,7 +22,7 @@
     }
   },
   "sellScreenCashSaleLabel": "Cash Sale",
-  "sellScreenCashSaleSubtitle": "Up to Rs 25,000",
+  "sellScreenCashSaleSubtitle": "Up to NPR 25,000",
   "sellScreenCustomerSaleLabel": "Customer Sale",
   "sellScreenCustomerSaleSubtitle": "Linked account",
   "sellScreenSalesReturnLabel": "Sales Return",
@@ -52,7 +52,7 @@
   "sellScreenDeliveryAddressLabel": "Delivery Address",
   "buyScreenSelectVendorError": "Please select or enter a vendor.",
   "buyScreenSelectReturnSupplierError": "Please select a supplier to return to.",
-  "buyScreenReturnCompletedMessage": "Return {documentNo} completed — Rs {total}",
+  "buyScreenReturnCompletedMessage": "Return {documentNo} completed — NPR {total}",
   "@buyScreenReturnCompletedMessage": {
     "placeholders": {
       "documentNo": {
@@ -199,7 +199,7 @@
   "reportsScreenStockValueTitle": "Stock Value",
   "reportsScreenCurrentInventorySubtitle": "Current inventory on hand",
   "reportsScreenVatCollectedTitle": "VAT Collected",
-  "reportsScreenNetTaxSubtitle": "Net tax Rs {amount}",
+  "reportsScreenNetTaxSubtitle": "Net tax NPR {amount}",
   "@reportsScreenNetTaxSubtitle": {
     "placeholders": {
       "amount": {
@@ -218,7 +218,7 @@
   },
   "posScreenHeaderLanguageEnglish": "English",
   "posScreenHeaderLanguageNepali": "नेपाली (Nepali)",
-  "cartPanelHeaderItemsTotalLabel": "Items: {itemCount} | Total: Rs {total}",
+  "cartPanelHeaderItemsTotalLabel": "Items: {itemCount} | Total: NPR {total}",
   "@cartPanelHeaderItemsTotalLabel": {
     "placeholders": {
       "itemCount": {

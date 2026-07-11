@@ -62,7 +62,7 @@ class ProductCard extends StatelessWidget {
               if (showPrice) ...[
                 const SizedBox(height: 4),
                 Text(
-                  'Rs ${product.price.toStringAsFixed(2)}',
+                  'NPR ${product.price.toStringAsFixed(2)}',
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.success),
                 ),
               ],

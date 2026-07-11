@@ -42,14 +42,14 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String sellScreenReturnCompletedMessage(String documentNo, String total) {
-    return 'फिर्ता $documentNo सम्पन्न भयो — रु $total';
+    return 'फिर्ता $documentNo सम्पन्न भयो — NPR $total';
   }
 
   @override
   String get sellScreenCashSaleLabel => 'नगद बिक्री';
 
   @override
-  String get sellScreenCashSaleSubtitle => 'रु २५,००० सम्म';
+  String get sellScreenCashSaleSubtitle => 'NPR २५,००० सम्म';
 
   @override
   String get sellScreenCustomerSaleLabel => 'ग्राहक बिक्री';
@@ -145,7 +145,7 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String buyScreenReturnCompletedMessage(String documentNo, String total) {
-    return 'फिर्ता $documentNo सम्पन्न भयो — रु $total';
+    return 'फिर्ता $documentNo सम्पन्न भयो — NPR $total';
   }
 
   @override
@@ -432,7 +432,7 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String reportsScreenNetTaxSubtitle(String amount) {
-    return 'खुद कर रु $amount';
+    return 'खुद कर NPR $amount';
   }
 
   @override
@@ -451,7 +451,7 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String cartPanelHeaderItemsTotalLabel(int itemCount, String total) {
-    return 'वस्तुहरू: $itemCount | कुल: रु $total';
+    return 'वस्तुहरू: $itemCount | कुल: NPR $total';
   }
 
   @override

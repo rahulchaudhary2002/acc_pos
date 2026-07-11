@@ -96,7 +96,7 @@ class SalesTrendChart extends StatelessWidget {
                     final date = i >= 0 && i < points.length ? points[i].date : '';
                     final color = s.barIndex == 0 ? AppColors.success : AppColors.warningDark;
                     return LineTooltipItem(
-                      '$date\nRs ${s.y.toStringAsFixed(0)}',
+                      '$date\nNPR ${s.y.toStringAsFixed(0)}',
                       TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 11),
                     );
                   }).toList(),

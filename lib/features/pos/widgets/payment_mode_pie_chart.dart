@@ -75,7 +75,7 @@ class PaymentModePieChart extends StatelessWidget {
                         style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
                       ),
                     ),
-                    Text('Rs ${s.total.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                    Text('NPR ${s.total.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                   ],
                 ),
               );

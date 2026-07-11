@@ -75,7 +75,7 @@ class TopProductsList extends StatelessWidget {
               barTouchData: BarTouchData(
                 touchTooltipData: BarTouchTooltipData(
                   getTooltipItem: (group, groupIndex, rod, rodIndex) => BarTooltipItem(
-                    '${top[group.x.toInt()].name}\nRs ${rod.toY.toStringAsFixed(0)}',
+                    '${top[group.x.toInt()].name}\nNPR ${rod.toY.toStringAsFixed(0)}',
                     const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 11),
                   ),
                 ),
@@ -109,7 +109,7 @@ class TopProductsList extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Text('Rs ${p.revenue.toStringAsFixed(0)}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.share)),
+                  Text('NPR ${p.revenue.toStringAsFixed(0)}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.share)),
                 ],
               ),
             )),

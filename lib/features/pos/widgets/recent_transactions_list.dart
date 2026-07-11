@@ -48,7 +48,7 @@ class RecentTransactionsList extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('Rs ${t.total.toStringAsFixed(0)}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: color)),
+                  Text('NPR ${t.total.toStringAsFixed(0)}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: color)),
                   if (t.subtitle.isNotEmpty) Text(t.subtitle, style: AppTextStyles.tiny),
                 ],
               ),

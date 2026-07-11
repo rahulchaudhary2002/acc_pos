@@ -5,7 +5,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
 
 /// Two-line dark header for the cart/purchase-summary panel: title row with
-/// an icon, then "Items: X | Total: Rs Y" beneath it — matches
+/// an icon, then "Items: X | Total: NPR Y" beneath it — matches
 /// `PosTerminal.jsx`'s "Current Sale"/"Purchase Summary" panel header.
 class CartPanelHeader extends StatelessWidget {
   final IconData icon;
