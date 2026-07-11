@@ -49,6 +49,7 @@ class TaxInvoiceDocument extends StatelessWidget {
   final String preparedBy;
   final String signatureRightLabel;
   final List<Widget> actions;
+  final String title;
 
   const TaxInvoiceDocument({
     super.key,
@@ -68,6 +69,7 @@ class TaxInvoiceDocument extends StatelessWidget {
     required this.preparedBy,
     required this.signatureRightLabel,
     required this.actions,
+    this.title = 'TAX INVOICE',
   });
 
   @override
@@ -87,10 +89,10 @@ class TaxInvoiceDocument extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.card),
-        const Text(
-          'TAX INVOICE',
+        Text(
+          title,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, decoration: TextDecoration.underline),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, decoration: TextDecoration.underline),
         ),
         const SizedBox(height: AppSpacing.card),
         for (final row in metaRows) _metaRowPair(row),

@@ -26,6 +26,7 @@ Future<Uint8List> buildInvoicePdfBytes({
   required double total,
   required String preparedBy,
   required String signatureRightLabel,
+  String title = 'TAX INVOICE',
 }) async {
   final doc = pw.Document();
   final border = PdfColors.grey900;
@@ -46,7 +47,7 @@ Future<Uint8List> buildInvoicePdfBytes({
         pw.SizedBox(height: 10),
         pw.Center(
           child: pw.Text(
-            'TAX INVOICE',
+            title,
             style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, decoration: pw.TextDecoration.underline),
           ),
         ),

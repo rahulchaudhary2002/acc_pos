@@ -71,6 +71,7 @@ Future<void> showPurchaseInvoicePreview(
         total: subtotal + tax,
         preparedBy: preparedBy ?? '',
         signatureRightLabel: 'Supplier',
+        title: 'PURCHASE INVOICE',
       );
 
   return showTaxInvoiceDialog(
@@ -91,6 +92,7 @@ Future<void> showPurchaseInvoicePreview(
       total: subtotal + tax,
       preparedBy: preparedBy ?? '',
       signatureRightLabel: 'Supplier',
+      title: 'PURCHASE INVOICE',
       actions: [
         ElevatedButton.icon(
           onPressed: () async => Printing.sharePdf(bytes: await buildPdf(), filename: 'Purchase-${result.billNo ?? result.documentNo}.pdf'),
