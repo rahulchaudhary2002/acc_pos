@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:acc_pos/l10n/app_localizations.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 
@@ -12,7 +14,7 @@ class TotalsBlock extends StatelessWidget {
   final double? deliveryCharge;
   final ValueChanged<double>? onDeliveryChanged;
   final double grandTotal;
-  final String totalLabel;
+  final String? totalLabel;
 
   const TotalsBlock({
     super.key,
@@ -21,22 +23,22 @@ class TotalsBlock extends StatelessWidget {
     this.deliveryCharge,
     this.onDeliveryChanged,
     required this.grandTotal,
-    this.totalLabel = 'Total Amount',
+    this.totalLabel,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _row('Subtotal:', 'Rs ${subtotal.toStringAsFixed(2)}'),
+        _row(AppLocalizations.of(context)!.totalsBlockSubtotalLabel, 'Rs ${subtotal.toStringAsFixed(2)}'),
         const SizedBox(height: AppSpacing.field),
-        _row('VAT (13%):', 'Rs ${taxTotal.toStringAsFixed(2)}'),
+        _row(AppLocalizations.of(context)!.totalsBlockVatLabel, 'Rs ${taxTotal.toStringAsFixed(2)}'),
         if (deliveryCharge != null) ...[
           const SizedBox(height: AppSpacing.field),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Delivery Charge:', style: TextStyle(fontSize: 13, color: AppColors.textTertiary)),
+              Text(AppLocalizations.of(context)!.totalsBlockDeliveryChargeLabel, style: const TextStyle(fontSize: 13, color: AppColors.textTertiary)),
               SizedBox(
                 width: 90,
                 height: 32,
@@ -61,7 +63,12 @@ class TotalsBlock extends StatelessWidget {
         ),
         Row(
           children: [
-            Expanded(child: Text('$totalLabel:', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary))),
+            Expanded(
+              child: Text(
+                '${totalLabel ?? AppLocalizations.of(context)!.totalsBlockTotalAmountLabel}:',
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+              ),
+            ),
             Text(
               'Rs ${grandTotal.toStringAsFixed(2)}',
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../l10n/app_localizations.dart';
 import '../utils/invoice_format_utils.dart';
 
 /// One line item on the printed invoice — Sr./H.S. Code/Description/Qty/
@@ -74,6 +75,7 @@ class TaxInvoiceDocument extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -83,9 +85,9 @@ class TaxInvoiceDocument extends StatelessWidget {
             if ((companyAddress ?? '').isNotEmpty)
               Text(companyAddress!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
             if ((companyPhone ?? '').isNotEmpty)
-              Text('Phone No : $companyPhone', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
+              Text(l10n.posInvoicePhoneLabel(companyPhone!), textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
             if ((companyVatNo ?? '').isNotEmpty)
-              Text('VAT # : $companyVatNo', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
+              Text(l10n.posInvoiceVatLabel(companyVatNo!), textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
           ],
         ),
         const SizedBox(height: AppSpacing.card),
@@ -97,13 +99,16 @@ class TaxInvoiceDocument extends StatelessWidget {
         const SizedBox(height: AppSpacing.card),
         for (final row in metaRows) _metaRowPair(row),
         const SizedBox(height: AppSpacing.card),
-        _itemsTable(),
+        _itemsTable(l10n),
         const SizedBox(height: AppSpacing.card),
-        _totalsSection(),
+        _totalsSection(l10n),
         const SizedBox(height: AppSpacing.field),
-        Text(amountToWords(total), style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
+        Text(
+          amountToWords(total, locale: Localizations.localeOf(context).languageCode),
+          style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+        ),
         const SizedBox(height: AppSpacing.section),
-        _signatureBlock(),
+        _signatureBlock(l10n),
         const SizedBox(height: AppSpacing.section),
         Wrap(spacing: AppSpacing.field, runSpacing: AppSpacing.field, alignment: WrapAlignment.center, children: actions),
       ],
@@ -138,7 +143,7 @@ class TaxInvoiceDocument extends StatelessWidget {
     );
   }
 
-  Widget _itemsTable() {
+  Widget _itemsTable(AppLocalizations l10n) {
     return Table(
       border: TableBorder(
         top: const BorderSide(color: AppColors.textPrimary, width: 1.5),
@@ -154,13 +159,13 @@ class TaxInvoiceDocument extends StatelessWidget {
         5: FlexColumnWidth(1.3),
       },
       children: [
-        const TableRow(children: [
-          _InvoiceCell('Sr.', bold: true, align: TextAlign.center),
-          _InvoiceCell('H.S. Code', bold: true),
-          _InvoiceCell('Description', bold: true),
-          _InvoiceCell('Qty.', bold: true, align: TextAlign.right),
-          _InvoiceCell('Rate', bold: true, align: TextAlign.right),
-          _InvoiceCell('Total Amt.', bold: true, align: TextAlign.right),
+        TableRow(children: [
+          _InvoiceCell(l10n.posInvoiceSrHeader, bold: true, align: TextAlign.center),
+          _InvoiceCell(l10n.posInvoiceHsCodeHeader, bold: true),
+          _InvoiceCell(l10n.posInvoiceDescriptionHeader, bold: true),
+          _InvoiceCell(l10n.posInvoiceQtyHeader, bold: true, align: TextAlign.right),
+          _InvoiceCell(l10n.posInvoiceRateHeader, bold: true, align: TextAlign.right),
+          _InvoiceCell(l10n.posInvoiceTotalAmtHeader, bold: true, align: TextAlign.right),
         ]),
         for (var i = 0; i < items.length; i++)
           TableRow(children: [
@@ -177,7 +182,7 @@ class TaxInvoiceDocument extends StatelessWidget {
 
   static String _qty(double qty) => qty.toStringAsFixed(qty.truncateToDouble() == qty ? 0 : 2);
 
-  Widget _totalsSection() {
+  Widget _totalsSection(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.field),
       decoration: const BoxDecoration(
@@ -191,10 +196,10 @@ class TaxInvoiceDocument extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _plainRow('Print Date/Time :', printDateTimeLabel(printedAt)),
-                _plainRow('Nepali Date :', nepaliDateLabel(printedAt)),
+                _plainRow(l10n.posInvoicePrintDateTimeLabel, printDateTimeLabel(printedAt)),
+                _plainRow(l10n.posInvoiceNepaliDateLabel, nepaliDateLabel(printedAt)),
                 const SizedBox(height: AppSpacing.field),
-                const Text('Original', style: TextStyle(fontSize: 12)),
+                Text(l10n.posInvoiceOriginalLabel, style: const TextStyle(fontSize: 12)),
               ],
             ),
           ),
@@ -203,12 +208,12 @@ class TaxInvoiceDocument extends StatelessWidget {
             flex: 4,
             child: Column(
               children: [
-                _summaryRow('Taxable :', taxable),
-                _summaryRow('Non Taxable :', nonTaxable),
-                _summaryRow('Sub Total :', subtotal),
-                _summaryRow('Discount : 0 %', 0),
-                _summaryRow(vatRateLabel.isEmpty ? 'VAT Amount :' : 'VAT Amount ($vatRateLabel) :', tax),
-                _summaryRow('Net Total :', total, bold: true),
+                _summaryRow(l10n.posInvoiceTaxableLabel, taxable),
+                _summaryRow(l10n.posInvoiceNonTaxableLabel, nonTaxable),
+                _summaryRow(l10n.posInvoiceSubTotalLabel, subtotal),
+                _summaryRow(l10n.posInvoiceDiscountLabel, 0),
+                _summaryRow(vatRateLabel.isEmpty ? l10n.posInvoiceVatAmountLabel : l10n.posInvoiceVatAmountWithRateLabel(vatRateLabel), tax),
+                _summaryRow(l10n.posInvoiceNetTotalLabel, total, bold: true),
               ],
             ),
           ),
@@ -237,11 +242,11 @@ class TaxInvoiceDocument extends StatelessWidget {
     );
   }
 
-  Widget _signatureBlock() {
+  Widget _signatureBlock(AppLocalizations l10n) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Expanded(child: _signatureColumn(preparedBy.isEmpty ? 'Prepared By' : preparedBy, 'Prepare By')),
+        Expanded(child: _signatureColumn(preparedBy.isEmpty ? l10n.posInvoicePreparedByFallback : preparedBy, l10n.posInvoicePrepareByLabel)),
         const SizedBox(width: AppSpacing.section),
         Expanded(child: _signatureColumn('', signatureRightLabel)),
       ],

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:acc_pos/l10n/app_localizations.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../providers/pos_config_provider.dart';
@@ -136,7 +138,7 @@ class _CompanyPicker extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Select a company', style: AppTextStyles.sectionTitle),
+          Text(AppLocalizations.of(context)!.posHomeSelectCompanyLabel, style: AppTextStyles.sectionTitle),
           const SizedBox(height: AppSpacing.card),
           Expanded(
             child: ListView.builder(
@@ -171,22 +173,22 @@ class _BottomNav extends StatelessWidget {
 
   const _BottomNav({required this.index, required this.onChanged});
 
-  static const _tabs = [
-    (Icons.shopping_cart, 'Sell'),
-    (Icons.shopping_bag, 'Buy'),
-    (Icons.bar_chart, 'Reports'),
-    (Icons.settings, 'Others'),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final tabs = [
+      (Icons.shopping_cart, l10n.posHomeBottomNavSellLabel),
+      (Icons.shopping_bag, l10n.posHomeBottomNavBuyLabel),
+      (Icons.bar_chart, l10n.posHomeBottomNavReportsLabel),
+      (Icons.settings, l10n.posHomeBottomNavOthersLabel),
+    ];
     return Container(
       color: AppColors.surface,
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.field, horizontal: AppSpacing.tight),
       child: Row(
-        children: List.generate(_tabs.length, (i) {
+        children: List.generate(tabs.length, (i) {
           final selected = i == index;
-          final (icon, label) = _tabs[i];
+          final (icon, label) = tabs[i];
           return Expanded(
             child: InkWell(
               onTap: () => onChanged(i),

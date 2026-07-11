@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../l10n/app_localizations.dart';
 import '../models/payment_mode_stat.dart';
 
 const _modeColors = {
@@ -22,9 +23,14 @@ class PaymentModePieChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (stats.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 40),
-        child: Center(child: Text('No sales for this period', style: AppTextStyles.helper)),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40),
+        child: Center(
+          child: Text(
+            AppLocalizations.of(context)!.paymentModePieChartNoSalesMessage,
+            style: AppTextStyles.helper,
+          ),
+        ),
       );
     }
 

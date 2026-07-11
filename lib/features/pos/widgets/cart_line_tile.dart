@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:acc_pos/l10n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import 'qty_stepper_field.dart';
@@ -13,7 +14,7 @@ class CartLineTile extends StatelessWidget {
   final double qty;
   final double rate;
   final double lineTotal;
-  final String rateLabel;
+  final String? rateLabel;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
   final ValueChanged<double> onQtyChanged;
@@ -27,7 +28,7 @@ class CartLineTile extends StatelessWidget {
     required this.qty,
     required this.rate,
     required this.lineTotal,
-    this.rateLabel = 'Rate',
+    this.rateLabel,
     required this.onIncrement,
     required this.onDecrement,
     required this.onQtyChanged,
@@ -78,7 +79,7 @@ class CartLineTile extends StatelessWidget {
             children: [
               Expanded(
                 child: _labeledColumn(
-                  'Qty',
+                  AppLocalizations.of(context)!.cartLineQtyLabel,
                   QtyStepperField(
                     qty: qty,
                     fieldWidth: 56,
@@ -91,7 +92,7 @@ class CartLineTile extends StatelessWidget {
               const SizedBox(width: AppSpacing.field),
               Expanded(
                 child: _labeledColumn(
-                  rateLabel,
+                  rateLabel ?? AppLocalizations.of(context)!.cartLineRateLabel,
                   SizedBox(
                     height: 40,
                     child: TextFormField(
@@ -108,7 +109,7 @@ class CartLineTile extends StatelessWidget {
               const SizedBox(width: AppSpacing.field),
               Expanded(
                 child: _labeledColumn(
-                  'Total',
+                  AppLocalizations.of(context)!.cartLineTotalLabel,
                   Container(
                     height: 40,
                     alignment: Alignment.center,

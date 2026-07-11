@@ -1,6 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import 'package:acc_pos/l10n/app_localizations.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../models/top_product.dart';
@@ -14,9 +16,9 @@ class TopProductsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (products.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 40),
-        child: Center(child: Text('No sales for this period', style: AppTextStyles.helper)),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40),
+        child: Center(child: Text(AppLocalizations.of(context)!.topProductsEmptyMessage, style: AppTextStyles.helper)),
       );
     }
 

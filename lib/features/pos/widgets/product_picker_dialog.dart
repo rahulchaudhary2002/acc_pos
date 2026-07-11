@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:acc_pos/l10n/app_localizations.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/empty_state.dart';
@@ -53,6 +55,7 @@ class _ProductPickerContentState extends State<_ProductPickerContent> {
   Widget build(BuildContext context) {
     final data = context.watch<PosDataProvider>();
     final visibleProducts = data.filteredProducts;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       decoration: BoxDecoration(
@@ -67,12 +70,12 @@ class _ProductPickerContentState extends State<_ProductPickerContent> {
             width: double.infinity,
             padding: const EdgeInsets.all(AppSpacing.card),
             color: AppColors.sectionDark,
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Add Product', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: Colors.white)),
-                SizedBox(height: 2),
-                Text('Select products to add to the current sale', style: TextStyle(fontSize: 12, color: AppColors.textOnDarkMuted)),
+                Text(l10n.productPickerTitle, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: Colors.white)),
+                const SizedBox(height: 2),
+                Text(l10n.productPickerSubtitle, style: const TextStyle(fontSize: 12, color: AppColors.textOnDarkMuted)),
               ],
             ),
           ),
@@ -81,9 +84,9 @@ class _ProductPickerContentState extends State<_ProductPickerContent> {
             child: TextField(
               controller: _searchController,
               onChanged: data.setSearchQuery,
-              decoration: const InputDecoration(
-                hintText: 'Search products…',
-                prefixIcon: Icon(Icons.search),
+              decoration: InputDecoration(
+                hintText: l10n.productPickerSearchHint,
+                prefixIcon: const Icon(Icons.search),
               ),
             ),
           ),
@@ -98,7 +101,7 @@ class _ProductPickerContentState extends State<_ProductPickerContent> {
                   padding: const EdgeInsets.only(right: AppSpacing.field),
                   child: ChoiceChip(
                     label: Text(
-                      category[0].toUpperCase() + category.substring(1),
+                      _categoryLabel(l10n, category),
                       style: AppTextStyles.tabLabel.copyWith(color: active ? Colors.white : AppColors.textMuted),
                     ),
                     selected: active,
@@ -113,10 +116,10 @@ class _ProductPickerContentState extends State<_ProductPickerContent> {
           const SizedBox(height: AppSpacing.field),
           Expanded(
             child: visibleProducts.isEmpty
-                ? const EmptyState(
+                ? EmptyState(
                     icon: Icons.inventory_2_outlined,
-                    title: 'No records found',
-                    subtitle: 'No products in this category yet.',
+                    title: l10n.productPickerEmptyTitle,
+                    subtitle: l10n.productPickerEmptySubtitle,
                   )
                 : GridView.builder(
                     padding: const EdgeInsets.all(AppSpacing.card),
@@ -149,12 +152,25 @@ class _ProductPickerContentState extends State<_ProductPickerContent> {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Close'),
+                child: Text(l10n.productPickerCloseButton),
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _categoryLabel(AppLocalizations l10n, String category) {
+    switch (category) {
+      case 'products':
+        return l10n.productPickerCategoryProducts;
+      case 'accessories':
+        return l10n.productPickerCategoryAccessories;
+      case 'services':
+        return l10n.productPickerCategoryServices;
+      default:
+        return category[0].toUpperCase() + category.substring(1);
+    }
   }
 }

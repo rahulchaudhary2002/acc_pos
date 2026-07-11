@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Two-line dark header for the cart/purchase-summary panel: title row with
 /// an icon, then "Items: X | Total: Rs Y" beneath it — matches
@@ -43,7 +44,7 @@ class CartPanelHeader extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Items: $itemCount | Total: Rs ${total.toStringAsFixed(2)}',
+            AppLocalizations.of(context)!.cartPanelHeaderItemsTotalLabel(itemCount, total.toStringAsFixed(2)),
             style: const TextStyle(color: AppColors.textOnDarkMuted, fontSize: 13),
           ),
         ],

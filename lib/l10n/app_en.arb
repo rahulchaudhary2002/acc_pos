@@ -1,0 +1,371 @@
+{
+  "@@locale": "en",
+  "appTitle": "POS",
+  "posHomeSelectCompanyLabel": "Select a company",
+  "posHomeBottomNavSellLabel": "Sell",
+  "posHomeBottomNavBuyLabel": "Buy",
+  "posHomeBottomNavReportsLabel": "Reports",
+  "posHomeBottomNavOthersLabel": "Others",
+  "sellScreenTitle": "Sell LPG",
+  "sellScreenSubtitle": "Easy POS for Vendors",
+  "sellScreenSelectCustomerOrNameError": "Select an existing customer or enter a full name for a customer sale.",
+  "sellScreenVatNumberLengthError": "VAT number must be exactly 10 alphanumeric characters.",
+  "sellScreenReturnCompletedMessage": "Return {documentNo} completed — Rs {total}",
+  "@sellScreenReturnCompletedMessage": {
+    "placeholders": {
+      "documentNo": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "sellScreenCashSaleLabel": "Cash Sale",
+  "sellScreenCashSaleSubtitle": "Up to Rs 25,000",
+  "sellScreenCustomerSaleLabel": "Customer Sale",
+  "sellScreenCustomerSaleSubtitle": "Linked account",
+  "sellScreenSalesReturnLabel": "Sales Return",
+  "sellScreenSalesReturnSubtitle": "Refund items",
+  "sellScreenCurrentSaleTitle": "Current Sale",
+  "sellScreenNoItemsAddedTitle": "No items added yet",
+  "sellScreenNoItemsAddedSubtitle": "Click the button below to add products",
+  "sellScreenAddProductsLabel": "Add Products",
+  "sellScreenAddMoreProductsLabel": "Add More Products",
+  "sellScreenClearAllLabel": "Clear All",
+  "sellScreenGenerateVatBillLabel": "Generate VAT Bill",
+  "sellScreenCustomerOptionalLabel": "Customer (optional)",
+  "sellScreenWalkInNoCustomerLabel": "Walk-in / No customer",
+  "sellScreenReturnItemsTitle": "Return Items",
+  "sellScreenNoItemsSelectedTitle": "No items selected",
+  "sellScreenSelectProductsToReturnSubtitle": "Select products to return",
+  "sellScreenTotalReturnLabel": "Total Return",
+  "sellScreenClearReturnLabel": "Clear Return",
+  "sellScreenPostSalesReturnLabel": "Post Sales Return",
+  "sellScreenCustomerInformationTitle": "Customer Information",
+  "sellScreenExistingCustomerLabel": "Existing Customer",
+  "sellScreenSelectCustomerLabel": "Select customer",
+  "sellScreenAutoCreateCustomerHelper": "Leave this blank and enter details below to auto-create a new customer when generating the bill.",
+  "sellScreenFullNameLabel": "Full Name",
+  "sellScreenPhoneNumberLabel": "Phone Number",
+  "sellScreenVatNumberLabel": "VAT Number",
+  "sellScreenDeliveryAddressLabel": "Delivery Address",
+  "buyScreenSelectVendorError": "Please select or enter a vendor.",
+  "buyScreenSelectReturnSupplierError": "Please select a supplier to return to.",
+  "buyScreenReturnCompletedMessage": "Return {documentNo} completed — Rs {total}",
+  "@buyScreenReturnCompletedMessage": {
+    "placeholders": {
+      "documentNo": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "buyScreenTitle": "Buy Stock",
+  "buyScreenSubtitle": "Purchase from suppliers",
+  "buyScreenNewPurchaseLabel": "New Purchase",
+  "buyScreenNewPurchaseSubtitle": "From suppliers",
+  "buyScreenPurchaseReturnLabel": "Purchase Return",
+  "buyScreenPurchaseReturnSubtitle": "Return to vendor",
+  "buyScreenPurchaseFromSupplierHeader": "Purchase from Supplier",
+  "buyScreenInvoiceNumberLabel": "Invoice Number",
+  "buyScreenPurchaseDateLabel": "Purchase Date",
+  "buyScreenVendorLabel": "Vendor",
+  "buyScreenVendorNameLabel": "Vendor Name (if not listed above)",
+  "buyScreenPurchaseSummaryTitle": "Purchase Summary",
+  "buyScreenNoItemsSelectedTitle": "No items selected",
+  "buyScreenNoItemsSelectedSubtitle": "Click the button below to add products",
+  "buyScreenAddProductsLabel": "Add Products",
+  "buyScreenAddMoreProductsLabel": "Add More Products",
+  "buyScreenSubtotalLabel": "Subtotal:",
+  "buyScreenTotalPurchaseLabel": "Total Purchase:",
+  "buyScreenClearPurchaseLabel": "Clear Purchase",
+  "buyScreenSavePurchaseLabel": "Save Purchase",
+  "buyScreenSupplierLabel": "Supplier",
+  "buyScreenReturnItemsTitle": "Return Items",
+  "buyScreenNoItemsToReturnTitle": "No items to return",
+  "buyScreenTotalAmountLabel": "Total Amount",
+  "buyScreenClearReturnLabel": "Clear Return",
+  "buyScreenPostReturnLabel": "Post Return",
+  "othersScreenResetSystemDialogTitle": "Reset System",
+  "othersScreenResetSystemDialogContent": "This refreshes company, outlet, and product data from the server. Continue?",
+  "othersScreenCancelButton": "Cancel",
+  "othersScreenResetButton": "Reset",
+  "othersScreenRefreshSuccessMessage": "System refreshed with the latest data.",
+  "othersScreenTitle": "Settings",
+  "othersScreenSubtitle": "System settings and POS controls",
+  "othersScreenPosConfigurationHeader": "POS Configuration",
+  "othersScreenCompanyLabel": "Company",
+  "othersScreenOutletLabel": "Outlet",
+  "othersScreenFiscalYearLabel": "Fiscal Year",
+  "othersScreenWarehouseLabel": "Warehouse",
+  "othersScreenLogoutButton": "Logout",
+  "othersScreenResetSystemButton": "Reset System",
+  "languageCardHeader": "Language",
+  "voicePromptCardHeader": "POS Voice Prompt",
+  "voicePromptSoundStatusLabel": "Sound Status",
+  "voicePromptOnLabel": "On",
+  "voicePromptOffLabel": "Off",
+  "voicePromptAnnouncementLanguageLabel": "Announcement Language",
+  "voicePromptVolumeLabel": "Volume",
+  "voicePromptHelperText": "Plays only inside POS when switching between Sell, Buy, Reports, and Others.",
+  "voicePromptTestButton": "Test Voice Prompt",
+  "reportsScreenTitle": "Reports",
+  "reportsScreenSubtitle": "Sales & Inventory Reports",
+  "reportsScreenPeriodLabel": "Period:",
+  "reportsScreenChangeDateRangeTooltip": "Change date range",
+  "reportsScreenPeriodToday": "Today",
+  "reportsScreenPeriodYesterday": "Yesterday",
+  "reportsScreenPeriodLast7Days": "Last 7 Days",
+  "reportsScreenPeriodLast30Days": "Last 30 Days",
+  "reportsScreenPeriodThisMonth": "This Month",
+  "reportsScreenPeriodLastMonth": "Last Month",
+  "reportsScreenPeriodLifetime": "Lifetime",
+  "reportsScreenPeriodCustomRange": "Custom Range",
+  "reportsScreenTabOverview": "Overview",
+  "reportsScreenTabStores": "Stores",
+  "reportsScreenTabVendors": "Vendors",
+  "reportsScreenTabCustomers": "Customers",
+  "reportsScreenTabMore": "More",
+  "reportsScreenSalesPurchasesTrendTitle": "Sales vs Purchases Trend",
+  "reportsScreenTopProductsTitle": "Top Products · {period}",
+  "@reportsScreenTopProductsTitle": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsScreenPaymentModeTitle": "Sales by Payment Mode · {period}",
+  "@reportsScreenPaymentModeTitle": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsScreenRecentSalesTitle": "Recent Sales",
+  "reportsScreenRecentPurchasesTitle": "Recent Purchases",
+  "reportsScreenMonthlySalesTitle": "Monthly Sales (incl. Returns)",
+  "reportsScreenGrossSalesLabel": "Gross Sales",
+  "reportsScreenSalesReturnsLabel": "Sales Returns",
+  "reportsScreenNetSalesLabel": "Net Sales",
+  "reportsScreenInvoicesCount": "{count} invoices",
+  "@reportsScreenInvoicesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsScreenMonthlyPurchaseTitle": "Monthly Purchase (incl. Returns)",
+  "reportsScreenGrossPurchaseLabel": "Gross Purchase",
+  "reportsScreenPurchaseReturnsLabel": "Purchase Returns",
+  "reportsScreenNetPurchaseLabel": "Net Purchase",
+  "reportsScreenGrnCount": "{count} GRNs",
+  "@reportsScreenGrnCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsScreenTotalSalesTitle": "Total Sales",
+  "reportsScreenPostedInvoicesSubtitle": "{count} posted invoices · {period}",
+  "@reportsScreenPostedInvoicesSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsScreenTotalPurchasesTitle": "Total Purchases",
+  "reportsScreenPostedStockIntakesSubtitle": "{count} posted stock intakes · {period}",
+  "@reportsScreenPostedStockIntakesSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsScreenStockValueTitle": "Stock Value",
+  "reportsScreenCurrentInventorySubtitle": "Current inventory on hand",
+  "reportsScreenVatCollectedTitle": "VAT Collected",
+  "reportsScreenNetTaxSubtitle": "Net tax Rs {amount}",
+  "@reportsScreenNetTaxSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsScreenVatPaidTitle": "VAT Paid",
+  "reportsScreenPostedPurchaseBillsSubtitle": "On posted purchase bills · {period}",
+  "@reportsScreenPostedPurchaseBillsSubtitle": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "posScreenHeaderLanguageEnglish": "English",
+  "posScreenHeaderLanguageNepali": "नेपाली (Nepali)",
+  "cartPanelHeaderItemsTotalLabel": "Items: {itemCount} | Total: Rs {total}",
+  "@cartPanelHeaderItemsTotalLabel": {
+    "placeholders": {
+      "itemCount": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "productPickerTitle": "Add Product",
+  "productPickerSubtitle": "Select products to add to the current sale",
+  "productPickerSearchHint": "Search products…",
+  "productPickerCategoryProducts": "Products",
+  "productPickerCategoryAccessories": "Accessories",
+  "productPickerCategoryServices": "Services",
+  "productPickerEmptyTitle": "No records found",
+  "productPickerEmptySubtitle": "No products in this category yet.",
+  "productPickerCloseButton": "Close",
+  "productCardStockLabel": "Stock: {stock}",
+  "@productCardStockLabel": {
+    "placeholders": {
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
+  "productCardNotTracked": "Not tracked",
+  "productCardOutOfStock": "Out of Stock",
+  "customerPickerFullNameRequired": "Full name is required.",
+  "customerPickerVatFormatError": "VAT number must be exactly 10 alphanumeric characters.",
+  "customerPickerTitle": "Customer",
+  "customerPickerExistingCustomerLabel": "Existing Customer",
+  "customerPickerWalkInHint": "Or create a new walk-in customer below",
+  "customerPickerFullNameLabel": "Full Name",
+  "customerPickerPhoneNumberLabel": "Phone Number",
+  "customerPickerVatNumberLabel": "VAT Number",
+  "customerPickerDeliveryAddressLabel": "Delivery Address",
+  "customerPickerCancelButton": "Cancel",
+  "customerPickerUseCustomerButton": "Use Customer",
+  "cartLineQtyLabel": "Qty",
+  "cartLineRateLabel": "Rate",
+  "cartLineTotalLabel": "Total",
+  "purchaseCartLineUnitCostLabel": "Unit Cost",
+  "paymentTypeSectionHeader": "Payment Type",
+  "paymentTypeSectionCashSaleLabel": "Cash Sale",
+  "paymentTypeSectionCreditSaleLabel": "Credit Sale",
+  "paymentTypeSectionOnlinePaymentLabel": "Online Payment",
+  "paymentTypeSectionRemarksLabel": "Remarks",
+  "paymentTypeSectionRemarksHint": "Optional remarks for this cash sale",
+  "paymentTypeSectionReferenceNoLabel": "Reference No.",
+  "paymentTypeSectionReferenceHint": "Transaction ID / Ref. No.",
+  "paymentTypeSectionPaymentNoteLabel": "Payment Note",
+  "paymentTypeSectionPaymentNoteHint": "Wallet, bank, mobile number",
+  "totalsBlockSubtotalLabel": "Subtotal:",
+  "totalsBlockVatLabel": "VAT (13%):",
+  "totalsBlockDeliveryChargeLabel": "Delivery Charge:",
+  "totalsBlockTotalAmountLabel": "Total Amount",
+  "invoicePreviewInvoiceNoLabel": "Invoice No",
+  "invoicePreviewRefNoLabel": "Ref. No.",
+  "invoicePreviewInvoiceDateLabel": "Invoice Date",
+  "invoicePreviewCounterNoLabel": "Counter No.",
+  "invoicePreviewCustomerNameLabel": "Customer Name",
+  "invoicePreviewWalkInCustomer": "Walk-in Customer",
+  "invoicePreviewPaymentModeLabel": "Payment Mode",
+  "invoicePreviewCashLabel": "Cash",
+  "invoicePreviewCreditLabel": "Credit",
+  "invoicePreviewCustomerPanLabel": "Customer Pan",
+  "invoicePreviewPaymentRefLabel": "Payment Ref.",
+  "invoicePreviewPaymentNoteLabel": "Payment Note",
+  "invoicePreviewSignatureCustomerLabel": "Customer",
+  "invoicePreviewPrintButton": "Print",
+  "invoicePreviewShareButton": "Share",
+  "invoicePreviewCloseButton": "Close",
+  "purchaseInvoicePreviewBillNoLabel": "Bill No",
+  "purchaseInvoicePreviewVendorInvNoLabel": "Vendor Inv. No.",
+  "purchaseInvoicePreviewBillDateLabel": "Bill Date",
+  "purchaseInvoicePreviewMrnNoLabel": "MRN No.",
+  "purchaseInvoicePreviewVendorNameLabel": "Vendor Name",
+  "purchaseInvoicePreviewVendorPanLabel": "Vendor Pan",
+  "purchaseInvoicePreviewSignatureSupplierLabel": "Supplier",
+  "purchaseInvoicePreviewTitle": "PURCHASE INVOICE",
+  "purchaseInvoicePreviewShareButton": "Share",
+  "purchaseInvoicePreviewCloseButton": "Close",
+  "posInvoicePhoneLabel": "Phone No : {phone}",
+  "@posInvoicePhoneLabel": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "posInvoiceVatLabel": "VAT # : {vatNo}",
+  "@posInvoiceVatLabel": {
+    "placeholders": {
+      "vatNo": {
+        "type": "String"
+      }
+    }
+  },
+  "posInvoiceDefaultTitle": "TAX INVOICE",
+  "posInvoiceSrHeader": "Sr.",
+  "posInvoiceHsCodeHeader": "H.S. Code",
+  "posInvoiceDescriptionHeader": "Description",
+  "posInvoiceQtyHeader": "Qty.",
+  "posInvoiceRateHeader": "Rate",
+  "posInvoiceTotalAmtHeader": "Total Amt.",
+  "posInvoicePrintDateTimeLabel": "Print Date/Time :",
+  "posInvoiceNepaliDateLabel": "Nepali Date :",
+  "posInvoiceOriginalLabel": "Original",
+  "posInvoiceTaxableLabel": "Taxable :",
+  "posInvoiceNonTaxableLabel": "Non Taxable :",
+  "posInvoiceSubTotalLabel": "Sub Total :",
+  "posInvoiceDiscountLabel": "Discount : 0 %",
+  "posInvoiceVatAmountLabel": "VAT Amount :",
+  "posInvoiceVatAmountWithRateLabel": "VAT Amount ({rate}) :",
+  "@posInvoiceVatAmountWithRateLabel": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "posInvoiceNetTotalLabel": "Net Total :",
+  "posInvoicePreparedByFallback": "Prepared By",
+  "posInvoicePrepareByLabel": "Prepare By",
+  "recentTransactionsEmptyMessage": "No transactions for this period",
+  "topProductsEmptyMessage": "No sales for this period",
+  "salesTrendChartNoDataMessage": "No data for this period",
+  "salesTrendChartSalesLegend": "Sales",
+  "salesTrendChartPurchasesLegend": "Purchases",
+  "paymentModePieChartNoSalesMessage": "No sales for this period",
+  "breakdownChartListNoDataMessage": "No data for this period",
+  "breakdownChartListVatLabel": "VAT: {vatNo}",
+  "@breakdownChartListVatLabel": {
+    "placeholders": {
+      "vatNo": {
+        "type": "String"
+      }
+    }
+  },
+  "breakdownChartListTransactionsCount": "{count} txns",
+  "@breakdownChartListTransactionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

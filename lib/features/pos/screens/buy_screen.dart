@@ -9,6 +9,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_banner.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../models/company.dart';
 import '../models/party.dart';
@@ -63,7 +64,7 @@ class _BuyScreenState extends State<BuyScreen> {
     if (cart.isEmpty) return;
     final vendorName = _vendorNameController.text.trim();
     if (_selectedVendor == null && vendorName.isEmpty) {
-      setState(() => _errorMessage = 'Please select or enter a vendor.');
+      setState(() => _errorMessage = AppLocalizations.of(context)!.buyScreenSelectVendorError);
       return;
     }
 
@@ -147,7 +148,7 @@ class _BuyScreenState extends State<BuyScreen> {
   Future<void> _submitReturn() async {
     if (_returnItems.isEmpty) return;
     if (_returnVendor == null) {
-      setState(() => _errorMessage = 'Please select a supplier to return to.');
+      setState(() => _errorMessage = AppLocalizations.of(context)!.buyScreenSelectReturnSupplierError);
       return;
     }
     final config = context.read<PosConfigProvider>();
@@ -166,7 +167,14 @@ class _BuyScreenState extends State<BuyScreen> {
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Return ${result.documentNo} completed — Rs ${result.total.toStringAsFixed(2)}')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.buyScreenReturnCompletedMessage(
+              result.documentNo,
+              result.total.toStringAsFixed(2),
+            ),
+          ),
+        ),
       );
       setState(() {
         _returnItems.clear();
@@ -191,7 +199,11 @@ class _BuyScreenState extends State<BuyScreen> {
 
     return Column(
       children: [
-        const PosScreenHeader(title: 'Buy Stock', subtitle: 'Purchase from suppliers', icon: Icons.local_gas_station),
+        PosScreenHeader(
+          title: AppLocalizations.of(context)!.buyScreenTitle,
+          subtitle: AppLocalizations.of(context)!.buyScreenSubtitle,
+          icon: Icons.local_gas_station,
+        ),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.card),
@@ -205,8 +217,8 @@ class _BuyScreenState extends State<BuyScreen> {
                     Expanded(
                       child: ActionRowButton(
                         icon: Icons.shopping_bag,
-                        label: 'New Purchase',
-                        subtitle: 'From suppliers',
+                        label: AppLocalizations.of(context)!.buyScreenNewPurchaseLabel,
+                        subtitle: AppLocalizations.of(context)!.buyScreenNewPurchaseSubtitle,
                         active: _mode == 'purchase',
                         activeColor: AppColors.info,
                         activeBorderColor: AppColors.borderInfoActive,
@@ -217,8 +229,8 @@ class _BuyScreenState extends State<BuyScreen> {
                     Expanded(
                       child: ActionRowButton(
                         icon: Icons.undo,
-                        label: 'Purchase Return',
-                        subtitle: 'Return to vendor',
+                        label: AppLocalizations.of(context)!.buyScreenPurchaseReturnLabel,
+                        subtitle: AppLocalizations.of(context)!.buyScreenPurchaseReturnSubtitle,
                         active: _mode == 'return',
                         activeColor: AppColors.warningDark,
                         activeBorderColor: AppColors.borderWarningActive,
@@ -250,25 +262,25 @@ class _BuyScreenState extends State<BuyScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              children: const [
-                Icon(Icons.storefront_outlined, color: AppColors.textSecondary),
-                SizedBox(width: AppSpacing.field),
-                Text('Purchase from Supplier', style: AppTextStyles.cardHeader),
+              children: [
+                const Icon(Icons.storefront_outlined, color: AppColors.textSecondary),
+                const SizedBox(width: AppSpacing.field),
+                Text(AppLocalizations.of(context)!.buyScreenPurchaseFromSupplierHeader, style: AppTextStyles.cardHeader),
               ],
             ),
             const SizedBox(height: AppSpacing.card),
             TextField(
               controller: _invoiceNumberController,
-              decoration: const InputDecoration(labelText: 'Invoice Number'),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.buyScreenInvoiceNumberLabel),
             ),
             const SizedBox(height: AppSpacing.item),
             InkWell(
               onTap: _pickPurchaseDate,
               borderRadius: BorderRadius.circular(AppRadius.input),
               child: InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Purchase Date',
-                  suffixIcon: Icon(Icons.calendar_today_outlined, size: 18),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.buyScreenPurchaseDateLabel,
+                  suffixIcon: const Icon(Icons.calendar_today_outlined, size: 18),
                 ),
                 child: Text(DateFormat('MM/dd/yyyy').format(_purchaseDate)),
               ),
@@ -277,7 +289,7 @@ class _BuyScreenState extends State<BuyScreen> {
             DropdownButtonFormField<Party>(
               isExpanded: true,
               initialValue: _selectedVendor,
-              decoration: const InputDecoration(labelText: 'Vendor'),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.buyScreenVendorLabel),
               items: data.suppliers
                   .map((s) => DropdownMenuItem(value: s, child: Text(s.name, overflow: TextOverflow.ellipsis)))
                   .toList(),
@@ -287,7 +299,7 @@ class _BuyScreenState extends State<BuyScreen> {
             TextField(
               controller: _vendorNameController,
               enabled: _selectedVendor == null,
-              decoration: const InputDecoration(labelText: 'Vendor Name (if not listed above)'),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.buyScreenVendorNameLabel),
             ),
           ],
         ),
@@ -305,7 +317,7 @@ class _BuyScreenState extends State<BuyScreen> {
           children: [
             CartPanelHeader(
               icon: Icons.shopping_bag,
-              title: 'Purchase Summary',
+              title: AppLocalizations.of(context)!.buyScreenPurchaseSummaryTitle,
               itemCount: cart.itemCount,
               total: cart.netTotal,
             ),
@@ -317,8 +329,8 @@ class _BuyScreenState extends State<BuyScreen> {
                   cart.isEmpty
                       ? EmptyState(
                           icon: Icons.inventory_2_outlined,
-                          title: 'No items selected',
-                          subtitle: 'Click the button below to add products',
+                          title: AppLocalizations.of(context)!.buyScreenNoItemsSelectedTitle,
+                          subtitle: AppLocalizations.of(context)!.buyScreenNoItemsSelectedSubtitle,
                           action: ElevatedButton(
                             onPressed: () => showProductPicker(context, showPrice: false, onSelected: (p) {
                               cart.addProduct(p);
@@ -328,7 +340,7 @@ class _BuyScreenState extends State<BuyScreen> {
                               shape: const StadiumBorder(),
                               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
                             ),
-                            child: const Text('Add Products'),
+                            child: Text(AppLocalizations.of(context)!.buyScreenAddProductsLabel),
                           ),
                         )
                       : Column(
@@ -360,16 +372,16 @@ class _BuyScreenState extends State<BuyScreen> {
                               _announce('productAdded');
                             }),
                         icon: const Icon(Icons.add),
-                        label: const Text('Add More Products'),
+                        label: Text(AppLocalizations.of(context)!.buyScreenAddMoreProductsLabel),
                       ),
                     ),
                   const SizedBox(height: AppSpacing.card),
-                  _row('Subtotal:', 'Rs ${cart.netTotal.toStringAsFixed(2)}'),
+                  _row(AppLocalizations.of(context)!.buyScreenSubtotalLabel, 'Rs ${cart.netTotal.toStringAsFixed(2)}'),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: AppSpacing.field),
                     child: Divider(height: 1, color: AppColors.border),
                   ),
-                  _row('Total Purchase:', 'Rs ${cart.netTotal.toStringAsFixed(2)}', bold: true),
+                  _row(AppLocalizations.of(context)!.buyScreenTotalPurchaseLabel, 'Rs ${cart.netTotal.toStringAsFixed(2)}', bold: true),
                 ],
               ),
             ),
@@ -388,7 +400,7 @@ class _BuyScreenState extends State<BuyScreen> {
                       _announce('cartClearedBuy');
                     },
               style: AppButtonStyles.filled(AppColors.danger),
-              child: const Text('Clear Purchase'),
+              child: Text(AppLocalizations.of(context)!.buyScreenClearPurchaseLabel),
             ),
           ),
           const SizedBox(width: AppSpacing.field),
@@ -398,7 +410,7 @@ class _BuyScreenState extends State<BuyScreen> {
               style: AppButtonStyles.filled(AppColors.success),
               child: _isSubmitting
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Save Purchase'),
+                  : Text(AppLocalizations.of(context)!.buyScreenSavePurchaseLabel),
             ),
           ),
         ],
@@ -417,15 +429,15 @@ class _BuyScreenState extends State<BuyScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.trending_up, color: AppColors.warningDark),
-                SizedBox(width: AppSpacing.field),
-                Text('Purchase Return', style: AppTextStyles.subsectionTitle),
+                const Icon(Icons.trending_up, color: AppColors.warningDark),
+                const SizedBox(width: AppSpacing.field),
+                Text(AppLocalizations.of(context)!.buyScreenPurchaseReturnLabel, style: AppTextStyles.subsectionTitle),
               ],
             ),
             const SizedBox(height: AppSpacing.item),
-            const Text('Supplier', style: AppTextStyles.label),
+            Text(AppLocalizations.of(context)!.buyScreenSupplierLabel, style: AppTextStyles.label),
             const SizedBox(height: 4),
             DropdownButtonFormField<Party>(
               isExpanded: true,
@@ -450,7 +462,7 @@ class _BuyScreenState extends State<BuyScreen> {
           children: [
             CartPanelHeader(
               icon: Icons.trending_up,
-              title: 'Return Items',
+              title: AppLocalizations.of(context)!.buyScreenReturnItemsTitle,
               itemCount: _returnItems.length,
               total: _returnTotal,
               background: AppColors.warningDark,
@@ -463,7 +475,7 @@ class _BuyScreenState extends State<BuyScreen> {
                   _returnItems.isEmpty
                       ? EmptyState(
                           icon: Icons.assignment_return_outlined,
-                          title: 'No items to return',
+                          title: AppLocalizations.of(context)!.buyScreenNoItemsToReturnTitle,
                           action: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.warningDark,
@@ -475,7 +487,7 @@ class _BuyScreenState extends State<BuyScreen> {
                               showPrice: false,
                               onSelected: (p) => setState(() => _returnItems.add(PurchaseCartItem(product: p))),
                             ),
-                            child: const Text('Add Products'),
+                            child: Text(AppLocalizations.of(context)!.buyScreenAddProductsLabel),
                           ),
                         )
                       : Column(
@@ -506,11 +518,11 @@ class _BuyScreenState extends State<BuyScreen> {
                           onSelected: (p) => setState(() => _returnItems.add(PurchaseCartItem(product: p))),
                         ),
                         icon: const Icon(Icons.add),
-                        label: const Text('Add More Products'),
+                        label: Text(AppLocalizations.of(context)!.buyScreenAddMoreProductsLabel),
                       ),
                     ),
                   const SizedBox(height: AppSpacing.card),
-                  _row('Total Amount', 'Rs ${_returnTotal.toStringAsFixed(2)}', bold: true),
+                  _row(AppLocalizations.of(context)!.buyScreenTotalAmountLabel, 'Rs ${_returnTotal.toStringAsFixed(2)}', bold: true),
                 ],
               ),
             ),
@@ -529,7 +541,7 @@ class _BuyScreenState extends State<BuyScreen> {
                         _returnVendor = null;
                       }),
               style: AppButtonStyles.filled(AppColors.danger),
-              child: const Text('Clear Return'),
+              child: Text(AppLocalizations.of(context)!.buyScreenClearReturnLabel),
             ),
           ),
           const SizedBox(width: AppSpacing.field),
@@ -539,7 +551,7 @@ class _BuyScreenState extends State<BuyScreen> {
               style: AppButtonStyles.filled(AppColors.warningDark),
               child: _isSubmitting
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Post Return'),
+                  : Text(AppLocalizations.of(context)!.buyScreenPostReturnLabel),
             ),
           ),
         ],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:acc_pos/l10n/app_localizations.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../models/transaction_summary.dart';
@@ -9,16 +11,16 @@ import '../models/transaction_summary.dart';
 class RecentTransactionsList extends StatelessWidget {
   final List<TransactionSummary> items;
   final Color color;
-  final String emptyMessage;
+  final String? emptyMessage;
 
-  const RecentTransactionsList({super.key, required this.items, this.color = AppColors.info, this.emptyMessage = 'No transactions for this period'});
+  const RecentTransactionsList({super.key, required this.items, this.color = AppColors.info, this.emptyMessage});
 
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 20),
-        child: Center(child: Text(emptyMessage, style: AppTextStyles.helper)),
+        child: Center(child: Text(emptyMessage ?? AppLocalizations.of(context)!.recentTransactionsEmptyMessage, style: AppTextStyles.helper)),
       );
     }
 

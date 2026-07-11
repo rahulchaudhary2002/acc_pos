@@ -10,47 +10,69 @@ const _belowHundred = [
 ];
 const _tensWords = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
 
-String _belowThousandWords(int part) {
+// Nepali (Devanagari) equivalents, used when `locale == 'ne'`. Same
+// magnitude/grouping logic as the English branch, just different word lists.
+const _belowHundredNe = [
+  'शून्य', 'एक', 'दुई', 'तीन', 'चार', 'पाँच', 'छ', 'सात', 'आठ', 'नौ', 'दश',
+  'एघार', 'बाह्र', 'तेह्र', 'चौध', 'पन्ध्र', 'सोह्र', 'सत्र', 'अठार', 'उन्नाइस',
+];
+const _tensWordsNe = ['', '', 'बीस', 'तीस', 'चालीस', 'पचास', 'साठी', 'सत्तरी', 'असी', 'नब्बे'];
+
+String _belowThousandWords(int part, {String locale = 'en'}) {
+  final below = locale == 'ne' ? _belowHundredNe : _belowHundred;
+  final tens = locale == 'ne' ? _tensWordsNe : _tensWords;
+  final hundredWord = locale == 'ne' ? 'सय' : 'Hundred';
   final words = <String>[];
   final hundreds = part ~/ 100;
   final rest = part % 100;
-  if (hundreds > 0) words.add('${_belowHundred[hundreds]} Hundred');
+  if (hundreds > 0) words.add('${below[hundreds]} $hundredWord');
   if (rest > 0) {
     if (rest < 20) {
-      words.add(_belowHundred[rest]);
+      words.add(below[rest]);
     } else {
-      final tens = rest ~/ 10;
+      final tensDigit = rest ~/ 10;
       final ones = rest % 10;
-      words.add([_tensWords[tens], if (ones > 0) _belowHundred[ones]].join(' ').trim());
+      words.add([tens[tensDigit], if (ones > 0) below[ones]].join(' ').trim());
     }
   }
   return words.join(' ');
 }
 
 /// Indian numbering (Crore/Lakh/Thousand/Hundred) word conversion.
-String numberToWords(int number) {
-  if (number == 0) return 'Zero';
-  const groups = [(10000000, 'Crore'), (100000, 'Lakh'), (1000, 'Thousand'), (100, 'Hundred')];
+/// Defaults to English; pass `locale: 'ne'` for Devanagari Nepali words
+/// (same magnitude logic, Nepali word lists) without affecting existing
+/// English-only callers.
+String numberToWords(int number, {String locale = 'en'}) {
+  final below = locale == 'ne' ? _belowHundredNe : _belowHundred;
+  if (number == 0) return below[0];
+  final groups = locale == 'ne'
+      ? const [(10000000, 'करोड'), (100000, 'लाख'), (1000, 'हजार'), (100, 'सय')]
+      : const [(10000000, 'Crore'), (100000, 'Lakh'), (1000, 'Thousand'), (100, 'Hundred')];
   var remaining = number;
   final words = <String>[];
   for (final (value, label) in groups) {
     final count = remaining ~/ value;
     if (count == 0) continue;
-    words.add('${numberToWords(count)} $label');
+    words.add('${numberToWords(count, locale: locale)} $label');
     remaining %= value;
   }
-  if (remaining > 0) words.add(_belowThousandWords(remaining));
+  if (remaining > 0) words.add(_belowThousandWords(remaining, locale: locale));
   return words.join(' ');
 }
 
-/// e.g. `1234.5` -> `"Rupees One Thousand Two Hundred Thirty Four and Paisa Fifty Only"`.
-String amountToWords(double amount) {
+/// e.g. `1234.5` -> `"Rupees One Thousand Two Hundred Thirty Four and Paisa Fifty Only"`,
+/// or with `locale: 'ne'` -> `"...रुपैयाँ ... मात्र"` (e.g. `500` -> `"पाँच सय रुपैयाँ मात्र"`).
+String amountToWords(double amount, {String locale = 'en'}) {
   final normalized = amount < 0 ? 0.0 : amount;
   var rupees = normalized.truncate();
   var paisa = ((normalized - rupees) * 100).round();
   if (paisa >= 100) {
     rupees += 1;
     paisa = 0;
+  }
+  if (locale == 'ne') {
+    final paisaWords = paisa > 0 ? ' र पैसा ${numberToWords(paisa, locale: locale)}' : '';
+    return '${numberToWords(rupees, locale: locale)} रुपैयाँ$paisaWords मात्र';
   }
   final paisaWords = paisa > 0 ? ' and Paisa ${numberToWords(paisa)}' : '';
   return 'Rupees ${numberToWords(rupees)}$paisaWords Only';

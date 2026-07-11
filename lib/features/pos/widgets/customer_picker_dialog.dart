@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:acc_pos/l10n/app_localizations.dart';
+
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
@@ -58,12 +60,12 @@ class _CustomerPickerDialogState extends State<_CustomerPickerDialog> {
   Future<void> _createAndSelect() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      setState(() => _error = 'Full name is required.');
+      setState(() => _error = AppLocalizations.of(context)!.customerPickerFullNameRequired);
       return;
     }
     final vatNumber = _vatController.text.trim();
     if (vatNumber.isNotEmpty && !RegExp(r'^[A-Za-z0-9]{10}$').hasMatch(vatNumber)) {
-      setState(() => _error = 'VAT number must be exactly 10 alphanumeric characters.');
+      setState(() => _error = AppLocalizations.of(context)!.customerPickerVatFormatError);
       return;
     }
     final config = context.read<PosConfigProvider>();
@@ -105,17 +107,17 @@ class _CustomerPickerDialogState extends State<_CustomerPickerDialog> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
-                  children: const [
-                    Icon(Icons.person_outline, color: AppColors.textSecondary),
-                    SizedBox(width: AppSpacing.field),
-                    Text('Customer', style: AppTextStyles.subsectionTitle),
+                  children: [
+                    const Icon(Icons.person_outline, color: AppColors.textSecondary),
+                    const SizedBox(width: AppSpacing.field),
+                    Text(AppLocalizations.of(context)!.customerPickerTitle, style: AppTextStyles.subsectionTitle),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.card),
                 DropdownButtonFormField<Party>(
                   isExpanded: true,
                   initialValue: _selectedExisting,
-                  decoration: const InputDecoration(labelText: 'Existing Customer'),
+                  decoration: InputDecoration(labelText: AppLocalizations.of(context)!.customerPickerExistingCustomerLabel),
                   items: data.customers
                       .map((c) => DropdownMenuItem(value: c, child: Text(c.name, overflow: TextOverflow.ellipsis)))
                       .toList(),
@@ -123,22 +125,22 @@ class _CustomerPickerDialogState extends State<_CustomerPickerDialog> {
                 ),
                 const SizedBox(height: AppSpacing.item),
                 Row(
-                  children: const [
-                    Icon(Icons.person_add_alt, size: 14, color: AppColors.textMuted),
-                    SizedBox(width: 6),
+                  children: [
+                    const Icon(Icons.person_add_alt, size: 14, color: AppColors.textMuted),
+                    const SizedBox(width: 6),
                     Expanded(
-                      child: Text('Or create a new walk-in customer below', style: AppTextStyles.helper),
+                      child: Text(AppLocalizations.of(context)!.customerPickerWalkInHint, style: AppTextStyles.helper),
                     ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.item),
-                TextField(controller: _nameController, decoration: const InputDecoration(labelText: 'Full Name')),
+                TextField(controller: _nameController, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.customerPickerFullNameLabel)),
                 const SizedBox(height: AppSpacing.item),
-                TextField(controller: _phoneController, decoration: const InputDecoration(labelText: 'Phone Number')),
+                TextField(controller: _phoneController, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.customerPickerPhoneNumberLabel)),
                 const SizedBox(height: AppSpacing.item),
-                TextField(controller: _vatController, decoration: const InputDecoration(labelText: 'VAT Number')),
+                TextField(controller: _vatController, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.customerPickerVatNumberLabel)),
                 const SizedBox(height: AppSpacing.item),
-                TextField(controller: _addressController, decoration: const InputDecoration(labelText: 'Delivery Address')),
+                TextField(controller: _addressController, decoration: InputDecoration(labelText: AppLocalizations.of(context)!.customerPickerDeliveryAddressLabel)),
                 if (_error != null) ...[
                   const SizedBox(height: AppSpacing.item),
                   Text(_error!, style: const TextStyle(color: AppColors.dangerDark, fontSize: 12)),
@@ -149,7 +151,7 @@ class _CustomerPickerDialogState extends State<_CustomerPickerDialog> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
+                        child: Text(AppLocalizations.of(context)!.customerPickerCancelButton),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.field),
@@ -170,7 +172,7 @@ class _CustomerPickerDialogState extends State<_CustomerPickerDialog> {
                                 width: 18,
                                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                               )
-                            : const Text('Use Customer'),
+                            : Text(AppLocalizations.of(context)!.customerPickerUseCustomerButton),
                       ),
                     ),
                   ],

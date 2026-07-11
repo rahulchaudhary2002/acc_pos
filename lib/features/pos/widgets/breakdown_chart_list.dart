@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../l10n/app_localizations.dart';
 import '../models/breakdown_row.dart';
 
 /// Horizontal bar chart + ranked list for a "-wise" breakdown report
@@ -12,7 +13,7 @@ class BreakdownChartList extends StatelessWidget {
   final String Function(BreakdownRow) nameOf;
   final double Function(BreakdownRow) valueOf;
   final Color color;
-  final String emptyMessage;
+  final String? emptyMessage;
 
   const BreakdownChartList({
     super.key,
@@ -20,7 +21,7 @@ class BreakdownChartList extends StatelessWidget {
     required this.nameOf,
     required this.valueOf,
     this.color = AppColors.info,
-    this.emptyMessage = 'No data for this period',
+    this.emptyMessage,
   });
 
   @override
@@ -28,7 +29,12 @@ class BreakdownChartList extends StatelessWidget {
     if (rows.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 40),
-        child: Center(child: Text(emptyMessage, style: AppTextStyles.helper)),
+        child: Center(
+          child: Text(
+            emptyMessage ?? AppLocalizations.of(context)!.breakdownChartListNoDataMessage,
+            style: AppTextStyles.helper,
+          ),
+        ),
       );
     }
 
@@ -100,12 +106,12 @@ class BreakdownChartList extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.card),
-        ...rows.map((row) => _rowTile(row)),
+        ...rows.map((row) => _rowTile(context, row)),
       ],
     );
   }
 
-  Widget _rowTile(BreakdownRow row) {
+  Widget _rowTile(BuildContext context, BreakdownRow row) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.field),
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.item, vertical: AppSpacing.field),
@@ -122,7 +128,10 @@ class BreakdownChartList extends StatelessWidget {
               children: [
                 Text(nameOf(row), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
                 if (row.panVatNo != null && row.panVatNo!.isNotEmpty)
-                  Text('VAT: ${row.panVatNo}', style: AppTextStyles.tiny),
+                  Text(
+                    AppLocalizations.of(context)!.breakdownChartListVatLabel(row.panVatNo!),
+                    style: AppTextStyles.tiny,
+                  ),
               ],
             ),
           ),
@@ -130,7 +139,10 @@ class BreakdownChartList extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text('Rs ${valueOf(row).toStringAsFixed(0)}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: color)),
-              Text('${row.count} txns', style: AppTextStyles.tiny),
+              Text(
+                AppLocalizations.of(context)!.breakdownChartListTransactionsCount(row.count),
+                style: AppTextStyles.tiny,
+              ),
             ],
           ),
         ],

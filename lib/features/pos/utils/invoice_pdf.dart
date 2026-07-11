@@ -6,6 +6,57 @@ import 'package:pdf/widgets.dart' as pw;
 import '../widgets/invoice_document.dart';
 import 'invoice_format_utils.dart';
 
+/// Localized labels for the printed invoice. This file is a pure Dart
+/// function with no `BuildContext`, so it can't call `AppLocalizations`
+/// itself — callers (which do have a `BuildContext`, e.g.
+/// `invoice_preview_dialog.dart`) resolve these via
+/// `AppLocalizations.of(context)!` and pass them in.
+class PosInvoiceLabels {
+  final String Function(String phone) phone;
+  final String Function(String vatNo) vat;
+  final String srHeader;
+  final String hsCodeHeader;
+  final String descriptionHeader;
+  final String qtyHeader;
+  final String rateHeader;
+  final String totalAmtHeader;
+  final String printDateTime;
+  final String nepaliDate;
+  final String original;
+  final String taxable;
+  final String nonTaxable;
+  final String subTotal;
+  final String discount;
+  final String vatAmount;
+  final String Function(String rate) vatAmountWithRate;
+  final String netTotal;
+  final String preparedByFallback;
+  final String prepareBy;
+
+  const PosInvoiceLabels({
+    required this.phone,
+    required this.vat,
+    required this.srHeader,
+    required this.hsCodeHeader,
+    required this.descriptionHeader,
+    required this.qtyHeader,
+    required this.rateHeader,
+    required this.totalAmtHeader,
+    required this.printDateTime,
+    required this.nepaliDate,
+    required this.original,
+    required this.taxable,
+    required this.nonTaxable,
+    required this.subTotal,
+    required this.discount,
+    required this.vatAmount,
+    required this.vatAmountWithRate,
+    required this.netTotal,
+    required this.preparedByFallback,
+    required this.prepareBy,
+  });
+}
+
 /// Builds an A5 PDF of the tax invoice for the Print/Share actions —
 /// mirrors the on-screen `TaxInvoiceDocument` layout (and the web app's
 /// jsPDF-generated receipt) so what gets printed/shared matches what the
@@ -26,7 +77,9 @@ Future<Uint8List> buildInvoicePdfBytes({
   required double total,
   required String preparedBy,
   required String signatureRightLabel,
+  required PosInvoiceLabels labels,
   String title = 'TAX INVOICE',
+  String amountInWordsLocale = 'en',
 }) async {
   final doc = pw.Document();
   final border = PdfColors.grey900;

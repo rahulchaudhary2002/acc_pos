@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_banner.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../models/company.dart';
 import '../models/sale_cart_item.dart';
@@ -78,12 +79,12 @@ class _SellScreenState extends State<SellScreen> {
     if (cart.isEmpty) return;
     final walkInName = _customerNameController.text.trim();
     if (cart.saleType == 'customer' && _selectedCustomer == null && walkInName.isEmpty) {
-      setState(() => _errorMessage = 'Select an existing customer or enter a full name for a customer sale.');
+      setState(() => _errorMessage = AppLocalizations.of(context)!.sellScreenSelectCustomerOrNameError);
       return;
     }
     final vatNumber = _customerVatController.text.trim();
     if (cart.saleType == 'customer' && _selectedCustomer == null && vatNumber.isNotEmpty && !RegExp(r'^[A-Za-z0-9]{10}$').hasMatch(vatNumber)) {
-      setState(() => _errorMessage = 'VAT number must be exactly 10 alphanumeric characters.');
+      setState(() => _errorMessage = AppLocalizations.of(context)!.sellScreenVatNumberLengthError);
       return;
     }
 
@@ -172,7 +173,7 @@ class _SellScreenState extends State<SellScreen> {
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Return ${result.documentNo} completed — Rs ${result.total.toStringAsFixed(2)}')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.sellScreenReturnCompletedMessage(result.documentNo, result.total.toStringAsFixed(2)))),
       );
       setState(() {
         _returnItems.clear();
@@ -197,7 +198,7 @@ class _SellScreenState extends State<SellScreen> {
 
     return Column(
       children: [
-        const PosScreenHeader(title: 'Sell LPG', subtitle: 'Easy POS for Vendors'),
+        PosScreenHeader(title: AppLocalizations.of(context)!.sellScreenTitle, subtitle: AppLocalizations.of(context)!.sellScreenSubtitle),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.card),
@@ -213,8 +214,8 @@ class _SellScreenState extends State<SellScreen> {
                     Expanded(
                       child: ActionRowButton(
                         icon: Icons.receipt,
-                        label: 'Cash Sale',
-                        subtitle: 'Up to Rs 25,000',
+                        label: AppLocalizations.of(context)!.sellScreenCashSaleLabel,
+                        subtitle: AppLocalizations.of(context)!.sellScreenCashSaleSubtitle,
                         active: _mode == 'sale' && cart.saleType == 'cash',
                         activeColor: AppColors.success,
                         activeBorderColor: AppColors.successActive,
@@ -230,8 +231,8 @@ class _SellScreenState extends State<SellScreen> {
                     Expanded(
                       child: ActionRowButton(
                         icon: Icons.shopping_cart,
-                        label: 'Customer Sale',
-                        subtitle: 'Linked account',
+                        label: AppLocalizations.of(context)!.sellScreenCustomerSaleLabel,
+                        subtitle: AppLocalizations.of(context)!.sellScreenCustomerSaleSubtitle,
                         active: _mode == 'sale' && cart.saleType == 'customer',
                         activeColor: AppColors.info,
                         activeBorderColor: AppColors.borderInfoActive,
@@ -246,8 +247,8 @@ class _SellScreenState extends State<SellScreen> {
                     Expanded(
                       child: ActionRowButton(
                         icon: Icons.undo,
-                        label: 'Sales Return',
-                        subtitle: 'Refund items',
+                        label: AppLocalizations.of(context)!.sellScreenSalesReturnLabel,
+                        subtitle: AppLocalizations.of(context)!.sellScreenSalesReturnSubtitle,
                         active: _mode == 'return',
                         activeColor: AppColors.danger,
                         activeBorderColor: AppColors.borderDangerActive,
@@ -300,7 +301,7 @@ class _SellScreenState extends State<SellScreen> {
           children: [
             CartPanelHeader(
               icon: Icons.shopping_cart,
-              title: 'Current Sale',
+              title: AppLocalizations.of(context)!.sellScreenCurrentSaleTitle,
               itemCount: cart.itemCount,
               total: cart.grandTotal,
             ),
@@ -312,8 +313,8 @@ class _SellScreenState extends State<SellScreen> {
                   cart.isEmpty
                       ? EmptyState(
                           icon: Icons.shopping_cart_outlined,
-                          title: 'No items added yet',
-                          subtitle: 'Click the button below to add products',
+                          title: AppLocalizations.of(context)!.sellScreenNoItemsAddedTitle,
+                          subtitle: AppLocalizations.of(context)!.sellScreenNoItemsAddedSubtitle,
                           action: ElevatedButton(
                             onPressed: () => showProductPicker(context, disableOutOfStock: true, onSelected: (p) {
                               cart.addProduct(p);
@@ -323,7 +324,7 @@ class _SellScreenState extends State<SellScreen> {
                               shape: const StadiumBorder(),
                               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
                             ),
-                            child: const Text('Add Products'),
+                            child: Text(AppLocalizations.of(context)!.sellScreenAddProductsLabel),
                           ),
                         )
                       : Column(
@@ -356,7 +357,7 @@ class _SellScreenState extends State<SellScreen> {
                               _announce('productAdded');
                             }),
                         icon: const Icon(Icons.add),
-                        label: const Text('Add More Products'),
+                        label: Text(AppLocalizations.of(context)!.sellScreenAddMoreProductsLabel),
                       ),
                     ),
                   const SizedBox(height: AppSpacing.card),
@@ -397,7 +398,7 @@ class _SellScreenState extends State<SellScreen> {
                       _announce('cartClearedSell');
                     },
               style: AppButtonStyles.filled(AppColors.danger),
-              child: const Text('Clear All'),
+              child: Text(AppLocalizations.of(context)!.sellScreenClearAllLabel),
             ),
           ),
           const SizedBox(width: AppSpacing.field),
@@ -407,7 +408,7 @@ class _SellScreenState extends State<SellScreen> {
               style: AppButtonStyles.filled(AppColors.success),
               child: _isSubmitting
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Generate VAT Bill'),
+                  : Text(AppLocalizations.of(context)!.sellScreenGenerateVatBillLabel),
             ),
           ),
         ],
@@ -426,15 +427,15 @@ class _SellScreenState extends State<SellScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.trending_down, color: AppColors.dangerDark),
-                SizedBox(width: AppSpacing.field),
-                Text('Sales Return', style: AppTextStyles.subsectionTitle),
+                const Icon(Icons.trending_down, color: AppColors.dangerDark),
+                const SizedBox(width: AppSpacing.field),
+                Text(AppLocalizations.of(context)!.sellScreenSalesReturnLabel, style: AppTextStyles.subsectionTitle),
               ],
             ),
             const SizedBox(height: AppSpacing.item),
-            const Text('Customer (optional)', style: AppTextStyles.label),
+            Text(AppLocalizations.of(context)!.sellScreenCustomerOptionalLabel, style: AppTextStyles.label),
             const SizedBox(height: 4),
             DropdownButtonFormField<int?>(
               isExpanded: true,
@@ -444,7 +445,7 @@ class _SellScreenState extends State<SellScreen> {
                 fillColor: AppColors.surface,
               ),
               items: [
-                const DropdownMenuItem<int?>(value: null, child: Text('Walk-in / No customer')),
+                DropdownMenuItem<int?>(value: null, child: Text(AppLocalizations.of(context)!.sellScreenWalkInNoCustomerLabel)),
                 ...data.customers.map((c) => DropdownMenuItem<int?>(value: c.id, child: Text(c.name, overflow: TextOverflow.ellipsis))),
               ],
               onChanged: (value) => setState(() => _returnCustomerId = value),
@@ -463,7 +464,7 @@ class _SellScreenState extends State<SellScreen> {
           children: [
             CartPanelHeader(
               icon: Icons.trending_down,
-              title: 'Return Items',
+              title: AppLocalizations.of(context)!.sellScreenReturnItemsTitle,
               itemCount: _returnItems.length,
               total: _returnGrandTotal,
               background: AppColors.dangerDark,
@@ -476,8 +477,8 @@ class _SellScreenState extends State<SellScreen> {
                   _returnItems.isEmpty
                       ? EmptyState(
                           icon: Icons.assignment_return_outlined,
-                          title: 'No items selected',
-                          subtitle: 'Select products to return',
+                          title: AppLocalizations.of(context)!.sellScreenNoItemsSelectedTitle,
+                          subtitle: AppLocalizations.of(context)!.sellScreenSelectProductsToReturnSubtitle,
                           action: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.danger,
@@ -485,7 +486,7 @@ class _SellScreenState extends State<SellScreen> {
                               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
                             ),
                             onPressed: () => showProductPicker(context, onSelected: (p) => setState(() => _returnItems.add(SaleCartItem(product: p)))),
-                            child: const Text('Add Products'),
+                            child: Text(AppLocalizations.of(context)!.sellScreenAddProductsLabel),
                           ),
                         )
                       : Column(
@@ -513,7 +514,7 @@ class _SellScreenState extends State<SellScreen> {
                         style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger),
                         onPressed: () => showProductPicker(context, onSelected: (p) => setState(() => _returnItems.add(SaleCartItem(product: p)))),
                         icon: const Icon(Icons.add),
-                        label: const Text('Add More Products'),
+                        label: Text(AppLocalizations.of(context)!.sellScreenAddMoreProductsLabel),
                       ),
                     ),
                   const SizedBox(height: AppSpacing.card),
@@ -521,7 +522,7 @@ class _SellScreenState extends State<SellScreen> {
                     subtotal: _returnSubtotal,
                     taxTotal: _returnTaxTotal,
                     grandTotal: _returnGrandTotal,
-                    totalLabel: 'Total Return',
+                    totalLabel: AppLocalizations.of(context)!.sellScreenTotalReturnLabel,
                   ),
                 ],
               ),
@@ -541,7 +542,7 @@ class _SellScreenState extends State<SellScreen> {
                         _returnCustomerId = null;
                       }),
               style: AppButtonStyles.filled(AppColors.danger),
-              child: const Text('Clear Return'),
+              child: Text(AppLocalizations.of(context)!.sellScreenClearReturnLabel),
             ),
           ),
           const SizedBox(width: AppSpacing.field),
@@ -551,7 +552,7 @@ class _SellScreenState extends State<SellScreen> {
               style: AppButtonStyles.filled(AppColors.dangerDark),
               child: _isSubmitting
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Post Sales Return'),
+                  : Text(AppLocalizations.of(context)!.sellScreenPostSalesReturnLabel),
             ),
           ),
         ],
@@ -594,32 +595,32 @@ class _CustomerInfoSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.person_outline, color: AppColors.textSecondary),
-              SizedBox(width: AppSpacing.field),
-              Text('Customer Information', style: AppTextStyles.subsectionTitle),
+              const Icon(Icons.person_outline, color: AppColors.textSecondary),
+              const SizedBox(width: AppSpacing.field),
+              Text(AppLocalizations.of(context)!.sellScreenCustomerInformationTitle, style: AppTextStyles.subsectionTitle),
             ],
           ),
           const SizedBox(height: AppSpacing.item),
           DropdownButtonFormField<Party?>(
             isExpanded: true,
             initialValue: selectedCustomer,
-            decoration: const InputDecoration(labelText: 'Existing Customer'),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context)!.sellScreenExistingCustomerLabel),
             items: [
-              const DropdownMenuItem<Party?>(value: null, child: Text('Select customer')),
+              DropdownMenuItem<Party?>(value: null, child: Text(AppLocalizations.of(context)!.sellScreenSelectCustomerLabel)),
               ...customers.map((c) => DropdownMenuItem<Party?>(value: c, child: Text(c.name, overflow: TextOverflow.ellipsis))),
             ],
             onChanged: onCustomerSelected,
           ),
           const SizedBox(height: AppSpacing.field),
-          const Row(
+          Row(
             children: [
-              Icon(Icons.person_add_alt, size: 16, color: AppColors.textMuted),
-              SizedBox(width: 6),
+              const Icon(Icons.person_add_alt, size: 16, color: AppColors.textMuted),
+              const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  'Leave this blank and enter details below to auto-create a new customer when generating the bill.',
+                  AppLocalizations.of(context)!.sellScreenAutoCreateCustomerHelper,
                   style: AppTextStyles.helper,
                 ),
               ),
@@ -629,25 +630,25 @@ class _CustomerInfoSection extends StatelessWidget {
           TextField(
             controller: nameController,
             enabled: selectedCustomer == null,
-            decoration: const InputDecoration(labelText: 'Full Name'),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context)!.sellScreenFullNameLabel),
           ),
           const SizedBox(height: AppSpacing.item),
           TextField(
             controller: phoneController,
             enabled: selectedCustomer == null,
-            decoration: const InputDecoration(labelText: 'Phone Number'),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context)!.sellScreenPhoneNumberLabel),
           ),
           const SizedBox(height: AppSpacing.item),
           TextField(
             controller: vatController,
             enabled: selectedCustomer == null,
-            decoration: const InputDecoration(labelText: 'VAT Number'),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context)!.sellScreenVatNumberLabel),
           ),
           const SizedBox(height: AppSpacing.item),
           TextField(
             controller: addressController,
             enabled: selectedCustomer == null,
-            decoration: const InputDecoration(labelText: 'Delivery Address'),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context)!.sellScreenDeliveryAddressLabel),
           ),
         ],
       ),

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/network/api_exception.dart';
+import '../../../core/providers/locale_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/error_banner.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/buy_cart_provider.dart';
 import '../providers/cart_provider.dart';
@@ -65,14 +67,15 @@ class _OthersScreenState extends State<OthersScreen> {
   }
 
   Future<void> _resetSystem() async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Reset System'),
-        content: const Text('This refreshes company, outlet, and product data from the server. Continue?'),
+        title: Text(l10n.othersScreenResetSystemDialogTitle),
+        content: Text(l10n.othersScreenResetSystemDialogContent),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Reset')),
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: Text(l10n.othersScreenCancelButton)),
+          TextButton(onPressed: () => Navigator.pop(dialogContext, true), child: Text(l10n.othersScreenResetButton)),
         ],
       ),
     );
@@ -94,7 +97,7 @@ class _OthersScreenState extends State<OthersScreen> {
       );
       await data.loadParties(companyId: config.selectedCompanyId);
       messenger.showSnackBar(
-        const SnackBar(content: Text('System refreshed with the latest data.')),
+        SnackBar(content: Text(l10n.othersScreenRefreshSuccessMessage)),
       );
     } on ApiException catch (e) {
       setState(() => _error = e.message);
@@ -107,10 +110,11 @@ class _OthersScreenState extends State<OthersScreen> {
   Widget build(BuildContext context) {
     final config = context.watch<PosConfigProvider>();
     final isLoggingOut = context.watch<AuthProvider>().isLoading;
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       children: [
-        const PosScreenHeader(title: 'Settings', subtitle: 'System settings and POS controls', icon: Icons.settings),
+        PosScreenHeader(title: l10n.othersScreenTitle, subtitle: l10n.othersScreenSubtitle, icon: Icons.settings),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.card),
@@ -129,10 +133,10 @@ class _OthersScreenState extends State<OthersScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        children: const [
-                          Icon(Icons.build_outlined, color: AppColors.textSecondary),
-                          SizedBox(width: AppSpacing.field),
-                          Text('POS Configuration', style: AppTextStyles.cardHeader),
+                        children: [
+                          const Icon(Icons.build_outlined, color: AppColors.textSecondary),
+                          const SizedBox(width: AppSpacing.field),
+                          Text(l10n.othersScreenPosConfigurationHeader, style: AppTextStyles.cardHeader),
                         ],
                       ),
                       const SizedBox(height: AppSpacing.card),
@@ -140,7 +144,7 @@ class _OthersScreenState extends State<OthersScreen> {
                         children: [
                           Expanded(
                             child: _configField(
-                              label: 'Company',
+                              label: l10n.othersScreenCompanyLabel,
                               // Mirrors PosTerminal.jsx: always a <select>,
                               // never collapsed to read-only text even with
                               // one option — the web app never does that.
@@ -159,7 +163,7 @@ class _OthersScreenState extends State<OthersScreen> {
                           const SizedBox(width: AppSpacing.item),
                           Expanded(
                             child: _configField(
-                              label: 'Outlet',
+                              label: l10n.othersScreenOutletLabel,
                               child: DropdownButtonFormField<int>(
                                 isExpanded: true,
                                 initialValue: config.selectedOutletId,
@@ -179,7 +183,7 @@ class _OthersScreenState extends State<OthersScreen> {
                         children: [
                           Expanded(
                             child: _configField(
-                              label: 'Fiscal Year',
+                              label: l10n.othersScreenFiscalYearLabel,
                               child: DropdownButtonFormField<int>(
                                 isExpanded: true,
                                 initialValue: config.selectedFiscalYearId,
@@ -193,7 +197,7 @@ class _OthersScreenState extends State<OthersScreen> {
                           const SizedBox(width: AppSpacing.item),
                           Expanded(
                             child: _configField(
-                              label: 'Warehouse',
+                              label: l10n.othersScreenWarehouseLabel,
                               child: DropdownButtonFormField<int>(
                                 isExpanded: true,
                                 initialValue: config.selectedLocationId,
@@ -208,6 +212,8 @@ class _OthersScreenState extends State<OthersScreen> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: AppSpacing.item),
+                      _configField(label: l10n.languageCardHeader, child: const _LanguageSwitcher()),
                     ],
                   ),
                 ),
@@ -226,7 +232,7 @@ class _OthersScreenState extends State<OthersScreen> {
                                 height: 18,
                                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                               )
-                            : const Text('Logout'),
+                            : Text(l10n.othersScreenLogoutButton),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.item),
@@ -240,7 +246,7 @@ class _OthersScreenState extends State<OthersScreen> {
                                 height: 18,
                                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                               )
-                            : const Text('Reset System'),
+                            : Text(l10n.othersScreenResetSystemButton),
                       ),
                     ),
                   ],
@@ -271,6 +277,7 @@ class _VoicePromptCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final announcer = context.watch<VoiceAnnouncer>();
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.card),
       decoration: BoxDecoration(
@@ -282,10 +289,10 @@ class _VoicePromptCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.settings, color: AppColors.textSecondary),
-              SizedBox(width: AppSpacing.field),
-              Text('POS Voice Prompt', style: AppTextStyles.cardHeader),
+            children: [
+              const Icon(Icons.settings, color: AppColors.textSecondary),
+              const SizedBox(width: AppSpacing.field),
+              Text(l10n.voicePromptCardHeader, style: AppTextStyles.cardHeader),
             ],
           ),
           const SizedBox(height: AppSpacing.card),
@@ -295,14 +302,14 @@ class _VoicePromptCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Sound Status', style: AppTextStyles.label),
+                    Text(l10n.voicePromptSoundStatusLabel, style: AppTextStyles.label),
                     const SizedBox(height: 4),
                     DropdownButtonFormField<bool>(
                       isExpanded: true,
                       initialValue: announcer.enabled,
-                      items: const [
-                        DropdownMenuItem(value: true, child: Text('On')),
-                        DropdownMenuItem(value: false, child: Text('Off')),
+                      items: [
+                        DropdownMenuItem(value: true, child: Text(l10n.voicePromptOnLabel)),
+                        DropdownMenuItem(value: false, child: Text(l10n.voicePromptOffLabel)),
                       ],
                       onChanged: (v) => announcer.setEnabled(v ?? true),
                     ),
@@ -314,7 +321,7 @@ class _VoicePromptCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Announcement Language', style: AppTextStyles.label),
+                    Text(l10n.voicePromptAnnouncementLanguageLabel, style: AppTextStyles.label),
                     const SizedBox(height: 4),
                     DropdownButtonFormField<String>(
                       isExpanded: true,
@@ -331,14 +338,14 @@ class _VoicePromptCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.item),
-          const Text('Volume', style: AppTextStyles.label),
+          Text(l10n.voicePromptVolumeLabel, style: AppTextStyles.label),
           Slider(
             value: announcer.volume,
             onChanged: (v) => announcer.setVolume(v),
             activeColor: AppColors.info,
           ),
-          const Text(
-            'Plays only inside POS when switching between Sell, Buy, Reports, and Others.',
+          Text(
+            l10n.voicePromptHelperText,
             style: AppTextStyles.helper,
           ),
           const SizedBox(height: AppSpacing.item),
@@ -352,7 +359,7 @@ class _VoicePromptCard extends StatelessWidget {
                 style: AppButtonStyles.filled(AppColors.info).copyWith(
                       padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 28, vertical: 12)),
                     ),
-                child: const Text('Test Voice Prompt', style: TextStyle(fontSize: 13)),
+                child: Text(l10n.voicePromptTestButton, style: const TextStyle(fontSize: 13)),
               ),
               // Mirrors PosTerminal.jsx's example chip next to the button —
               // shows the phrase a tab switch actually speaks, in whichever
@@ -373,6 +380,36 @@ class _VoicePromptCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _LanguageSwitcher extends StatelessWidget {
+  const _LanguageSwitcher();
+
+  @override
+  Widget build(BuildContext context) {
+    final localeProvider = context.watch<LocaleProvider>();
+    final current = localeProvider.locale;
+
+    Widget languageChip({required String label, required Locale locale}) {
+      final isActive = current?.languageCode == locale.languageCode;
+      return ChoiceChip(
+        label: Text(label),
+        selected: isActive,
+        onSelected: (_) => context.read<LocaleProvider>().setLocale(locale),
+        selectedColor: AppColors.info,
+        labelStyle: TextStyle(color: isActive ? Colors.white : AppColors.textPrimary),
+      );
+    }
+
+    return Wrap(
+      spacing: AppSpacing.field,
+      runSpacing: AppSpacing.field,
+      children: [
+        languageChip(label: 'English', locale: const Locale('en')),
+        languageChip(label: 'नेपाली', locale: const Locale('ne')),
+      ],
     );
   }
 }

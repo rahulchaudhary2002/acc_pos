@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:acc_pos/l10n/app_localizations.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../models/product.dart';
@@ -15,6 +17,7 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final outOfStock = product.outOfStock;
     final disabled = onTap == null;
     // The "Out of Stock" pill always renders so the card looks the same in
@@ -65,7 +68,9 @@ class ProductCard extends StatelessWidget {
               ],
               const SizedBox(height: 2),
               Text(
-                product.trackInventory ? 'Stock: ${product.currentStock.toStringAsFixed(0)}' : 'Not tracked',
+                product.trackInventory
+                    ? l10n.productCardStockLabel(product.currentStock.toStringAsFixed(0))
+                    : l10n.productCardNotTracked,
                 style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
               ),
               if (outOfStock) ...[
@@ -77,9 +82,9 @@ class ProductCard extends StatelessWidget {
                     border: Border.all(color: AppColors.borderDanger),
                     borderRadius: BorderRadius.circular(AppRadius.full),
                   ),
-                  child: const Text(
-                    'Out of Stock',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.dangerDark),
+                  child: Text(
+                    l10n.productCardOutOfStock,
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.dangerDark),
                   ),
                 ),
               ],

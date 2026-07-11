@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../l10n/app_localizations.dart';
 import '../providers/date_locale_provider.dart';
 
 /// Header bar shared by every POS tab: icon circle + title + subtitle on the
@@ -90,8 +91,8 @@ class _PosScreenHeaderState extends State<PosScreenHeader> {
           PopupMenuButton<String>(
             onSelected: (value) => context.read<DateLocaleProvider>().setLanguage(value),
             itemBuilder: (context) => [
-              CheckedPopupMenuItem(value: 'en', checked: !isNepali, child: const Text('English')),
-              CheckedPopupMenuItem(value: 'ne', checked: isNepali, child: const Text('नेपाली (Nepali)')),
+              CheckedPopupMenuItem(value: 'en', checked: !isNepali, child: Text(AppLocalizations.of(context)!.posScreenHeaderLanguageEnglish)),
+              CheckedPopupMenuItem(value: 'ne', checked: isNepali, child: Text(AppLocalizations.of(context)!.posScreenHeaderLanguageNepali)),
             ],
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

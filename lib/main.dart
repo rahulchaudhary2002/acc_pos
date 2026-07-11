@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'core/network/api_client.dart';
+import 'core/providers/locale_provider.dart';
 import 'core/storage/token_storage.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
@@ -17,6 +18,7 @@ import 'features/pos/providers/pos_data_provider.dart';
 import 'features/pos/providers/voice_announcer.dart';
 import 'features/pos/screens/pos_home_screen.dart';
 import 'features/pos/services/pos_service.dart';
+import 'l10n/app_localizations.dart';
 
 void main() {
   runApp(const MainApp());
@@ -46,6 +48,7 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => BuyCartProvider()),
         ChangeNotifierProvider(create: (_) => VoiceAnnouncer()..init()),
         ChangeNotifierProvider(create: (_) => DateLocaleProvider()..init()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()..init()),
       ],
       child: _AppRoot(apiClient: apiClient),
     );
@@ -73,10 +76,14 @@ class _AppRootState extends State<_AppRoot> {
 
   @override
   Widget build(BuildContext context) {
+    final localeProvider = context.watch<LocaleProvider>();
     return MaterialApp(
       title: 'POS',
       theme: AppTheme.theme,
       debugShowCheckedModeBanner: false,
+      locale: localeProvider.locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const _AuthGate(),
     );
   }

@@ -6,6 +6,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/error_banner.dart';
+import '../../../l10n/app_localizations.dart';
 import '../models/breakdown_row.dart';
 import '../models/payment_mode_stat.dart';
 import '../models/report_metric.dart';
@@ -21,18 +22,9 @@ import '../widgets/recent_transactions_list.dart';
 import '../widgets/sales_trend_chart.dart';
 import '../widgets/top_products_list.dart';
 
-const _periods = [
-  ('today', 'Today'),
-  ('yesterday', 'Yesterday'),
-  ('last_7_days', 'Last 7 Days'),
-  ('last_30_days', 'Last 30 Days'),
-  ('this_month', 'This Month'),
-  ('last_month', 'Last Month'),
-  ('lifetime', 'Lifetime'),
-  ('custom', 'Custom Range'),
-];
+const _periodKeys = ['today', 'yesterday', 'last_7_days', 'last_30_days', 'this_month', 'last_month', 'lifetime', 'custom'];
 
-const _tabs = ['Overview', 'Stores', 'Vendors', 'Customers', 'More'];
+const _tabKeys = ['overview', 'stores', 'vendors', 'customers', 'more'];
 const _moreTabIndex = 4;
 
 class ReportsScreen extends StatefulWidget {
@@ -67,7 +59,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController = TabController(length: _tabKeys.length, vsync: this);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) return;
       if (_tabController.index == _moreTabIndex) {
@@ -94,6 +86,46 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
 
   String? get _fromDate => _period == 'custom' && _customRange != null ? DateFormat('yyyy-MM-dd').format(_customRange!.start) : null;
   String? get _toDate => _period == 'custom' && _customRange != null ? DateFormat('yyyy-MM-dd').format(_customRange!.end) : null;
+
+  String _periodLabelFor(AppLocalizations l10n, String key) {
+    switch (key) {
+      case 'today':
+        return l10n.reportsScreenPeriodToday;
+      case 'yesterday':
+        return l10n.reportsScreenPeriodYesterday;
+      case 'last_7_days':
+        return l10n.reportsScreenPeriodLast7Days;
+      case 'last_30_days':
+        return l10n.reportsScreenPeriodLast30Days;
+      case 'this_month':
+        return l10n.reportsScreenPeriodThisMonth;
+      case 'last_month':
+        return l10n.reportsScreenPeriodLastMonth;
+      case 'lifetime':
+        return l10n.reportsScreenPeriodLifetime;
+      case 'custom':
+        return l10n.reportsScreenPeriodCustomRange;
+      default:
+        return key;
+    }
+  }
+
+  String _tabLabelFor(AppLocalizations l10n, String key) {
+    switch (key) {
+      case 'overview':
+        return l10n.reportsScreenTabOverview;
+      case 'stores':
+        return l10n.reportsScreenTabStores;
+      case 'vendors':
+        return l10n.reportsScreenTabVendors;
+      case 'customers':
+        return l10n.reportsScreenTabCustomers;
+      case 'more':
+        return l10n.reportsScreenTabMore;
+      default:
+        return key;
+    }
+  }
 
   Future<void> _pickCustomRange() async {
     final now = DateTime.now();
@@ -236,14 +268,15 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
       final fmt = DateFormat('d MMM');
       return '${fmt.format(_customRange!.start)} – ${fmt.format(_customRange!.end)}';
     }
-    return _periods.firstWhere((p) => p.$1 == _period).$2;
+    return _periodLabelFor(AppLocalizations.of(context)!, _period);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
-        const PosScreenHeader(title: 'Reports', subtitle: 'Sales & Inventory Reports', icon: Icons.bar_chart),
+        PosScreenHeader(title: l10n.reportsScreenTitle, subtitle: l10n.reportsScreenSubtitle, icon: Icons.bar_chart),
         _periodBar(),
         Container(
           color: AppColors.surface,
@@ -255,7 +288,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
             unselectedLabelColor: AppColors.textMuted,
             indicatorColor: AppColors.info,
             labelStyle: AppTextStyles.tabLabel,
-            tabs: _tabs.map((t) => Tab(text: t)).toList(),
+            tabs: _tabKeys.map((k) => Tab(text: _tabLabelFor(l10n, k))).toList(),
           ),
         ),
         Expanded(
@@ -275,6 +308,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
   }
 
   Widget _overviewTab() {
+    final l10n = AppLocalizations.of(context)!;
     return RefreshIndicator(
       onRefresh: _load,
       child: SingleChildScrollView(
@@ -290,7 +324,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
               )
             else if (_metrics != null) ...[
               _card(
-                title: 'Sales vs Purchases Trend',
+                title: l10n.reportsScreenSalesPurchasesTrendTitle,
                 icon: Icons.show_chart,
                 child: SalesTrendChart(points: _trend),
               ),
@@ -332,7 +366,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
               )
             else
               _card(
-                title: '${_tabs[index]} · $_periodLabel',
+                title: '${_tabLabelFor(AppLocalizations.of(context)!, _tabKeys[index])} · $_periodLabel',
                 icon: Icons.bar_chart,
                 child: BreakdownChartList(rows: rows ?? [], nameOf: nameOf, valueOf: valueOf, color: color),
               ),
@@ -343,6 +377,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
   }
 
   Widget _moreTab() {
+    final l10n = AppLocalizations.of(context)!;
     return RefreshIndicator(
       onRefresh: () {
         _moreLoaded = false;
@@ -362,25 +397,25 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
               )
             else ...[
               _card(
-                title: 'Top Products · $_periodLabel',
+                title: l10n.reportsScreenTopProductsTitle(_periodLabel),
                 icon: Icons.star,
                 child: TopProductsList(products: _topProducts),
               ),
               const SizedBox(height: AppSpacing.card),
               _card(
-                title: 'Sales by Payment Mode · $_periodLabel',
+                title: l10n.reportsScreenPaymentModeTitle(_periodLabel),
                 icon: Icons.pie_chart,
                 child: PaymentModePieChart(stats: _paymentModes),
               ),
               const SizedBox(height: AppSpacing.card),
               _card(
-                title: 'Recent Sales',
+                title: l10n.reportsScreenRecentSalesTitle,
                 icon: Icons.receipt_long,
                 child: RecentTransactionsList(items: _recentSales, color: AppColors.success),
               ),
               const SizedBox(height: AppSpacing.card),
               _card(
-                title: 'Recent Purchases',
+                title: l10n.reportsScreenRecentPurchasesTitle,
                 icon: Icons.local_shipping,
                 child: RecentTransactionsList(items: _recentPurchases, color: AppColors.warningDark),
               ),
@@ -395,6 +430,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
   // visible and applies consistently across every tab (Overview, Stores,
   // Vendors, Customers, More all filter by it).
   Widget _periodBar() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       color: AppColors.surface,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.card, vertical: AppSpacing.field),
@@ -402,17 +438,17 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
         children: [
           const Icon(Icons.calendar_today, size: 16, color: AppColors.textSecondary),
           const SizedBox(width: AppSpacing.field),
-          const Text('Period:', style: AppTextStyles.label),
+          Text(l10n.reportsScreenPeriodLabel, style: AppTextStyles.label),
           const SizedBox(width: AppSpacing.field),
           Expanded(
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 isExpanded: true,
                 value: _period,
-                items: _periods.map((p) => DropdownMenuItem(value: p.$1, child: Text(p.$2))).toList(),
+                items: _periodKeys.map((k) => DropdownMenuItem(value: k, child: Text(_periodLabelFor(l10n, k)))).toList(),
                 selectedItemBuilder: (context) {
-                  return _periods.map((p) {
-                    final label = p.$1 == 'custom' && _customRange != null ? _periodLabel : p.$2;
+                  return _periodKeys.map((k) {
+                    final label = k == 'custom' && _customRange != null ? _periodLabel : _periodLabelFor(l10n, k);
                     return Align(
                       alignment: Alignment.centerLeft,
                       child: Text(label, overflow: TextOverflow.ellipsis),
@@ -434,7 +470,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
           if (_period == 'custom')
             IconButton(
               icon: const Icon(Icons.edit_calendar, size: 20, color: AppColors.info),
-              tooltip: 'Change date range',
+              tooltip: l10n.reportsScreenChangeDateRangeTooltip,
               onPressed: _pickCustomRange,
             ),
         ],
@@ -468,48 +504,69 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
   }
 
   List<Widget> _buildMetrics(ReportMetrics m) {
+    final l10n = AppLocalizations.of(context)!;
     return [
       _summaryCard(
         icon: Icons.shopping_cart,
         iconColor: AppColors.success,
         borderColor: AppColors.borderSuccess,
-        title: 'Monthly Sales (incl. Returns)',
-        grossLabel: 'Gross Sales',
+        title: l10n.reportsScreenMonthlySalesTitle,
+        grossLabel: l10n.reportsScreenGrossSalesLabel,
         gross: m.totalSales.value,
-        returnsLabel: 'Sales Returns',
+        returnsLabel: l10n.reportsScreenSalesReturnsLabel,
         returns: m.salesReturns.value,
         returnsCount: m.salesReturns.count ?? 0,
-        netLabel: 'Net Sales',
+        netLabel: l10n.reportsScreenNetSalesLabel,
         net: m.netSales.value,
         netColor: AppColors.success,
-        countLabel: '${m.totalSales.count ?? 0} invoices',
+        countLabel: l10n.reportsScreenInvoicesCount(m.totalSales.count ?? 0),
       ),
       const SizedBox(height: AppSpacing.card),
       _summaryCard(
         icon: Icons.shopping_bag,
         iconColor: AppColors.warningDark,
         borderColor: AppColors.borderWarning,
-        title: 'Monthly Purchase (incl. Returns)',
-        grossLabel: 'Gross Purchase',
+        title: l10n.reportsScreenMonthlyPurchaseTitle,
+        grossLabel: l10n.reportsScreenGrossPurchaseLabel,
         gross: m.totalPurchases.value,
-        returnsLabel: 'Purchase Returns',
+        returnsLabel: l10n.reportsScreenPurchaseReturnsLabel,
         returns: m.purchaseReturns.value,
         returnsCount: m.purchaseReturns.count ?? 0,
-        netLabel: 'Net Purchase',
+        netLabel: l10n.reportsScreenNetPurchaseLabel,
         net: m.netPurchases.value,
         netColor: AppColors.warningDark,
-        countLabel: '${m.totalPurchases.count ?? 0} GRNs',
+        countLabel: l10n.reportsScreenGrnCount(m.totalPurchases.count ?? 0),
       ),
       const SizedBox(height: AppSpacing.card),
-      _metricCard(icon: Icons.shopping_cart, title: 'Total Sales', metric: m.totalSales, subtitle: '${m.totalSales.count ?? 0} posted invoices · $_periodLabel'),
+      _metricCard(
+        icon: Icons.shopping_cart,
+        title: l10n.reportsScreenTotalSalesTitle,
+        metric: m.totalSales,
+        subtitle: l10n.reportsScreenPostedInvoicesSubtitle(m.totalSales.count ?? 0, _periodLabel),
+      ),
       const SizedBox(height: AppSpacing.item),
-      _metricCard(icon: Icons.shopping_bag, title: 'Total Purchases', metric: m.totalPurchases, subtitle: '${m.totalPurchases.count ?? 0} posted stock intakes · $_periodLabel'),
+      _metricCard(
+        icon: Icons.shopping_bag,
+        title: l10n.reportsScreenTotalPurchasesTitle,
+        metric: m.totalPurchases,
+        subtitle: l10n.reportsScreenPostedStockIntakesSubtitle(m.totalPurchases.count ?? 0, _periodLabel),
+      ),
       const SizedBox(height: AppSpacing.item),
-      _metricCard(icon: Icons.inventory_2, title: 'Stock Value', metric: m.inventoryValue, subtitle: 'Current inventory on hand'),
+      _metricCard(icon: Icons.inventory_2, title: l10n.reportsScreenStockValueTitle, metric: m.inventoryValue, subtitle: l10n.reportsScreenCurrentInventorySubtitle),
       const SizedBox(height: AppSpacing.item),
-      _metricCard(icon: Icons.percent, title: 'VAT Collected', metric: m.vatCollected, subtitle: 'Net tax Rs ${m.netTax.value.toStringAsFixed(2)}'),
+      _metricCard(
+        icon: Icons.percent,
+        title: l10n.reportsScreenVatCollectedTitle,
+        metric: m.vatCollected,
+        subtitle: l10n.reportsScreenNetTaxSubtitle(m.netTax.value.toStringAsFixed(2)),
+      ),
       const SizedBox(height: AppSpacing.item),
-      _metricCard(icon: Icons.receipt, title: 'VAT Paid', metric: m.vatPaid, subtitle: 'On posted purchase bills · $_periodLabel'),
+      _metricCard(
+        icon: Icons.receipt,
+        title: l10n.reportsScreenVatPaidTitle,
+        metric: m.vatPaid,
+        subtitle: l10n.reportsScreenPostedPurchaseBillsSubtitle(_periodLabel),
+      ),
     ];
   }
 

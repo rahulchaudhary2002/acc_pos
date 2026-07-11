@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:acc_pos/l10n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import 'qty_stepper_field.dart';
@@ -76,7 +77,10 @@ class PurchaseCartLineTile extends StatelessWidget {
                     initialValue: unitCost.toStringAsFixed(2),
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     textAlign: TextAlign.center,
-                    decoration: const InputDecoration(labelText: 'Unit Cost', contentPadding: EdgeInsets.symmetric(horizontal: 8)),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.purchaseCartLineUnitCostLabel,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
                     onChanged: (v) => onUnitCostChanged(double.tryParse(v) ?? unitCost),
                   ),
                 ),

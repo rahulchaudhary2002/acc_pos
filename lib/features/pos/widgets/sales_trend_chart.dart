@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../l10n/app_localizations.dart';
 import '../models/trend_point.dart';
 
 /// Line chart of daily sales vs. purchases, backed by `GET /pos/reports/daily-trend`.
@@ -15,9 +16,14 @@ class SalesTrendChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (points.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 180,
-        child: Center(child: Text('No data for this period', style: AppTextStyles.helper)),
+        child: Center(
+          child: Text(
+            AppLocalizations.of(context)!.salesTrendChartNoDataMessage,
+            style: AppTextStyles.helper,
+          ),
+        ),
       );
     }
 
@@ -32,9 +38,9 @@ class SalesTrendChart extends StatelessWidget {
       children: [
         Row(
           children: [
-            _legendDot(AppColors.success, 'Sales'),
+            _legendDot(AppColors.success, AppLocalizations.of(context)!.salesTrendChartSalesLegend),
             const SizedBox(width: AppSpacing.card),
-            _legendDot(AppColors.warningDark, 'Purchases'),
+            _legendDot(AppColors.warningDark, AppLocalizations.of(context)!.salesTrendChartPurchasesLegend),
           ],
         ),
         const SizedBox(height: AppSpacing.item),
