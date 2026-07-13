@@ -376,7 +376,8 @@ class _BuyScreenState extends State<BuyScreen> {
                       ),
                     ),
                   const SizedBox(height: AppSpacing.card),
-                  _row(AppLocalizations.of(context)!.buyScreenSubtotalLabel, 'NPR ${cart.netTotal.toStringAsFixed(2)}'),
+                  _row(AppLocalizations.of(context)!.buyScreenSubtotalLabel, 'NPR ${cart.subtotal.toStringAsFixed(2)}'),
+                  _row(AppLocalizations.of(context)!.buyScreenVatLabel, 'NPR ${cart.taxTotal.toStringAsFixed(2)}'),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: AppSpacing.field),
                     child: Divider(height: 1, color: AppColors.border),

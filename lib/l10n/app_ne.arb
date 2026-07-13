@@ -60,6 +60,7 @@
   "buyScreenAddProductsLabel": "उत्पादन थप्नुहोस्",
   "buyScreenAddMoreProductsLabel": "थप उत्पादन थप्नुहोस्",
   "buyScreenSubtotalLabel": "उप-जम्मा:",
+  "buyScreenVatLabel": "भ्याट:",
   "buyScreenTotalPurchaseLabel": "कुल खरिद:",
   "buyScreenClearPurchaseLabel": "खरिद खाली गर्नुहोस्",
   "buyScreenSavePurchaseLabel": "खरिद सुरक्षित गर्नुहोस्",

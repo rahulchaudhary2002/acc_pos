@@ -80,6 +80,7 @@
   "buyScreenAddProductsLabel": "Add Products",
   "buyScreenAddMoreProductsLabel": "Add More Products",
   "buyScreenSubtotalLabel": "Subtotal:",
+  "buyScreenVatLabel": "VAT:",
   "buyScreenTotalPurchaseLabel": "Total Purchase:",
   "buyScreenClearPurchaseLabel": "Clear Purchase",
   "buyScreenSavePurchaseLabel": "Save Purchase",

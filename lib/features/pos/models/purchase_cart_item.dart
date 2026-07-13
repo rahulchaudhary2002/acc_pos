@@ -11,6 +11,7 @@ class PurchaseCartItem {
       : unitCost = unitCost ?? product.purchasePrice;
 
   double get lineTotal => qty * unitCost;
+  double get lineTax => lineTotal * (product.taxRate / 100);
 
   Map<String, dynamic> toBuyJson() => {
         'product_id': product.id,

@@ -458,6 +458,12 @@ abstract class AppLocalizations {
   /// **'Subtotal:'**
   String get buyScreenSubtotalLabel;
 
+  /// No description provided for @buyScreenVatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'VAT:'**
+  String get buyScreenVatLabel;
+
   /// No description provided for @buyScreenTotalPurchaseLabel.
   ///
   /// In en, this message translates to:

@@ -201,6 +201,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get buyScreenSubtotalLabel => 'उप-जम्मा:';
 
   @override
+  String get buyScreenVatLabel => 'भ्याट:';
+
+  @override
   String get buyScreenTotalPurchaseLabel => 'कुल खरिद:';
 
   @override

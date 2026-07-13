@@ -7,7 +7,9 @@ import '../models/purchase_cart_item.dart';
 class BuyCartProvider extends ChangeNotifier {
   final List<PurchaseCartItem> items = [];
 
-  double get netTotal => items.fold(0, (sum, i) => sum + i.lineTotal);
+  double get subtotal => items.fold(0, (sum, i) => sum + i.lineTotal);
+  double get taxTotal => items.fold(0, (sum, i) => sum + i.lineTax);
+  double get netTotal => subtotal + taxTotal;
   int get itemCount => items.length;
   bool get isEmpty => items.isEmpty;
 

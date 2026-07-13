@@ -200,6 +200,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get buyScreenSubtotalLabel => 'Subtotal:';
 
   @override
+  String get buyScreenVatLabel => 'VAT:';
+
+  @override
   String get buyScreenTotalPurchaseLabel => 'Total Purchase:';
 
   @override
