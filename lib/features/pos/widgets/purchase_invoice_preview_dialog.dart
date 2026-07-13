@@ -15,7 +15,7 @@ import 'invoice_document.dart';
 
 /// Post-purchase receipt — mirrors the purchase "TAX INVOICE" preview modal
 /// in `PosTerminal.jsx` (same layout as the sale receipt, but with vendor
-/// fields, no Print button, and "Supplier" on the signature line).
+/// fields and "Supplier" on the signature line).
 Future<void> showPurchaseInvoicePreview(
   BuildContext context, {
   required TransactionResult result,
@@ -116,6 +116,14 @@ Future<void> showPurchaseInvoicePreview(
       signatureRightLabel: 'Supplier',
       title: 'PURCHASE INVOICE',
       actions: [
+        ElevatedButton.icon(
+          onPressed: () async => Printing.layoutPdf(onLayout: (_) => buildPdf(), name: 'Purchase-${result.billNo ?? result.documentNo}'),
+          style: AppButtonStyles.filled(AppColors.info).copyWith(
+            padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
+          ),
+          icon: const Icon(Icons.print, size: 18),
+          label: const Text('Print'),
+        ),
         ElevatedButton.icon(
           onPressed: () async => Printing.sharePdf(bytes: await buildPdf(), filename: 'Purchase-${result.billNo ?? result.documentNo}.pdf'),
           style: AppButtonStyles.filled(AppColors.share).copyWith(
