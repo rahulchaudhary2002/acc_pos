@@ -1507,6 +1507,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} txns'**
   String breakdownChartListTransactionsCount(int count);
+
+  /// No description provided for @printerCardHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer Connection'**
+  String get printerCardHeader;
+
+  /// No description provided for @printerCardNoPrinterMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No printer selected. Choose a paired Bluetooth printer to print bills directly.'**
+  String get printerCardNoPrinterMessage;
+
+  /// No description provided for @printerCardForgetTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove printer'**
+  String get printerCardForgetTooltip;
+
+  /// No description provided for @printerCardPaperSizeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper Size'**
+  String get printerCardPaperSizeLabel;
+
+  /// No description provided for @printerCardPaperSize58Label.
+  ///
+  /// In en, this message translates to:
+  /// **'58 mm (2 inch)'**
+  String get printerCardPaperSize58Label;
+
+  /// No description provided for @printerCardPaperSize80Label.
+  ///
+  /// In en, this message translates to:
+  /// **'80 mm (3 inch)'**
+  String get printerCardPaperSize80Label;
+
+  /// No description provided for @printerCardSelectPrinterButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Printer'**
+  String get printerCardSelectPrinterButton;
+
+  /// No description provided for @printerCardChangePrinterButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Printer'**
+  String get printerCardChangePrinterButton;
+
+  /// No description provided for @printerCardTestPrintButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Print'**
+  String get printerCardTestPrintButton;
+
+  /// No description provided for @printerCardHelperText.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair the thermal printer in your phone\'s Bluetooth settings first, then select it here. Bills print on it directly from the invoice preview.'**
+  String get printerCardHelperText;
+
+  /// No description provided for @printerTestPrintSentMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Test print sent to printer'**
+  String get printerTestPrintSentMessage;
+
+  /// No description provided for @printerPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Bluetooth Printer'**
+  String get printerPickerTitle;
+
+  /// No description provided for @printerPickerRefreshTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh list'**
+  String get printerPickerRefreshTooltip;
+
+  /// No description provided for @printerPickerNoDevicesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No paired Bluetooth devices found. Pair the printer in your phone\'s Bluetooth settings and refresh.'**
+  String get printerPickerNoDevicesMessage;
+
+  /// No description provided for @printerPickerHelperText.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a printer to save it for bill printing.'**
+  String get printerPickerHelperText;
+
+  /// No description provided for @printerPrintingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Printing bill…'**
+  String get printerPrintingMessage;
+
+  /// No description provided for @printerPrintSuccessMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill sent to printer'**
+  String get printerPrintSuccessMessage;
+
+  /// No description provided for @printerErrorBluetoothOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth is turned off. Turn it on and try again.'**
+  String get printerErrorBluetoothOff;
+
+  /// No description provided for @printerErrorPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth permission denied. Allow Bluetooth access for this app in settings.'**
+  String get printerErrorPermissionDenied;
+
+  /// No description provided for @printerErrorNoPrinterSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'No printer selected. Choose a printer first.'**
+  String get printerErrorNoPrinterSelected;
+
+  /// No description provided for @printerErrorConnectionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not connect to the printer. Make sure it is switched on and in range.'**
+  String get printerErrorConnectionFailed;
+
+  /// No description provided for @printerErrorPrintFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Printing failed. Check the printer and try again.'**
+  String get printerErrorPrintFailed;
 }
 
 class _AppLocalizationsDelegate

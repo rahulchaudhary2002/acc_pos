@@ -368,5 +368,27 @@
         "type": "int"
       }
     }
-  }
+  },
+  "printerCardHeader": "Printer Connection",
+  "printerCardNoPrinterMessage": "No printer selected. Choose a paired Bluetooth printer to print bills directly.",
+  "printerCardForgetTooltip": "Remove printer",
+  "printerCardPaperSizeLabel": "Paper Size",
+  "printerCardPaperSize58Label": "58 mm (2 inch)",
+  "printerCardPaperSize80Label": "80 mm (3 inch)",
+  "printerCardSelectPrinterButton": "Select Printer",
+  "printerCardChangePrinterButton": "Change Printer",
+  "printerCardTestPrintButton": "Test Print",
+  "printerCardHelperText": "Pair the thermal printer in your phone's Bluetooth settings first, then select it here. Bills print on it directly from the invoice preview.",
+  "printerTestPrintSentMessage": "Test print sent to printer",
+  "printerPickerTitle": "Select Bluetooth Printer",
+  "printerPickerRefreshTooltip": "Refresh list",
+  "printerPickerNoDevicesMessage": "No paired Bluetooth devices found. Pair the printer in your phone's Bluetooth settings and refresh.",
+  "printerPickerHelperText": "Tap a printer to save it for bill printing.",
+  "printerPrintingMessage": "Printing bill…",
+  "printerPrintSuccessMessage": "Bill sent to printer",
+  "printerErrorBluetoothOff": "Bluetooth is turned off. Turn it on and try again.",
+  "printerErrorPermissionDenied": "Bluetooth permission denied. Allow Bluetooth access for this app in settings.",
+  "printerErrorNoPrinterSelected": "No printer selected. Choose a printer first.",
+  "printerErrorConnectionFailed": "Could not connect to the printer. Make sure it is switched on and in range.",
+  "printerErrorPrintFailed": "Printing failed. Check the printer and try again."
 }

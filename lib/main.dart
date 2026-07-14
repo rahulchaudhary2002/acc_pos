@@ -15,6 +15,7 @@ import 'features/pos/providers/cart_provider.dart';
 import 'features/pos/providers/date_locale_provider.dart';
 import 'features/pos/providers/pos_config_provider.dart';
 import 'features/pos/providers/pos_data_provider.dart';
+import 'features/pos/providers/printer_provider.dart';
 import 'features/pos/providers/voice_announcer.dart';
 import 'features/pos/screens/pos_home_screen.dart';
 import 'features/pos/services/pos_service.dart';
@@ -47,6 +48,7 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => BuyCartProvider()),
         ChangeNotifierProvider(create: (_) => VoiceAnnouncer()..init()),
+        ChangeNotifierProvider(create: (_) => PrinterProvider()..init()),
         ChangeNotifierProvider(create: (_) => DateLocaleProvider()..init()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()..init()),
       ],

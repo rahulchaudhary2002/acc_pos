@@ -764,4 +764,79 @@ class AppLocalizationsEn extends AppLocalizations {
   String breakdownChartListTransactionsCount(int count) {
     return '$count txns';
   }
+
+  @override
+  String get printerCardHeader => 'Printer Connection';
+
+  @override
+  String get printerCardNoPrinterMessage =>
+      'No printer selected. Choose a paired Bluetooth printer to print bills directly.';
+
+  @override
+  String get printerCardForgetTooltip => 'Remove printer';
+
+  @override
+  String get printerCardPaperSizeLabel => 'Paper Size';
+
+  @override
+  String get printerCardPaperSize58Label => '58 mm (2 inch)';
+
+  @override
+  String get printerCardPaperSize80Label => '80 mm (3 inch)';
+
+  @override
+  String get printerCardSelectPrinterButton => 'Select Printer';
+
+  @override
+  String get printerCardChangePrinterButton => 'Change Printer';
+
+  @override
+  String get printerCardTestPrintButton => 'Test Print';
+
+  @override
+  String get printerCardHelperText =>
+      'Pair the thermal printer in your phone\'s Bluetooth settings first, then select it here. Bills print on it directly from the invoice preview.';
+
+  @override
+  String get printerTestPrintSentMessage => 'Test print sent to printer';
+
+  @override
+  String get printerPickerTitle => 'Select Bluetooth Printer';
+
+  @override
+  String get printerPickerRefreshTooltip => 'Refresh list';
+
+  @override
+  String get printerPickerNoDevicesMessage =>
+      'No paired Bluetooth devices found. Pair the printer in your phone\'s Bluetooth settings and refresh.';
+
+  @override
+  String get printerPickerHelperText =>
+      'Tap a printer to save it for bill printing.';
+
+  @override
+  String get printerPrintingMessage => 'Printing bill…';
+
+  @override
+  String get printerPrintSuccessMessage => 'Bill sent to printer';
+
+  @override
+  String get printerErrorBluetoothOff =>
+      'Bluetooth is turned off. Turn it on and try again.';
+
+  @override
+  String get printerErrorPermissionDenied =>
+      'Bluetooth permission denied. Allow Bluetooth access for this app in settings.';
+
+  @override
+  String get printerErrorNoPrinterSelected =>
+      'No printer selected. Choose a printer first.';
+
+  @override
+  String get printerErrorConnectionFailed =>
+      'Could not connect to the printer. Make sure it is switched on and in range.';
+
+  @override
+  String get printerErrorPrintFailed =>
+      'Printing failed. Check the printer and try again.';
 }

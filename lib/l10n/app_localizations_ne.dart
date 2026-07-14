@@ -765,4 +765,79 @@ class AppLocalizationsNe extends AppLocalizations {
   String breakdownChartListTransactionsCount(int count) {
     return '$count कारोबार';
   }
+
+  @override
+  String get printerCardHeader => 'प्रिन्टर जडान';
+
+  @override
+  String get printerCardNoPrinterMessage =>
+      'कुनै प्रिन्टर छानिएको छैन। बिल सिधै प्रिन्ट गर्न पेयर गरिएको ब्लुटुथ प्रिन्टर छान्नुहोस्।';
+
+  @override
+  String get printerCardForgetTooltip => 'प्रिन्टर हटाउनुहोस्';
+
+  @override
+  String get printerCardPaperSizeLabel => 'कागजको साइज';
+
+  @override
+  String get printerCardPaperSize58Label => '५८ मिमी (२ इन्च)';
+
+  @override
+  String get printerCardPaperSize80Label => '८० मिमी (३ इन्च)';
+
+  @override
+  String get printerCardSelectPrinterButton => 'प्रिन्टर छान्नुहोस्';
+
+  @override
+  String get printerCardChangePrinterButton => 'प्रिन्टर परिवर्तन गर्नुहोस्';
+
+  @override
+  String get printerCardTestPrintButton => 'टेस्ट प्रिन्ट';
+
+  @override
+  String get printerCardHelperText =>
+      'पहिले फोनको ब्लुटुथ सेटिङमा थर्मल प्रिन्टर पेयर गर्नुहोस्, त्यसपछि यहाँ छान्नुहोस्। बिलहरू इनभ्वाइस प्रिभ्युबाट सिधै प्रिन्ट हुन्छन्।';
+
+  @override
+  String get printerTestPrintSentMessage => 'टेस्ट प्रिन्ट प्रिन्टरमा पठाइयो';
+
+  @override
+  String get printerPickerTitle => 'ब्लुटुथ प्रिन्टर छान्नुहोस्';
+
+  @override
+  String get printerPickerRefreshTooltip => 'सूची रिफ्रेस गर्नुहोस्';
+
+  @override
+  String get printerPickerNoDevicesMessage =>
+      'कुनै पेयर गरिएको ब्लुटुथ डिभाइस भेटिएन। फोनको ब्लुटुथ सेटिङमा प्रिन्टर पेयर गरेर रिफ्रेस गर्नुहोस्।';
+
+  @override
+  String get printerPickerHelperText =>
+      'बिल प्रिन्टका लागि सुरक्षित गर्न प्रिन्टरमा ट्याप गर्नुहोस्।';
+
+  @override
+  String get printerPrintingMessage => 'बिल प्रिन्ट हुँदैछ…';
+
+  @override
+  String get printerPrintSuccessMessage => 'बिल प्रिन्टरमा पठाइयो';
+
+  @override
+  String get printerErrorBluetoothOff =>
+      'ब्लुटुथ बन्द छ। खोलेर फेरि प्रयास गर्नुहोस्।';
+
+  @override
+  String get printerErrorPermissionDenied =>
+      'ब्लुटुथ अनुमति अस्वीकार गरियो। सेटिङमा गएर यो एपलाई ब्लुटुथ पहुँच दिनुहोस्।';
+
+  @override
+  String get printerErrorNoPrinterSelected =>
+      'कुनै प्रिन्टर छानिएको छैन। पहिले प्रिन्टर छान्नुहोस्।';
+
+  @override
+  String get printerErrorConnectionFailed =>
+      'प्रिन्टरसँग जडान हुन सकेन। प्रिन्टर खुला र नजिकै छ भनी सुनिश्चित गर्नुहोस्।';
+
+  @override
+  String get printerErrorPrintFailed =>
+      'प्रिन्ट असफल भयो। प्रिन्टर जाँचेर फेरि प्रयास गर्नुहोस्।';
 }

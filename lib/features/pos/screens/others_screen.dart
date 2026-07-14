@@ -14,6 +14,7 @@ import '../providers/pos_config_provider.dart';
 import '../providers/pos_data_provider.dart';
 import '../providers/voice_announcer.dart';
 import '../widgets/pos_screen_header.dart';
+import '../widgets/printer_settings_card.dart';
 
 /// Others/Settings tab: POS configuration switcher (company/outlet/fiscal
 /// year/warehouse), the POS Voice Prompt announcer settings, logout, and
@@ -219,6 +220,8 @@ class _OthersScreenState extends State<OthersScreen> {
                 ),
                 const SizedBox(height: AppSpacing.card),
                 const _VoicePromptCard(),
+                const SizedBox(height: AppSpacing.card),
+                const PrinterSettingsCard(),
                 const SizedBox(height: AppSpacing.section),
                 Row(
                   children: [

@@ -11,7 +11,9 @@ import '../models/purchase_cart_item.dart';
 import '../models/transaction_result.dart';
 import '../utils/invoice_format_utils.dart';
 import '../utils/invoice_pdf.dart';
+import '../utils/thermal_receipt_builder.dart';
 import 'invoice_document.dart';
+import 'printer_picker_sheet.dart';
 
 /// Post-purchase receipt — mirrors the purchase "TAX INVOICE" preview modal
 /// in `PosTerminal.jsx` (same layout as the sale receipt, but with vendor
@@ -54,6 +56,25 @@ Future<void> showPurchaseInvoicePreview(
             taxRate: i.product.taxRate,
           ))
       .toList();
+
+  final thermalData = ThermalReceiptData(
+    companyName: company.name,
+    companyAddress: company.address ?? outlet?.address,
+    companyPhone: company.phone,
+    companyVatNo: company.panVatNo,
+    title: 'PURCHASE INVOICE',
+    metaRows: metaRows,
+    items: invoiceLines,
+    printedAt: now,
+    taxable: taxSummary.taxable,
+    nonTaxable: taxSummary.nonTaxable,
+    subtotal: subtotal,
+    vatRateLabel: taxSummary.vatRateLabel,
+    tax: tax,
+    total: subtotal + tax,
+    preparedBy: preparedBy ?? '',
+    signatureRightLabel: 'Supplier',
+  );
 
   Future<Uint8List> buildPdf() => buildInvoicePdfBytes(
         companyName: company.name,
@@ -116,6 +137,14 @@ Future<void> showPurchaseInvoicePreview(
       signatureRightLabel: 'Supplier',
       title: 'PURCHASE INVOICE',
       actions: [
+        ElevatedButton.icon(
+          onPressed: () => printBillOnThermalPrinter(context, data: thermalData),
+          style: AppButtonStyles.filled(AppColors.success).copyWith(
+            padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
+          ),
+          icon: const Icon(Icons.receipt_long, size: 18),
+          label: const Text('Print Bill'),
+        ),
         ElevatedButton.icon(
           onPressed: () async => Printing.layoutPdf(onLayout: (_) => buildPdf(), name: 'Purchase-${result.billNo ?? result.documentNo}'),
           style: AppButtonStyles.filled(AppColors.info).copyWith(

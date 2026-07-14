@@ -1,5 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Bluetooth thermal printer (print_bluetooth_thermal). Android 12+ uses
+         the BLUETOOTH_CONNECT/SCAN runtime permissions; the legacy pair below
+         covers Android 11 and older. neverForLocation: we only scan to list
+         printers, never to derive location. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
     <application
         android:label="Annapurna Accounting"
         android:name="${applicationName}"

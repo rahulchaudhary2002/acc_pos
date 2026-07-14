@@ -11,7 +11,9 @@ import '../models/sale_cart_item.dart';
 import '../models/transaction_result.dart';
 import '../utils/invoice_format_utils.dart';
 import '../utils/invoice_pdf.dart';
+import '../utils/thermal_receipt_builder.dart';
 import 'invoice_document.dart';
+import 'printer_picker_sheet.dart';
 
 /// Post-sale receipt — mirrors the "TAX INVOICE" preview modal in
 /// `PosTerminal.jsx`: company header, metadata grid, line items table, VAT
@@ -57,6 +59,24 @@ Future<void> showInvoicePreview(
             taxRate: i.taxRate,
           ))
       .toList();
+
+  final thermalData = ThermalReceiptData(
+    companyName: company.name,
+    companyAddress: company.address ?? outlet?.address,
+    companyPhone: company.phone,
+    companyVatNo: company.panVatNo,
+    metaRows: metaRows,
+    items: invoiceLines,
+    printedAt: now,
+    taxable: taxSummary.taxable,
+    nonTaxable: taxSummary.nonTaxable,
+    subtotal: result.subtotal ?? 0,
+    vatRateLabel: taxSummary.vatRateLabel,
+    tax: result.taxTotal ?? 0,
+    total: result.total,
+    preparedBy: preparedBy ?? '',
+    signatureRightLabel: 'Customer',
+  );
 
   Future<Uint8List> buildPdf() => buildInvoicePdfBytes(
         companyName: company.name,
@@ -117,6 +137,14 @@ Future<void> showInvoicePreview(
       preparedBy: preparedBy ?? '',
       signatureRightLabel: 'Customer',
       actions: [
+        ElevatedButton.icon(
+          onPressed: () => printBillOnThermalPrinter(context, data: thermalData),
+          style: AppButtonStyles.filled(AppColors.success).copyWith(
+            padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
+          ),
+          icon: const Icon(Icons.receipt_long, size: 18),
+          label: const Text('Print Bill'),
+        ),
         ElevatedButton.icon(
           onPressed: () async => Printing.layoutPdf(onLayout: (_) => buildPdf(), name: 'Invoice-${result.documentNo}'),
           style: AppButtonStyles.filled(AppColors.info).copyWith(
