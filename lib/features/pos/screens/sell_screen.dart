@@ -99,6 +99,8 @@ class _SellScreenState extends State<SellScreen> {
         companyId: config.selectedCompanyId!,
         outletId: config.selectedOutletId!,
         locationId: config.selectedLocationId,
+        fiscalYearId: config.selectedFiscalYearId,
+        salesperson: context.read<AuthProvider>().user?.name,
         saleType: cart.saleType,
         customerId: _selectedCustomer?.id,
         customerName: cart.saleType == 'customer' && _selectedCustomer == null ? walkInName : null,
@@ -117,6 +119,7 @@ class _SellScreenState extends State<SellScreen> {
       final matchingOutlets = config.outlets.where((o) => o.id == config.selectedOutletId);
       final outlet = matchingOutlets.isEmpty ? null : matchingOutlets.first;
       final itemsSnapshot = List.of(cart.items);
+      final deliveryChargeSnapshot = cart.deliveryCharge;
       final paymentMode = cart.paymentMode;
       final paymentReferenceSnapshot = cart.paymentReference;
       final paymentNoteSnapshot = cart.paymentMode == 'cash' ? cart.remarks : cart.paymentNote;
@@ -147,6 +150,7 @@ class _SellScreenState extends State<SellScreen> {
         paymentReference: paymentReferenceSnapshot,
         paymentNote: paymentNoteSnapshot,
         preparedBy: preparedBy,
+        deliveryCharge: deliveryChargeSnapshot,
       );
     } on ApiException catch (e) {
       setState(() => _errorMessage = e.message);
@@ -335,7 +339,8 @@ class _SellScreenState extends State<SellScreen> {
                               category: item.product.category,
                               qty: item.qty,
                               rate: item.rate,
-                              lineTotal: item.lineTotal,
+                              // Web cart rows show qty × rate (tax-exclusive).
+                              lineTotal: item.lineSubtotal,
                               onIncrement: () => cart.incrementQty(index),
                               onDecrement: () => cart.decrementQty(index),
                               onQtyChanged: (v) => cart.updateQty(index, v),
@@ -497,7 +502,8 @@ class _SellScreenState extends State<SellScreen> {
                               category: item.product.category,
                               qty: item.qty,
                               rate: item.rate,
-                              lineTotal: item.lineTotal,
+                              // Web return rows show qty × rate (tax-exclusive).
+                              lineTotal: item.lineSubtotal,
                               onIncrement: () => setState(() => item.qty += 1),
                               onDecrement: () => setState(() => item.qty = item.qty > 1 ? item.qty - 1 : 1),
                               onQtyChanged: (v) => setState(() => item.qty = v),

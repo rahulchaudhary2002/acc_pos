@@ -1,7 +1,9 @@
 import 'product.dart';
 
-/// A line in the Buy/Purchase-Return cart — mirrors `items[]` in
-/// `POST /pos/buy` and `POST /pos/purchase-return`.
+/// A line in the Buy/Purchase-Return cart. Purchases post `lines[]` to
+/// `POST /admin/grns` + `POST /admin/purchase-bills` and returns post
+/// `items[]` to `POST /pos/purchase-return` — the same endpoints and payload
+/// shapes the web POS terminal uses.
 class PurchaseCartItem {
   final Product product;
   double qty;
@@ -13,16 +15,34 @@ class PurchaseCartItem {
   double get lineTotal => qty * unitCost;
   double get lineTax => lineTotal * (product.taxRate / 100);
 
-  Map<String, dynamic> toBuyJson() => {
+  /// GRN (stock receipt) line — mirrors `PosTerminal.jsx`'s submitPurchase
+  /// normalizedLines (costs only, no tax).
+  Map<String, dynamic> toGrnLineJson({int? locationId}) => {
         'product_id': product.id,
+        'location_id': ?locationId,
         'qty': qty,
         'unit_cost': unitCost,
-        'tax_code_id': product.taxCodeId,
-        'tax_rate': product.taxRate,
+        'pcs_cost': unitCost,
+        'total_amount': lineTotal,
+        'uom_label': product.unit.isEmpty ? null : product.unit,
       };
 
-  /// Purchase-return items additionally carry tax fields.
-  Map<String, dynamic> toReturnJson() => {
+  /// Purchase bill line — mirrors `PosTerminal.jsx`'s createPurchaseBill
+  /// lines. The server recalculates tax from `tax_code_id`, matching the web.
+  Map<String, dynamic> toBillLineJson({int? locationId}) => {
+        'product_id': product.id,
+        'location_id': ?locationId,
+        'qty': qty,
+        'rate': unitCost,
+        'discount': 0,
+        'tax_code_id': product.taxCodeId,
+        'tax_rate': product.taxRate,
+        'tax_amount': lineTax,
+      };
+
+  /// POS purchase-return item — mirrors `PosTerminal.jsx`'s
+  /// submitPurchaseReturn items.
+  Map<String, dynamic> toPosReturnJson() => {
         'product_id': product.id,
         'qty': qty,
         'rate': unitCost,

@@ -1,5 +1,10 @@
 import 'json_utils.dart';
 
+/// A catalog product, parsed from `GET /admin/products?pos_context=true` —
+/// the same endpoint and row shape the web POS terminal consumes — with the
+/// selling price resolved client-side from `/admin/product-prices` (see
+/// `PosService.fetchProducts`), mirroring `PosTerminal.jsx`'s
+/// `productCatalog` memo.
 class Product {
   final int id;
   final String name;
@@ -11,11 +16,12 @@ class Product {
   final double taxRate;
   final double price;
   final double purchasePrice;
+  final String unit;
   final String type;
   final bool trackInventory;
   final bool allowNegativeStock;
+  final bool isActive;
   final double currentStock;
-  final bool outOfStock;
 
   Product({
     required this.id,
@@ -28,14 +34,19 @@ class Product {
     required this.taxRate,
     required this.price,
     required this.purchasePrice,
+    this.unit = '',
     required this.type,
     required this.trackInventory,
     required this.allowNegativeStock,
+    this.isActive = true,
     required this.currentStock,
-    required this.outOfStock,
   });
 
   bool get isService => type.toLowerCase() == 'service';
+
+  /// Same disable rule the web POS applies to tracked items with no stock.
+  bool get outOfStock =>
+      !isService && trackInventory && !allowNegativeStock && currentStock <= 0;
 
   /// Mirrors `PosTerminal.jsx`'s client-side `kind` classification exactly
   /// (products/accessories/services tabs) — the server never groups by this,
@@ -57,23 +68,41 @@ class Product {
     return 'products';
   }
 
-  factory Product.fromJson(Map<String, dynamic> json) {
+  static bool _asBool(dynamic value, {required bool fallback}) {
+    if (value == null) return fallback;
+    if (value is bool) return value;
+    return value == 1 || value == '1' || value == 'true';
+  }
+
+  /// `category` can be a plain string column or a `{name}` relation object,
+  /// same duality the web handles with `product.category?.name || product.category`.
+  static String _categoryLabel(dynamic value) {
+    if (value is Map<String, dynamic>) return value['name'] as String? ?? 'Products';
+    if (value is String && value.isNotEmpty) return value;
+    return 'Products';
+  }
+
+  factory Product.fromAdminJson(Map<String, dynamic> json, {required double price}) {
+    final taxCode = json['tax_code'] as Map<String, dynamic>?;
+    final uom = json['uom'] as Map<String, dynamic>?;
     return Product(
       id: asInt(json['id']),
       name: json['name'] as String,
       sku: json['sku'] as String?,
       hsCode: json['hs_code'] as String?,
       companyId: asInt(json['company_id']),
-      category: json['category'] as String? ?? 'Products',
+      category: _categoryLabel(json['category']),
       taxCodeId: asIntOrNull(json['tax_code_id']),
-      taxRate: (json['tax_rate'] as num?)?.toDouble() ?? 13,
-      price: (json['price'] as num?)?.toDouble() ?? 0,
-      purchasePrice: (json['purchase_price'] as num?)?.toDouble() ?? 0,
+      // Same default the web's resolveTaxRate() applies when no tax code.
+      taxRate: asDoubleOrNull(taxCode?['rate']) ?? 13,
+      price: price,
+      purchasePrice: asDoubleOrNull(json['purchase_price']) ?? 0,
+      unit: uom?['code'] as String? ?? json['unit'] as String? ?? '',
       type: json['type'] as String? ?? 'inventory',
-      trackInventory: json['track_inventory'] == true,
-      allowNegativeStock: json['allow_negative_stock'] == true,
-      currentStock: (json['current_stock'] as num?)?.toDouble() ?? 0,
-      outOfStock: json['out_of_stock'] == true,
+      trackInventory: _asBool(json['track_inventory'], fallback: true),
+      allowNegativeStock: _asBool(json['allow_negative_stock'], fallback: false),
+      isActive: _asBool(json['is_active'], fallback: true),
+      currentStock: asDoubleOrNull(json['current_stock']) ?? 0,
     );
   }
 }

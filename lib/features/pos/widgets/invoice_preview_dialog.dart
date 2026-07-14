@@ -30,9 +30,17 @@ Future<void> showInvoicePreview(
   String? paymentReference,
   String? paymentNote,
   String? preparedBy,
+  double deliveryCharge = 0,
 }) {
   final now = DateTime.now();
-  final taxSummary = computeTaxSummary(items.map((i) => (i.taxRate, i.lineTotal)));
+  // The web receipt renders its client-side `sellTotals` snapshot, not the
+  // server response: subtotal = Σ qty×rate, tax = Σ unrounded line tax,
+  // total = subtotal + tax + delivery. Its taxable/non-taxable split sums
+  // tax-EXCLUSIVE line amounts (snapshot lines carry total = qty × rate).
+  final subtotal = items.fold<double>(0, (sum, i) => sum + i.lineSubtotal);
+  final tax = items.fold<double>(0, (sum, i) => sum + i.taxAmount);
+  final grandTotal = subtotal + tax + deliveryCharge;
+  final taxSummary = computeTaxSummary(items.map((i) => (i.taxRate, i.lineSubtotal)));
   final counterNo = outlet?.code ?? outlet?.id.toString() ?? '';
 
   final metaRows = [
@@ -55,7 +63,8 @@ Future<void> showInvoicePreview(
             description: i.product.name,
             qty: i.qty,
             rate: i.rate,
-            total: i.lineTotal,
+            // Web invoice line rows show qty × rate (tax-exclusive).
+            total: i.lineSubtotal,
             taxRate: i.taxRate,
           ))
       .toList();
@@ -70,10 +79,10 @@ Future<void> showInvoicePreview(
     printedAt: now,
     taxable: taxSummary.taxable,
     nonTaxable: taxSummary.nonTaxable,
-    subtotal: result.subtotal ?? 0,
+    subtotal: subtotal,
     vatRateLabel: taxSummary.vatRateLabel,
-    tax: result.taxTotal ?? 0,
-    total: result.total,
+    tax: tax,
+    total: grandTotal,
     preparedBy: preparedBy ?? '',
     signatureRightLabel: 'Customer',
   );
@@ -88,10 +97,10 @@ Future<void> showInvoicePreview(
         printedAt: now,
         taxable: taxSummary.taxable,
         nonTaxable: taxSummary.nonTaxable,
-        subtotal: result.subtotal ?? 0,
+        subtotal: subtotal,
         vatRateLabel: taxSummary.vatRateLabel,
-        tax: result.taxTotal ?? 0,
-        total: result.total,
+        tax: tax,
+        total: grandTotal,
         preparedBy: preparedBy ?? '',
         signatureRightLabel: 'Customer',
         labels: const PosInvoiceLabels(
@@ -130,10 +139,10 @@ Future<void> showInvoicePreview(
       printedAt: now,
       taxable: taxSummary.taxable,
       nonTaxable: taxSummary.nonTaxable,
-      subtotal: result.subtotal ?? 0,
+      subtotal: subtotal,
       vatRateLabel: taxSummary.vatRateLabel,
-      tax: result.taxTotal ?? 0,
-      total: result.total,
+      tax: tax,
+      total: grandTotal,
       preparedBy: preparedBy ?? '',
       signatureRightLabel: 'Customer',
       actions: [

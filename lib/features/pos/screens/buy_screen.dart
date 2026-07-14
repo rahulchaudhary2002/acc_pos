@@ -47,7 +47,11 @@ class _BuyScreenState extends State<BuyScreen> {
   final List<PurchaseCartItem> _returnItems = [];
   Party? _returnVendor;
 
-  double get _returnTotal => _returnItems.fold(0, (sum, i) => sum + i.lineTotal);
+  // Web `buyReturnTotals`: subtotal = Σ qty×rate, tax = Σ line tax,
+  // total = subtotal + tax.
+  double get _returnSubtotal => _returnItems.fold(0, (sum, i) => sum + i.lineTotal);
+  double get _returnTaxTotal => _returnItems.fold(0, (sum, i) => sum + i.lineTax);
+  double get _returnTotal => _returnSubtotal + _returnTaxTotal;
 
   @override
   void dispose() {
@@ -79,6 +83,7 @@ class _BuyScreenState extends State<BuyScreen> {
         companyId: config.selectedCompanyId!,
         outletId: config.selectedOutletId!,
         locationId: config.selectedLocationId,
+        fiscalYearId: config.selectedFiscalYearId,
         vendorId: _selectedVendor?.id,
         supplierName: _selectedVendor == null ? vendorName : null,
         invoiceNumber: _invoiceNumberController.text.trim(),
@@ -523,6 +528,8 @@ class _BuyScreenState extends State<BuyScreen> {
                       ),
                     ),
                   const SizedBox(height: AppSpacing.card),
+                  _row(AppLocalizations.of(context)!.buyScreenSubtotalLabel, 'NPR ${_returnSubtotal.toStringAsFixed(2)}'),
+                  _row(AppLocalizations.of(context)!.buyScreenVatLabel, 'NPR ${_returnTaxTotal.toStringAsFixed(2)}'),
                   _row(AppLocalizations.of(context)!.buyScreenTotalAmountLabel, 'NPR ${_returnTotal.toStringAsFixed(2)}', bold: true),
                 ],
               ),

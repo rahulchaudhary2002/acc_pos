@@ -17,3 +17,16 @@ int? asIntOrNull(dynamic value) {
   if (value == null) return null;
   return asInt(value);
 }
+
+/// Same PDO quirk as [asInt]: decimal columns (totals, rates) arrive as
+/// strings like "1200.0000" on some servers and as numbers on others.
+double asDouble(dynamic value) {
+  if (value is num) return value.toDouble();
+  if (value is String) return double.parse(value);
+  throw FormatException('Expected a double-like value, got $value (${value.runtimeType})');
+}
+
+double? asDoubleOrNull(dynamic value) {
+  if (value == null) return null;
+  return asDouble(value);
+}

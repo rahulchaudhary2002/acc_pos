@@ -14,10 +14,13 @@ class InventoryLocation {
   });
 
   factory InventoryLocation.fromJson(Map<String, dynamic> json) {
+    // `/admin/inventory-locations` rows carry the company through the nested
+    // `outlet` relation instead of a flat company_id column.
+    final outlet = json['outlet'] as Map<String, dynamic>?;
     return InventoryLocation(
       id: asInt(json['id']),
       outletId: asInt(json['outlet_id']),
-      companyId: asInt(json['company_id']),
+      companyId: asInt(json['company_id'] ?? outlet?['company_id']),
       name: json['name'] as String,
     );
   }

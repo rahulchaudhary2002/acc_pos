@@ -1,6 +1,7 @@
 import 'json_utils.dart';
 
-/// A row from `GET /pos/sales-list` or `GET /pos/purchases-list`.
+/// A history row from `GET /admin/sales-invoices` or
+/// `GET /admin/purchase-bills` — the same listings the web consumes.
 class TransactionSummary {
   final int id;
   final String documentNo;
@@ -8,7 +9,7 @@ class TransactionSummary {
   final String? partyName;
   final double total;
 
-  /// Secondary label: `payment_mode` for sales, `bill_no` for purchases.
+  /// Secondary label: `payment_mode` for sales, `vendor_invoice_no` for purchases.
   final String subtitle;
 
   TransactionSummary({
@@ -20,29 +21,27 @@ class TransactionSummary {
     required this.subtitle,
   });
 
-  // `sales-list`/`purchases-list` are raw query-builder selects, so decimal
-  // columns (grand_total, net_total) come back as strings (e.g. "2084.0000").
-  static double _asDouble(dynamic v) => v == null ? 0 : double.parse(v.toString());
-
   factory TransactionSummary.fromSaleJson(Map<String, dynamic> json) {
+    final customer = json['customer'] as Map<String, dynamic>?;
     return TransactionSummary(
       id: asInt(json['id']),
       documentNo: json['invoice_no'] as String? ?? '',
       date: json['invoice_date'] as String? ?? '',
-      partyName: json['customer_name'] as String?,
-      total: _asDouble(json['grand_total']),
+      partyName: customer?['name'] as String?,
+      total: asDoubleOrNull(json['grand_total']) ?? 0,
       subtitle: json['payment_mode'] as String? ?? '',
     );
   }
 
   factory TransactionSummary.fromPurchaseJson(Map<String, dynamic> json) {
+    final vendor = json['vendor'] as Map<String, dynamic>?;
     return TransactionSummary(
       id: asInt(json['id']),
-      documentNo: json['grn_no'] as String? ?? '',
-      date: json['grn_date'] as String? ?? '',
-      partyName: json['vendor_name'] as String?,
-      total: _asDouble(json['net_total']),
-      subtitle: json['bill_no'] as String? ?? '',
+      documentNo: json['bill_no'] as String? ?? '',
+      date: json['bill_date'] as String? ?? '',
+      partyName: vendor?['name'] as String?,
+      total: asDoubleOrNull(json['grand_total']) ?? 0,
+      subtitle: json['vendor_invoice_no'] as String? ?? '',
     );
   }
 }
