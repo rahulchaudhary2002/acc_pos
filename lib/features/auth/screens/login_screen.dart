@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/gas_cylinder_icon.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -76,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: AppColors.headerIconCircle,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.local_gas_station, color: Colors.white, size: 32),
+                          child: const GasCylinderIcon(size: 32, color: AppColors.cylinderRed),
                         ),
                         const SizedBox(height: AppSpacing.card),
                         const Text(

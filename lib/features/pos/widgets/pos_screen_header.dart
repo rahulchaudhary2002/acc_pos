@@ -7,20 +7,23 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/gas_cylinder_icon.dart';
 import '../../../l10n/app_localizations.dart';
 import '../providers/date_locale_provider.dart';
 
 /// Header bar shared by every POS tab: icon circle + title + subtitle on the
 /// left, a live clock/date pill on the right — mirrors `PosTerminal.jsx`'s
 /// header (`#284457` bar, `#19a7e0` icon circle, `rounded-t-[32px]`). The
-/// pill is tappable, offering English (Gregorian) or Nepali (Bikram Sambat)
-/// date display — a POS-terminal convenience with no direct web equivalent.
+/// icon circle always shows the same gas cylinder glyph on every tab — the
+/// web header shows a single constant `Fuel` icon across Sell/Buy/Reports/
+/// Settings too; only the title/subtitle text changes per tab. The pill is
+/// tappable, offering English (Gregorian) or Nepali (Bikram Sambat) date
+/// display — a POS-terminal convenience with no direct web equivalent.
 class PosScreenHeader extends StatefulWidget {
   final String title;
   final String subtitle;
-  final IconData icon;
 
-  const PosScreenHeader({super.key, required this.title, required this.subtitle, this.icon = Icons.local_gas_station});
+  const PosScreenHeader({super.key, required this.title, required this.subtitle});
 
   @override
   State<PosScreenHeader> createState() => _PosScreenHeaderState();
@@ -75,7 +78,7 @@ class _PosScreenHeaderState extends State<PosScreenHeader> {
             height: 56,
             decoration: const BoxDecoration(color: AppColors.headerIconCircle, shape: BoxShape.circle),
             alignment: Alignment.center,
-            child: Icon(widget.icon, color: Colors.white, size: 28),
+            child: const GasCylinderIcon(size: 28, color: AppColors.cylinderRed),
           ),
           const SizedBox(width: AppSpacing.card),
           Expanded(

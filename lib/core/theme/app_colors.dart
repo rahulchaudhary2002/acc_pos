@@ -28,6 +28,11 @@ class AppColors {
   static const dangerDark = Color(0xFFDC2626); // rose-600
   static const clearRed = Color(0xFFF5483C);
 
+  // The LPG cylinder brand icon (login screen, tab headers, product cards) —
+  // a real gas cylinder, not an error state, so it gets its own named color
+  // rather than reusing `danger`/`dangerDark`.
+  static const cylinderRed = Color(0xFFDC2626);
+
   // Tertiary / purchase-return.
   static const warning = Color(0xFFF59E0B); // amber-500
   static const warningDark = Color(0xFFD97706); // amber-600

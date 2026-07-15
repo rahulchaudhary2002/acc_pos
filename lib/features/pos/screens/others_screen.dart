@@ -115,7 +115,7 @@ class _OthersScreenState extends State<OthersScreen> {
 
     return Column(
       children: [
-        PosScreenHeader(title: l10n.othersScreenTitle, subtitle: l10n.othersScreenSubtitle, icon: Icons.settings),
+        PosScreenHeader(title: l10n.othersScreenTitle, subtitle: l10n.othersScreenSubtitle),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.card),

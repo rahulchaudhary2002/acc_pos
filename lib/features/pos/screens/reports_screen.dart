@@ -276,7 +276,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
     final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
-        PosScreenHeader(title: l10n.reportsScreenTitle, subtitle: l10n.reportsScreenSubtitle, icon: Icons.bar_chart),
+        PosScreenHeader(title: l10n.reportsScreenTitle, subtitle: l10n.reportsScreenSubtitle),
         _periodBar(),
         Container(
           color: AppColors.surface,

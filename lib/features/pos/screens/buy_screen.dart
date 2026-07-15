@@ -212,7 +212,6 @@ class _BuyScreenState extends State<BuyScreen> {
         PosScreenHeader(
           title: AppLocalizations.of(context)!.buyScreenTitle,
           subtitle: AppLocalizations.of(context)!.buyScreenSubtitle,
-          icon: Icons.local_gas_station,
         ),
         Expanded(
           child: SingleChildScrollView(

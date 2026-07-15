@@ -4,6 +4,7 @@ import 'package:acc_pos/l10n/app_localizations.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/gas_cylinder_icon.dart';
 import '../models/product.dart';
 
 /// One product tile in the picker grid — icon circle, name, price (sell) or
@@ -44,10 +45,9 @@ class ProductCard extends StatelessWidget {
                 height: 48,
                 decoration: const BoxDecoration(color: AppColors.infoTint, shape: BoxShape.circle),
                 alignment: Alignment.center,
-                child: Icon(
-                  product.isService ? Icons.build_outlined : Icons.local_gas_station,
-                  color: AppColors.info,
-                ),
+                child: product.isService
+                    ? const Icon(Icons.build_outlined, color: AppColors.info)
+                    : const GasCylinderIcon(size: 24, color: AppColors.cylinderRed),
               ),
               const SizedBox(height: AppSpacing.field),
               Flexible(
