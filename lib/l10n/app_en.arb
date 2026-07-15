@@ -10,6 +10,7 @@
   "sellScreenSubtitle": "Easy POS for Vendors",
   "sellScreenSelectCustomerOrNameError": "Select an existing customer or enter a full name for a customer sale.",
   "sellScreenVatNumberLengthError": "VAT number must be exactly 9 alphanumeric characters.",
+  "sellScreenCashLimitExceededError": "Cash sales cannot exceed NPR 25,000. Please switch to Customer Sale for higher amounts.",
   "sellScreenReturnCompletedMessage": "Return {documentNo} completed — NPR {total}",
   "@sellScreenReturnCompletedMessage": {
     "placeholders": {

@@ -41,6 +41,10 @@ class AppLocalizationsNe extends AppLocalizations {
       'भ्याट नम्बर ठ्याक्कै ९ अक्षर/अंकको हुनुपर्छ।';
 
   @override
+  String get sellScreenCashLimitExceededError =>
+      'नगद बिक्री NPR २५,००० भन्दा बढी हुन सक्दैन। बढी रकमको लागि ग्राहक बिक्रीमा जानुहोस्।';
+
+  @override
   String sellScreenReturnCompletedMessage(String documentNo, String total) {
     return 'फिर्ता $documentNo सम्पन्न भयो — NPR $total';
   }

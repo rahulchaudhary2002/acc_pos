@@ -10,6 +10,7 @@
   "sellScreenSubtitle": "विक्रेताहरूका लागि सजिलो POS",
   "sellScreenSelectCustomerOrNameError": "ग्राहक बिक्रीको लागि विद्यमान ग्राहक छान्नुहोस् वा पूरा नाम प्रविष्ट गर्नुहोस्।",
   "sellScreenVatNumberLengthError": "भ्याट नम्बर ठ्याक्कै ९ अक्षर/अंकको हुनुपर्छ।",
+  "sellScreenCashLimitExceededError": "नगद बिक्री NPR २५,००० भन्दा बढी हुन सक्दैन। बढी रकमको लागि ग्राहक बिक्रीमा जानुहोस्।",
   "sellScreenReturnCompletedMessage": "फिर्ता {documentNo} सम्पन्न भयो — NPR {total}",
   "sellScreenCashSaleLabel": "नगद बिक्री",
   "sellScreenCashSaleSubtitle": "NPR २५,००० सम्म",

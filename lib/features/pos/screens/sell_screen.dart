@@ -87,6 +87,10 @@ class _SellScreenState extends State<SellScreen> {
       setState(() => _errorMessage = AppLocalizations.of(context)!.sellScreenVatNumberLengthError);
       return;
     }
+    if (cart.saleType == 'cash' && cart.paymentMode == 'cash' && cart.grandTotal > 25000) {
+      setState(() => _errorMessage = AppLocalizations.of(context)!.sellScreenCashLimitExceededError);
+      return;
+    }
 
     setState(() {
       _isSubmitting = true;

@@ -41,6 +41,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'VAT number must be exactly 9 alphanumeric characters.';
 
   @override
+  String get sellScreenCashLimitExceededError =>
+      'Cash sales cannot exceed NPR 25,000. Please switch to Customer Sale for higher amounts.';
+
+  @override
   String sellScreenReturnCompletedMessage(String documentNo, String total) {
     return 'Return $documentNo completed — NPR $total';
   }

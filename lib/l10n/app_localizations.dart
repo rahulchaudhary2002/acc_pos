@@ -158,6 +158,12 @@ abstract class AppLocalizations {
   /// **'VAT number must be exactly 9 alphanumeric characters.'**
   String get sellScreenVatNumberLengthError;
 
+  /// No description provided for @sellScreenCashLimitExceededError.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash sales cannot exceed NPR 25,000. Please switch to Customer Sale for higher amounts.'**
+  String get sellScreenCashLimitExceededError;
+
   /// No description provided for @sellScreenReturnCompletedMessage.
   ///
   /// In en, this message translates to:
