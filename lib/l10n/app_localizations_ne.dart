@@ -38,7 +38,7 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get sellScreenVatNumberLengthError =>
-      'भ्याट नम्बर ठ्याक्कै १० अक्षर/अंकको हुनुपर्छ।';
+      'भ्याट नम्बर ठ्याक्कै ९ अक्षर/अंकको हुनुपर्छ।';
 
   @override
   String sellScreenReturnCompletedMessage(String documentNo, String total) {
@@ -275,6 +275,52 @@ class AppLocalizationsNe extends AppLocalizations {
   String get othersScreenResetSystemButton => 'प्रणाली रिसेट गर्नुहोस्';
 
   @override
+  String get othersScreenAccountHeader => 'खाता';
+
+  @override
+  String get othersScreenChangePasswordTile => 'पासवर्ड परिवर्तन गर्नुहोस्';
+
+  @override
+  String get othersScreenChangePasswordTileSubtitle =>
+      'आफ्नो लगइन पासवर्ड अद्यावधिक गर्नुहोस्';
+
+  @override
+  String get changePasswordScreenTitle => 'पासवर्ड परिवर्तन गर्नुहोस्';
+
+  @override
+  String get changePasswordScreenSubtitle =>
+      'आफ्नो हालको पासवर्ड प्रविष्ट गर्नुहोस् र नयाँ छान्नुहोस्।';
+
+  @override
+  String get changePasswordScreenCurrentPasswordLabel => 'हालको पासवर्ड';
+
+  @override
+  String get changePasswordScreenNewPasswordLabel => 'नयाँ पासवर्ड';
+
+  @override
+  String get changePasswordScreenConfirmPasswordLabel =>
+      'नयाँ पासवर्ड पुष्टि गर्नुहोस्';
+
+  @override
+  String get changePasswordScreenCurrentPasswordRequiredError =>
+      'हालको पासवर्ड आवश्यक छ।';
+
+  @override
+  String get changePasswordScreenNewPasswordLengthError =>
+      'नयाँ पासवर्ड कम्तिमा ८ अक्षरको हुनुपर्छ।';
+
+  @override
+  String get changePasswordScreenConfirmPasswordMismatchError =>
+      'पासवर्डहरू मेल खाँदैनन्।';
+
+  @override
+  String get changePasswordScreenSubmitButton => 'पासवर्ड अद्यावधिक गर्नुहोस्';
+
+  @override
+  String get changePasswordScreenSuccessMessage =>
+      'पासवर्ड सफलतापूर्वक अद्यावधिक भयो।';
+
+  @override
   String get languageCardHeader => 'भाषा';
 
   @override
@@ -502,7 +548,7 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get customerPickerVatFormatError =>
-      'भ्याट नम्बर ठ्याक्कै १० अक्षर/अंकको हुनुपर्छ।';
+      'भ्याट नम्बर ठ्याक्कै ९ अक्षर/अंकको हुनुपर्छ।';
 
   @override
   String get customerPickerTitle => 'ग्राहक';

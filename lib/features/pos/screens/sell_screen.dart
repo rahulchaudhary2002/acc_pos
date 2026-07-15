@@ -83,7 +83,7 @@ class _SellScreenState extends State<SellScreen> {
       return;
     }
     final vatNumber = _customerVatController.text.trim();
-    if (cart.saleType == 'customer' && _selectedCustomer == null && vatNumber.isNotEmpty && !RegExp(r'^[A-Za-z0-9]{10}$').hasMatch(vatNumber)) {
+    if (cart.saleType == 'customer' && _selectedCustomer == null && vatNumber.isNotEmpty && !RegExp(r'^[A-Za-z0-9]{9}$').hasMatch(vatNumber)) {
       setState(() => _errorMessage = AppLocalizations.of(context)!.sellScreenVatNumberLengthError);
       return;
     }
@@ -129,14 +129,19 @@ class _SellScreenState extends State<SellScreen> {
       cart.clear();
       setState(_resetCustomerForm);
       _announce('saleCompleted');
-      // Mirrors PosTerminal.jsx: refetch products after a sale so stock
-      // reflects this transaction immediately, instead of showing whatever
-      // was cached from the last load.
-      unawaited(context.read<PosDataProvider>().loadProducts(
+      // Mirrors PosTerminal.jsx: refetch products AND parties after a sale.
+      // A cash/customer sale with a typed-in name creates that customer
+      // server-side (PosService.sell()'s walk-in/named-customer path)
+      // without adding it to PosDataProvider.customers locally, so without
+      // this refetch the new customer silently never appears in the
+      // customer picker on the next sale.
+      final posData = context.read<PosDataProvider>();
+      unawaited(posData.loadProducts(
             companyId: config.selectedCompanyId,
             outletId: config.selectedOutletId,
             locationId: config.selectedLocationId,
           ));
+      unawaited(posData.loadParties(companyId: config.selectedCompanyId));
 
       await showInvoicePreview(
         context,

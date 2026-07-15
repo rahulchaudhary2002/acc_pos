@@ -102,13 +102,18 @@ class _BuyScreenState extends State<BuyScreen> {
       final preparedBy = context.read<AuthProvider>().user?.name;
       _clearForm(cart);
       _announce('purchaseCompleted');
-      // Mirrors PosTerminal.jsx: refetch products after a purchase so stock
-      // reflects this transaction immediately instead of a stale cache.
-      unawaited(context.read<PosDataProvider>().loadProducts(
+      // Mirrors PosTerminal.jsx: refetch products AND parties after a
+      // purchase. A typed-in supplier name creates that vendor server-side
+      // (PosService.buy()'s named-vendor path) without adding it to
+      // PosDataProvider.suppliers locally, so without this refetch the new
+      // vendor silently never appears in the supplier picker next time.
+      final posData = context.read<PosDataProvider>();
+      unawaited(posData.loadProducts(
             companyId: config.selectedCompanyId,
             outletId: config.selectedOutletId,
             locationId: config.selectedLocationId,
           ));
+      unawaited(posData.loadParties(companyId: config.selectedCompanyId));
       await showPurchaseInvoicePreview(
         context,
         result: result,

@@ -149,4 +149,29 @@ class AuthProvider extends ChangeNotifier {
     fieldErrors = null;
     notifyListeners();
   }
+
+  /// Changes the signed-in user's password via the same `/auth/profile`
+  /// endpoint the web Profile page uses. Left out of the shared
+  /// isLoading/errorMessage pair (those drive the login/OTP screens) so the
+  /// Change Password screen manages its own submit state and can surface
+  /// per-field errors without disturbing the rest of the app.
+  Future<AppUser> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String newPasswordConfirmation,
+  }) async {
+    final currentUser = user;
+    if (currentUser == null) {
+      throw ApiException(message: 'You are not logged in.');
+    }
+    final updated = await _authService.changePassword(
+      currentUser: currentUser,
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+      newPasswordConfirmation: newPasswordConfirmation,
+    );
+    user = updated;
+    notifyListeners();
+    return updated;
+  }
 }

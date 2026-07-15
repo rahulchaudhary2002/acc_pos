@@ -8,13 +8,13 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/error_banner.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../auth/screens/change_password_screen.dart';
 import '../providers/buy_cart_provider.dart';
 import '../providers/cart_provider.dart';
 import '../providers/pos_config_provider.dart';
 import '../providers/pos_data_provider.dart';
 import '../providers/voice_announcer.dart';
 import '../widgets/pos_screen_header.dart';
-import '../widgets/printer_settings_card.dart';
 
 /// Others/Settings tab: POS configuration switcher (company/outlet/fiscal
 /// year/warehouse), the POS Voice Prompt announcer settings, logout, and
@@ -221,7 +221,7 @@ class _OthersScreenState extends State<OthersScreen> {
                 const SizedBox(height: AppSpacing.card),
                 const _VoicePromptCard(),
                 const SizedBox(height: AppSpacing.card),
-                const PrinterSettingsCard(),
+                const _AccountCard(),
                 const SizedBox(height: AppSpacing.section),
                 Row(
                   children: [
@@ -270,6 +270,46 @@ class _OthersScreenState extends State<OthersScreen> {
         const SizedBox(height: 4),
         child,
       ],
+    );
+  }
+}
+
+class _AccountCard extends StatelessWidget {
+  const _AccountCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.card),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.section),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.person_outline, color: AppColors.textSecondary),
+              const SizedBox(width: AppSpacing.field),
+              Text(l10n.othersScreenAccountHeader, style: AppTextStyles.cardHeader),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.item),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.lock_outline, color: AppColors.textSecondary),
+            title: Text(l10n.othersScreenChangePasswordTile, style: AppTextStyles.menuItem),
+            subtitle: Text(l10n.othersScreenChangePasswordTileSubtitle, style: AppTextStyles.helper),
+            trailing: const Icon(Icons.chevron_right, color: AppColors.textFaint),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ChangePasswordScreen()),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

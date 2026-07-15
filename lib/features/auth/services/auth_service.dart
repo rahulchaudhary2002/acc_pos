@@ -48,4 +48,25 @@ class AuthService {
   Future<void> logout() async {
     await _client.post('/pos/auth/logout');
   }
+
+  /// `PUT /auth/profile` — the same endpoint the web Profile page uses for
+  /// password changes. It also requires `name`/`email` (it's a general
+  /// profile-update endpoint), so the current user's values are echoed back
+  /// unchanged; the server only touches the password when `current_password`
+  /// checks out against the account's existing hash.
+  Future<AppUser> changePassword({
+    required AppUser currentUser,
+    required String currentPassword,
+    required String newPassword,
+    required String newPasswordConfirmation,
+  }) async {
+    final data = await _client.put('/auth/profile', data: {
+      'name': currentUser.name,
+      'email': currentUser.email,
+      'current_password': currentPassword,
+      'password': newPassword,
+      'password_confirmation': newPasswordConfirmation,
+    });
+    return AppUser.fromJson(data['user'] as Map<String, dynamic>);
+  }
 }

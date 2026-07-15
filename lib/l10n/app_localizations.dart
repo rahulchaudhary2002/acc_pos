@@ -155,7 +155,7 @@ abstract class AppLocalizations {
   /// No description provided for @sellScreenVatNumberLengthError.
   ///
   /// In en, this message translates to:
-  /// **'VAT number must be exactly 10 alphanumeric characters.'**
+  /// **'VAT number must be exactly 9 alphanumeric characters.'**
   String get sellScreenVatNumberLengthError;
 
   /// No description provided for @sellScreenReturnCompletedMessage.
@@ -602,6 +602,84 @@ abstract class AppLocalizations {
   /// **'Reset System'**
   String get othersScreenResetSystemButton;
 
+  /// No description provided for @othersScreenAccountHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get othersScreenAccountHeader;
+
+  /// No description provided for @othersScreenChangePasswordTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get othersScreenChangePasswordTile;
+
+  /// No description provided for @othersScreenChangePasswordTileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update your login password'**
+  String get othersScreenChangePasswordTileSubtitle;
+
+  /// No description provided for @changePasswordScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get changePasswordScreenTitle;
+
+  /// No description provided for @changePasswordScreenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password and choose a new one.'**
+  String get changePasswordScreenSubtitle;
+
+  /// No description provided for @changePasswordScreenCurrentPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Password'**
+  String get changePasswordScreenCurrentPasswordLabel;
+
+  /// No description provided for @changePasswordScreenNewPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get changePasswordScreenNewPasswordLabel;
+
+  /// No description provided for @changePasswordScreenConfirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm New Password'**
+  String get changePasswordScreenConfirmPasswordLabel;
+
+  /// No description provided for @changePasswordScreenCurrentPasswordRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password is required.'**
+  String get changePasswordScreenCurrentPasswordRequiredError;
+
+  /// No description provided for @changePasswordScreenNewPasswordLengthError.
+  ///
+  /// In en, this message translates to:
+  /// **'New password must be at least 8 characters.'**
+  String get changePasswordScreenNewPasswordLengthError;
+
+  /// No description provided for @changePasswordScreenConfirmPasswordMismatchError.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get changePasswordScreenConfirmPasswordMismatchError;
+
+  /// No description provided for @changePasswordScreenSubmitButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Password'**
+  String get changePasswordScreenSubmitButton;
+
+  /// No description provided for @changePasswordScreenSuccessMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Password updated successfully.'**
+  String get changePasswordScreenSuccessMessage;
+
   /// No description provided for @languageCardHeader.
   ///
   /// In en, this message translates to:
@@ -1007,7 +1085,7 @@ abstract class AppLocalizations {
   /// No description provided for @customerPickerVatFormatError.
   ///
   /// In en, this message translates to:
-  /// **'VAT number must be exactly 10 alphanumeric characters.'**
+  /// **'VAT number must be exactly 9 alphanumeric characters.'**
   String get customerPickerVatFormatError;
 
   /// No description provided for @customerPickerTitle.

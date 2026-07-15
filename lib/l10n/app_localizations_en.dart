@@ -38,7 +38,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sellScreenVatNumberLengthError =>
-      'VAT number must be exactly 10 alphanumeric characters.';
+      'VAT number must be exactly 9 alphanumeric characters.';
 
   @override
   String sellScreenReturnCompletedMessage(String documentNo, String total) {
@@ -274,6 +274,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get othersScreenResetSystemButton => 'Reset System';
 
   @override
+  String get othersScreenAccountHeader => 'Account';
+
+  @override
+  String get othersScreenChangePasswordTile => 'Change Password';
+
+  @override
+  String get othersScreenChangePasswordTileSubtitle =>
+      'Update your login password';
+
+  @override
+  String get changePasswordScreenTitle => 'Change Password';
+
+  @override
+  String get changePasswordScreenSubtitle =>
+      'Enter your current password and choose a new one.';
+
+  @override
+  String get changePasswordScreenCurrentPasswordLabel => 'Current Password';
+
+  @override
+  String get changePasswordScreenNewPasswordLabel => 'New Password';
+
+  @override
+  String get changePasswordScreenConfirmPasswordLabel => 'Confirm New Password';
+
+  @override
+  String get changePasswordScreenCurrentPasswordRequiredError =>
+      'Current password is required.';
+
+  @override
+  String get changePasswordScreenNewPasswordLengthError =>
+      'New password must be at least 8 characters.';
+
+  @override
+  String get changePasswordScreenConfirmPasswordMismatchError =>
+      'Passwords do not match.';
+
+  @override
+  String get changePasswordScreenSubmitButton => 'Update Password';
+
+  @override
+  String get changePasswordScreenSuccessMessage =>
+      'Password updated successfully.';
+
+  @override
   String get languageCardHeader => 'Language';
 
   @override
@@ -501,7 +546,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customerPickerVatFormatError =>
-      'VAT number must be exactly 10 alphanumeric characters.';
+      'VAT number must be exactly 9 alphanumeric characters.';
 
   @override
   String get customerPickerTitle => 'Customer';

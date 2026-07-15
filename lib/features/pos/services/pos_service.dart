@@ -194,6 +194,7 @@ class PosService {
     String? phone,
     String? address,
     String? panVatNo,
+    bool? isDistributor,
   }) async {
     final response = await _client.post('/admin/parties', data: {
       'company_id': companyId,
@@ -204,6 +205,7 @@ class PosService {
       if (phone != null && phone.isNotEmpty) 'mobile_no': phone,
       if (address != null && address.isNotEmpty) 'address': address,
       if (panVatNo != null && panVatNo.isNotEmpty) 'pan_vat_no': panVatNo,
+      'is_distributor': ?isDistributor,
     });
     return Party.fromJson(response['data'] as Map<String, dynamic>);
   }
@@ -357,10 +359,15 @@ class PosService {
       if (existing != null) {
         resolvedVendorId = existing.id;
       } else {
+        // fetchSuppliers() (mirroring web's vendorOptions) only surfaces
+        // is_distributor parties, so a vendor auto-created here must be
+        // flagged as one — otherwise it posts fine but silently never shows
+        // up in the vendor picker again, even after the post-purchase reload.
         final created = await _createParty(
           companyId: companyId,
           type: 'vendor',
           name: supplierName,
+          isDistributor: true,
         );
         // New vendors are re-homed to the head company and cloned per company
         // (PartyController@store) — transactions may only reference this
