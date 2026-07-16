@@ -30,7 +30,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sellScreenTitle => 'Sell LPG';
 
   @override
-  String get sellScreenSubtitle => 'Easy POS for Vendors';
+  String get sellScreenSubtitle => 'Easy POS for Gas Dealers';
 
   @override
   String get sellScreenSelectCustomerOrNameError =>

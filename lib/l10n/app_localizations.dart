@@ -143,7 +143,7 @@ abstract class AppLocalizations {
   /// No description provided for @sellScreenSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Easy POS for Vendors'**
+  /// **'Easy POS for Gas Dealers'**
   String get sellScreenSubtitle;
 
   /// No description provided for @sellScreenSelectCustomerOrNameError.

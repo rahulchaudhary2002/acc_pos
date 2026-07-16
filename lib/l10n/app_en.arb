@@ -7,7 +7,7 @@
   "posHomeBottomNavReportsLabel": "Reports",
   "posHomeBottomNavOthersLabel": "Others",
   "sellScreenTitle": "Sell LPG",
-  "sellScreenSubtitle": "Easy POS for Vendors",
+  "sellScreenSubtitle": "Easy POS for Gas Dealers",
   "sellScreenSelectCustomerOrNameError": "Select an existing customer or enter a full name for a customer sale.",
   "sellScreenVatNumberLengthError": "VAT number must be exactly 9 alphanumeric characters.",
   "sellScreenCashLimitExceededError": "Cash sales cannot exceed NPR 25,000. Please switch to Customer Sale for higher amounts.",
