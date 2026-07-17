@@ -341,7 +341,7 @@ class _BuyScreenState extends State<BuyScreen> {
                           title: AppLocalizations.of(context)!.buyScreenNoItemsSelectedTitle,
                           subtitle: AppLocalizations.of(context)!.buyScreenNoItemsSelectedSubtitle,
                           action: ElevatedButton(
-                            onPressed: () => showProductPicker(context, showPrice: false, onSelected: (p) {
+                            onPressed: () => showProductPicker(context, showPrice: false, showOutOfStockBadge: false, onSelected: (p) {
                               cart.addProduct(p);
                               _announce('productAdded');
                             }),
@@ -376,7 +376,7 @@ class _BuyScreenState extends State<BuyScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
-                        onPressed: () => showProductPicker(context, showPrice: false, onSelected: (p) {
+                        onPressed: () => showProductPicker(context, showPrice: false, showOutOfStockBadge: false, onSelected: (p) {
                               cart.addProduct(p);
                               _announce('productAdded');
                             }),
@@ -495,6 +495,7 @@ class _BuyScreenState extends State<BuyScreen> {
                             onPressed: () => showProductPicker(
                               context,
                               showPrice: false,
+                              showOutOfStockBadge: false,
                               onSelected: (p) => setState(() => _returnItems.add(PurchaseCartItem(product: p))),
                             ),
                             child: Text(AppLocalizations.of(context)!.buyScreenAddProductsLabel),
@@ -525,6 +526,7 @@ class _BuyScreenState extends State<BuyScreen> {
                         onPressed: () => showProductPicker(
                           context,
                           showPrice: false,
+                          showOutOfStockBadge: false,
                           onSelected: (p) => setState(() => _returnItems.add(PurchaseCartItem(product: p))),
                         ),
                         icon: const Icon(Icons.add),

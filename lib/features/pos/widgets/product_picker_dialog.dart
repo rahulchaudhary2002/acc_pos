@@ -17,6 +17,7 @@ Future<void> showProductPicker(
   required void Function(Product) onSelected,
   bool showPrice = true,
   bool disableOutOfStock = false,
+  bool showOutOfStockBadge = true,
 }) {
   return showDialog(
     context: context,
@@ -25,7 +26,12 @@ Future<void> showProductPicker(
       insetPadding: const EdgeInsets.all(AppSpacing.section),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 420, maxHeight: 640),
-        child: _ProductPickerContent(onSelected: onSelected, showPrice: showPrice, disableOutOfStock: disableOutOfStock),
+        child: _ProductPickerContent(
+          onSelected: onSelected,
+          showPrice: showPrice,
+          disableOutOfStock: disableOutOfStock,
+          showOutOfStockBadge: showOutOfStockBadge,
+        ),
       ),
     ),
   );
@@ -35,8 +41,14 @@ class _ProductPickerContent extends StatefulWidget {
   final void Function(Product) onSelected;
   final bool showPrice;
   final bool disableOutOfStock;
+  final bool showOutOfStockBadge;
 
-  const _ProductPickerContent({required this.onSelected, required this.showPrice, required this.disableOutOfStock});
+  const _ProductPickerContent({
+    required this.onSelected,
+    required this.showPrice,
+    required this.disableOutOfStock,
+    required this.showOutOfStockBadge,
+  });
 
   @override
   State<_ProductPickerContent> createState() => _ProductPickerContentState();
@@ -138,6 +150,7 @@ class _ProductPickerContentState extends State<_ProductPickerContent> {
                       return ProductCard(
                         product: product,
                         showPrice: widget.showPrice,
+                        showOutOfStockBadge: widget.showOutOfStockBadge,
                         onTap: (widget.disableOutOfStock && product.outOfStock) ? null : () {
                           widget.onSelected(product);
                           Navigator.of(context).pop();

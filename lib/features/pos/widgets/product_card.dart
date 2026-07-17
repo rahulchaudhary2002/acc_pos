@@ -13,17 +13,24 @@ class ProductCard extends StatelessWidget {
   final Product product;
   final VoidCallback? onTap;
   final bool showPrice;
+  final bool showOutOfStockBadge;
 
-  const ProductCard({super.key, required this.product, this.onTap, this.showPrice = true});
+  const ProductCard({
+    super.key,
+    required this.product,
+    this.onTap,
+    this.showPrice = true,
+    this.showOutOfStockBadge = true,
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final outOfStock = product.outOfStock;
+    // Purchase/Purchase Return restock out-of-stock items, so they don't get
+    // the "Out of Stock" styling/pill there — only Sell (and Sales Return)
+    // flags it, via showOutOfStockBadge.
+    final outOfStock = showOutOfStockBadge && product.outOfStock;
     final disabled = onTap == null;
-    // The "Out of Stock" pill always renders so the card looks the same in
-    // Sell and Buy; only Sell passes disableOutOfStock, which nulls onTap
-    // and dims the card here so it reads as unselectable.
     return Opacity(
       opacity: disabled ? 0.55 : 1,
       child: InkWell(
