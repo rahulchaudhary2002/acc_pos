@@ -125,7 +125,16 @@ class _SplashScreen extends StatelessWidget {
             colors: [AppColors.gradientStart, AppColors.gradientMid, AppColors.gradientEnd],
           ),
         ),
-        child: const Center(child: CircularProgressIndicator(color: Colors.white)),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset('assets/images/logo.png', height: 120, fit: BoxFit.contain),
+              const SizedBox(height: 24),
+              const CircularProgressIndicator(color: Colors.white),
+            ],
+          ),
+        ),
       ),
     );
   }

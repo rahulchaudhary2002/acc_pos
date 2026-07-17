@@ -7,18 +7,17 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/widgets/gas_cylinder_icon.dart';
 import '../../../l10n/app_localizations.dart';
 import '../providers/date_locale_provider.dart';
 
-/// Header bar shared by every POS tab: icon circle + title + subtitle on the
+/// Header bar shared by every POS tab: logo circle + title + subtitle on the
 /// left, a live clock/date pill on the right — mirrors `PosTerminal.jsx`'s
 /// header (`#284457` bar, `#19a7e0` icon circle, `rounded-t-[32px]`). The
-/// icon circle always shows the same gas cylinder glyph on every tab — the
-/// web header shows a single constant `Fuel` icon across Sell/Buy/Reports/
-/// Settings too; only the title/subtitle text changes per tab. The pill is
-/// tappable, offering English (Gregorian) or Nepali (Bikram Sambat) date
-/// display — a POS-terminal convenience with no direct web equivalent.
+/// logo circle shows the same company logo on every tab, same as the web
+/// header's constant branding across Sell/Buy/Reports/Settings; only the
+/// title/subtitle text changes per tab. The pill is tappable, offering
+/// English (Gregorian) or Nepali (Bikram Sambat) date display — a
+/// POS-terminal convenience with no direct web equivalent.
 class PosScreenHeader extends StatefulWidget {
   final String title;
   final String subtitle;
@@ -76,9 +75,14 @@ class _PosScreenHeaderState extends State<PosScreenHeader> {
           Container(
             width: 56,
             height: 56,
-            decoration: const BoxDecoration(color: AppColors.headerIconCircle, shape: BoxShape.circle),
+            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
             alignment: Alignment.center,
-            child: const GasCylinderIcon(size: 28, color: AppColors.cylinderRed),
+            child: ClipOval(
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
+              ),
+            ),
           ),
           const SizedBox(width: AppSpacing.card),
           Expanded(

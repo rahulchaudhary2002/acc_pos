@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/widgets/gas_cylinder_icon.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -69,15 +68,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          width: 64,
-                          height: 64,
-                          alignment: Alignment.center,
-                          decoration: const BoxDecoration(
-                            color: AppColors.headerIconCircle,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const GasCylinderIcon(size: 32, color: AppColors.cylinderRed),
+                        Image.asset(
+                          'assets/images/logo.png',
+                          height: 96,
+                          fit: BoxFit.contain,
                         ),
                         const SizedBox(height: AppSpacing.card),
                         const Text(
