@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:nepali_utils/nepali_utils.dart';
 import 'package:printing/printing.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -174,8 +175,9 @@ Future<void> showPurchaseInvoicePreview(
 }
 
 String _formatDate(DateTime date) {
+  final npDate = date.toNepaliDateTime();
   String two(int n) => n.toString().padLeft(2, '0');
-  return '${two(date.day)}/${two(date.month)}/${date.year}';
+  return '${two(npDate.day)}/${two(npDate.month)}/${npDate.year} BS';
 }
 
 String _englishPhoneLabel(String phone) => 'Phone No : $phone';
