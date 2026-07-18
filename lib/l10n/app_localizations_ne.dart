@@ -68,6 +68,12 @@ class AppLocalizationsNe extends AppLocalizations {
   String get sellScreenSalesReturnSubtitle => 'वस्तु फिर्ता';
 
   @override
+  String get sellScreenVendorLabel => 'विक्रेता';
+
+  @override
+  String get sellScreenSelectVendorHint => 'विक्रेता छान्नुहोस् (वैकल्पिक)';
+
+  @override
   String get sellScreenCurrentSaleTitle => 'हालको बिक्री';
 
   @override

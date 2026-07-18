@@ -28,6 +28,8 @@
   "sellScreenCustomerSaleSubtitle": "Linked account",
   "sellScreenSalesReturnLabel": "Sales Return",
   "sellScreenSalesReturnSubtitle": "Refund items",
+  "sellScreenVendorLabel": "Vendor",
+  "sellScreenSelectVendorHint": "Select vendor (optional)",
   "sellScreenCurrentSaleTitle": "Current Sale",
   "sellScreenNoItemsAddedTitle": "No items added yet",
   "sellScreenNoItemsAddedSubtitle": "Click the button below to add products",

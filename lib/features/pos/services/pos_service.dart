@@ -286,6 +286,7 @@ class PosService {
     String? customerAddress,
     String? customerVatNumber,
     String? salesperson,
+    int? vendorId,
     double deliveryCharge = 0,
     String? paymentMode,
     String? paymentReference,
@@ -312,6 +313,7 @@ class PosService {
       'fiscal_year_id': ?fiscalYearId,
       'invoice_date': _today(),
       'customer_id': resolvedCustomerId,
+      'vendor_id': vendorId,
       if (salesperson != null && salesperson.isNotEmpty) 'salesperson': salesperson,
       'payment_mode': paymentMode ?? (saleType == 'cash' ? 'cash' : 'credit'),
       if (paymentReference != null && paymentReference.isNotEmpty) 'payment_reference': paymentReference,
@@ -454,6 +456,7 @@ class PosService {
     required int outletId,
     int? locationId,
     int? customerId,
+    int? vendorId,
     required List<SaleCartItem> items,
   }) async {
     final response = await _client.post('/pos/sell-return', data: {
@@ -461,6 +464,7 @@ class PosService {
       'outlet_id': outletId,
       'location_id': locationId,
       'customer_id': customerId,
+      'vendor_id': vendorId,
       'return_date': _today(),
       'items': items.map((e) => e.toPosReturnJson()).toList(),
     });

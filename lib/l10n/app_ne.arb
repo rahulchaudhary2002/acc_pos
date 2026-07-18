@@ -18,6 +18,8 @@
   "sellScreenCustomerSaleSubtitle": "लिङ्क गरिएको खाता",
   "sellScreenSalesReturnLabel": "बिक्री फिर्ता",
   "sellScreenSalesReturnSubtitle": "वस्तु फिर्ता",
+  "sellScreenVendorLabel": "विक्रेता",
+  "sellScreenSelectVendorHint": "विक्रेता छान्नुहोस् (वैकल्पिक)",
   "sellScreenCurrentSaleTitle": "हालको बिक्री",
   "sellScreenNoItemsAddedTitle": "अहिलेसम्म कुनै वस्तु थपिएको छैन",
   "sellScreenNoItemsAddedSubtitle": "उत्पादन थप्न तलको बटन क्लिक गर्नुहोस्",

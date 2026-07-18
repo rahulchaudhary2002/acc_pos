@@ -40,6 +40,7 @@ class SellScreen extends StatefulWidget {
 class _SellScreenState extends State<SellScreen> {
   String _mode = 'sale'; // 'sale' | 'return'
   Party? _selectedCustomer;
+  Party? _selectedVendor;
   final _customerNameController = TextEditingController();
   final _customerPhoneController = TextEditingController();
   final _customerVatController = TextEditingController();
@@ -111,6 +112,7 @@ class _SellScreenState extends State<SellScreen> {
         customerPhone: cart.saleType == 'customer' && _selectedCustomer == null ? _customerPhoneController.text.trim() : null,
         customerAddress: cart.saleType == 'customer' && _selectedCustomer == null ? _customerAddressController.text.trim() : null,
         customerVatNumber: cart.saleType == 'customer' && _selectedCustomer == null ? _customerVatController.text.trim() : null,
+        vendorId: _selectedVendor?.id,
         deliveryCharge: cart.deliveryCharge,
         paymentMode: cart.paymentMode,
         paymentReference: cart.paymentReference,
@@ -131,7 +133,10 @@ class _SellScreenState extends State<SellScreen> {
       final customerVatSnapshot = _selectedCustomer?.panVatNo ?? (vatNumber.isEmpty ? null : vatNumber);
       final preparedBy = context.read<AuthProvider>().user?.name;
       cart.clear();
-      setState(_resetCustomerForm);
+      setState(() {
+        _resetCustomerForm();
+        _selectedVendor = null;
+      });
       _announce('saleCompleted');
       // Mirrors PosTerminal.jsx: refetch products AND parties after a sale.
       // A cash/customer sale with a typed-in name creates that customer
@@ -182,6 +187,7 @@ class _SellScreenState extends State<SellScreen> {
         outletId: config.selectedOutletId!,
         locationId: config.selectedLocationId,
         customerId: _returnCustomerId,
+        vendorId: _selectedVendor?.id,
         items: _returnItems,
       );
       if (!mounted) return;
@@ -191,6 +197,7 @@ class _SellScreenState extends State<SellScreen> {
       setState(() {
         _returnItems.clear();
         _returnCustomerId = null;
+        _selectedVendor = null;
       });
       unawaited(context.read<PosDataProvider>().loadProducts(
             companyId: config.selectedCompanyId,
@@ -269,6 +276,17 @@ class _SellScreenState extends State<SellScreen> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: AppSpacing.card),
+                DropdownButtonFormField<Party?>(
+                  isExpanded: true,
+                  initialValue: _selectedVendor,
+                  decoration: InputDecoration(labelText: AppLocalizations.of(context)!.sellScreenVendorLabel),
+                  items: [
+                    DropdownMenuItem<Party?>(value: null, child: Text(AppLocalizations.of(context)!.sellScreenSelectVendorHint)),
+                    ...data.suppliers.map((s) => DropdownMenuItem<Party?>(value: s, child: Text(s.name, overflow: TextOverflow.ellipsis))),
+                  ],
+                  onChanged: (v) => setState(() => _selectedVendor = v),
                 ),
                 const SizedBox(height: AppSpacing.card),
                 if (_mode == 'return') ..._buildReturnMode(data) else ..._buildSaleMode(cart, data),

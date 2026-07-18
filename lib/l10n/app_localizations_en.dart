@@ -68,6 +68,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sellScreenSalesReturnSubtitle => 'Refund items';
 
   @override
+  String get sellScreenVendorLabel => 'Vendor';
+
+  @override
+  String get sellScreenSelectVendorHint => 'Select vendor (optional)';
+
+  @override
   String get sellScreenCurrentSaleTitle => 'Current Sale';
 
   @override

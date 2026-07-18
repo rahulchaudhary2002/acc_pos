@@ -206,6 +206,18 @@ abstract class AppLocalizations {
   /// **'Refund items'**
   String get sellScreenSalesReturnSubtitle;
 
+  /// No description provided for @sellScreenVendorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendor'**
+  String get sellScreenVendorLabel;
+
+  /// No description provided for @sellScreenSelectVendorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select vendor (optional)'**
+  String get sellScreenSelectVendorHint;
+
   /// No description provided for @sellScreenCurrentSaleTitle.
   ///
   /// In en, this message translates to:
