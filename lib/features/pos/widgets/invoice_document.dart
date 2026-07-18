@@ -74,69 +74,71 @@ class TaxInvoiceDocument extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Column(
-          children: [
-            Text(companyName.toUpperCase(), textAlign: TextAlign.center, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-            if ((companyAddress ?? '').isNotEmpty)
-              Text(companyAddress!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
-            if ((companyPhone ?? '').isNotEmpty)
-              Text('Phone No : $companyPhone', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
-            if ((companyVatNo ?? '').isNotEmpty)
-              Text('VAT # : $companyVatNo', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.card),
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, decoration: TextDecoration.underline),
-        ),
-        const SizedBox(height: AppSpacing.card),
-        for (final row in metaRows) _metaRowPair(row),
-        const SizedBox(height: AppSpacing.card),
-        _itemsTable(),
-        const SizedBox(height: AppSpacing.card),
-        _totalsSection(),
-        const SizedBox(height: AppSpacing.field),
-        Text(
-          amountToWords(total, locale: 'en'),
-          style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
-        ),
-        const SizedBox(height: AppSpacing.section),
-        _signatureBlock(),
-        const SizedBox(height: AppSpacing.section),
-        Wrap(spacing: AppSpacing.field, runSpacing: AppSpacing.field, alignment: WrapAlignment.center, children: actions),
-      ],
-    );
-  }
-
-  Widget _metaRowPair(List<MetaField> row) {
-    if (row.every((f) => f == null)) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return DefaultTextStyle.merge(
+      style: const TextStyle(fontFamily: 'Arial', color: AppColors.textPrimary),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(child: row.isNotEmpty && row[0] != null ? _metaField(row[0]!) : const SizedBox.shrink()),
-          const SizedBox(width: AppSpacing.field),
-          Expanded(child: row.length > 1 && row[1] != null ? _metaField(row[1]!) : const SizedBox.shrink()),
+          Column(
+            children: [
+              Text(companyName.toUpperCase(), textAlign: TextAlign.center, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+              if ((companyAddress ?? '').isNotEmpty)
+                Text(companyAddress!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
+              if ((companyPhone ?? '').isNotEmpty)
+                Text('Phone No : $companyPhone', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
+              if ((companyVatNo ?? '').isNotEmpty)
+                Text('VAT # : $companyVatNo', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.field),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, decoration: TextDecoration.underline),
+          ),
+          _divider(),
+          for (final row in metaRows) ..._metaRowLines(row),
+          _divider(),
+          _itemsTable(),
+          _divider(),
+          _totalsSection(),
+          _divider(),
+          _dateAndOriginalSection(),
+          _divider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Text(
+              amountToWords(total, locale: 'en'),
+              style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.section),
+          _signatureBlock(),
+          const SizedBox(height: AppSpacing.section),
+          Wrap(spacing: AppSpacing.field, runSpacing: AppSpacing.field, alignment: WrapAlignment.center, children: actions),
         ],
       ),
     );
   }
 
+  Widget _divider() => const Divider(height: 17, thickness: 1, color: AppColors.textPrimary);
+
+  List<Widget> _metaRowLines(List<MetaField> row) {
+    return row.whereType<(String, String)>().map(_metaField).toList();
+  }
+
   Widget _metaField((String, String) field) {
     final (label, value) = field;
-    return RichText(
-      text: TextSpan(
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-        children: [
-          TextSpan(text: '$label : '),
-          TextSpan(text: value, style: const TextStyle(fontWeight: FontWeight.w500)),
-        ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1),
+      child: Text.rich(
+        TextSpan(
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+          children: [
+            TextSpan(text: '$label : '),
+            TextSpan(text: value, style: const TextStyle(fontWeight: FontWeight.w500)),
+          ],
+        ),
       ),
     );
   }
@@ -149,26 +151,23 @@ class TaxInvoiceDocument extends StatelessWidget {
         horizontalInside: const BorderSide(color: AppColors.textPrimary, width: 0.75),
       ),
       columnWidths: const {
-        0: FlexColumnWidth(0.6),
-        1: FlexColumnWidth(1.3),
-        2: FlexColumnWidth(3),
-        3: FlexColumnWidth(1),
-        4: FlexColumnWidth(1.2),
-        5: FlexColumnWidth(1.3),
+        0: FlexColumnWidth(0.7),
+        1: FlexColumnWidth(3.6),
+        2: FlexColumnWidth(1.1),
+        3: FlexColumnWidth(1.3),
+        4: FlexColumnWidth(1.3),
       },
       children: [
         TableRow(children: [
-          _InvoiceCell('Sr.', bold: true, align: TextAlign.center),
-          _InvoiceCell('H.S. Code', bold: true),
+          _InvoiceCell('Sn.', bold: true, align: TextAlign.center),
           _InvoiceCell('Description', bold: true),
           _InvoiceCell('Qty.', bold: true, align: TextAlign.right),
           _InvoiceCell('Rate', bold: true, align: TextAlign.right),
-          _InvoiceCell('Total Amt.', bold: true, align: TextAlign.right),
+          _InvoiceCell('Amount', bold: true, align: TextAlign.right),
         ]),
         for (var i = 0; i < items.length; i++)
           TableRow(children: [
             _InvoiceCell('${i + 1}', align: TextAlign.center),
-            _InvoiceCell(items[i].hsCode.isEmpty ? '-' : items[i].hsCode),
             _InvoiceCell(items[i].description),
             _InvoiceCell(_qty(items[i].qty), align: TextAlign.right),
             _InvoiceCell(items[i].rate.toStringAsFixed(2), align: TextAlign.right),
@@ -181,42 +180,27 @@ class TaxInvoiceDocument extends StatelessWidget {
   static String _qty(double qty) => qty.toStringAsFixed(qty.truncateToDouble() == qty ? 0 : 2);
 
   Widget _totalsSection() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.field),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.textPrimary, width: 1.5)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _plainRow('Print Date/Time :', printDateTimeLabel(printedAt)),
-                _plainRow('Nepali Date :', nepaliDateLabel(printedAt)),
-                const SizedBox(height: AppSpacing.field),
-                const Text('Original', style: TextStyle(fontSize: 12)),
-              ],
-            ),
-          ),
-          const SizedBox(width: AppSpacing.card),
-          Expanded(
-            flex: 4,
-            child: Column(
-              children: [
-                _summaryRow('Taxable :', taxable),
-                _summaryRow('Non Taxable :', nonTaxable),
-                _summaryRow('Sub Total :', subtotal),
-                _summaryRow('Discount : 0 %', 0),
-                _summaryRow(vatRateLabel.isEmpty ? 'VAT Amount :' : 'VAT Amount ($vatRateLabel) :', tax),
-                _summaryRow('Net Total :', total, bold: true),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        _summaryRow('Taxable :', taxable),
+        _summaryRow('Non Taxable :', nonTaxable),
+        _summaryRow('Sub Total :', subtotal),
+        _summaryRow('Discount : 0 %', 0),
+        _summaryRow(vatRateLabel.isEmpty ? 'VAT Amount :' : 'VAT Amount ($vatRateLabel) :', tax),
+        const Divider(height: 9, thickness: 1, color: AppColors.textPrimary),
+        _summaryRow('Net Total :', total, bold: true),
+      ],
+    );
+  }
+
+  Widget _dateAndOriginalSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _plainRow('Print Date/Time :', printDateTimeLabel(printedAt)),
+        _plainRow('Nepali Date :', nepaliDateLabel(printedAt)),
+        const Text('Original', style: TextStyle(fontSize: 12)),
+      ],
     );
   }
 
@@ -291,8 +275,9 @@ Future<void> showTaxInvoiceDialog(BuildContext context, {required Widget documen
     barrierColor: AppColors.overlayScrim,
     builder: (_) => Dialog(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 480, maxHeight: 700),
-        child: Padding(
+        constraints: const BoxConstraints(maxWidth: 380, maxHeight: 700),
+        child: Container(
+          decoration: BoxDecoration(border: Border.all(color: AppColors.textPrimary)),
           padding: const EdgeInsets.all(AppSpacing.card),
           child: SingleChildScrollView(child: document),
         ),

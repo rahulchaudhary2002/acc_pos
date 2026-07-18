@@ -97,20 +97,22 @@ Future<Uint8List> buildInvoicePdfBytes({
             if ((companyVatNo ?? '').isNotEmpty) pw.Text('VAT # : $companyVatNo', style: const pw.TextStyle(fontSize: 9)),
           ]),
         ),
-        pw.SizedBox(height: 10),
+        pw.SizedBox(height: 6),
         pw.Center(
           child: pw.Text(
             title,
             style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, decoration: pw.TextDecoration.underline),
           ),
         ),
-        pw.SizedBox(height: 10),
-        for (final row in metaRows) _metaRow(row),
-        pw.SizedBox(height: 10),
+        pw.Divider(color: border, thickness: 1, height: 14),
+        for (final row in metaRows) ..._metaRowLines(row),
+        pw.Divider(color: border, thickness: 1, height: 14),
         _itemsTable(items, border),
-        pw.SizedBox(height: 10),
-        _totalsSection(printedAt, taxable, nonTaxable, subtotal, vatRateLabel, tax, total, border),
-        pw.SizedBox(height: 6),
+        pw.Divider(color: border, thickness: 1, height: 14),
+        _totalsSection(taxable, nonTaxable, subtotal, vatRateLabel, tax, total),
+        pw.Divider(color: border, thickness: 1, height: 14),
+        _dateAndOriginalSection(printedAt),
+        pw.Divider(color: border, thickness: 1, height: 14),
         pw.Text(amountToWords(total), style: pw.TextStyle(fontSize: 9, fontStyle: pw.FontStyle.italic)),
         pw.SizedBox(height: 24),
         pw.Row(children: [
@@ -125,16 +127,8 @@ Future<Uint8List> buildInvoicePdfBytes({
   return doc.save();
 }
 
-pw.Widget _metaRow(List<MetaField> row) {
-  if (row.every((f) => f == null)) return pw.SizedBox();
-  return pw.Padding(
-    padding: const pw.EdgeInsets.symmetric(vertical: 1),
-    child: pw.Row(children: [
-      pw.Expanded(child: row.isNotEmpty && row[0] != null ? _metaField(row[0]!) : pw.SizedBox()),
-      pw.SizedBox(width: 8),
-      pw.Expanded(child: row.length > 1 && row[1] != null ? _metaField(row[1]!) : pw.SizedBox()),
-    ]),
-  );
+List<pw.Widget> _metaRowLines(List<MetaField> row) {
+  return row.whereType<(String, String)>().map(_metaField).toList();
 }
 
 pw.Widget _metaField((String, String) field) {
@@ -159,26 +153,23 @@ pw.Widget _itemsTable(List<InvoiceLineData> items, PdfColor border) {
       horizontalInside: pw.BorderSide(color: border, width: 0.5),
     ),
     columnWidths: const {
-      0: pw.FlexColumnWidth(0.6),
-      1: pw.FlexColumnWidth(1.3),
-      2: pw.FlexColumnWidth(3),
-      3: pw.FlexColumnWidth(1),
-      4: pw.FlexColumnWidth(1.2),
-      5: pw.FlexColumnWidth(1.3),
+      0: pw.FlexColumnWidth(0.7),
+      1: pw.FlexColumnWidth(3.6),
+      2: pw.FlexColumnWidth(1.1),
+      3: pw.FlexColumnWidth(1.3),
+      4: pw.FlexColumnWidth(1.3),
     },
     children: [
       pw.TableRow(children: [
-        _cell('Sr.', bold: true, align: pw.TextAlign.center),
-        _cell('H.S. Code', bold: true),
+        _cell('Sn.', bold: true, align: pw.TextAlign.center),
         _cell('Description', bold: true),
         _cell('Qty.', bold: true, align: pw.TextAlign.right),
         _cell('Rate', bold: true, align: pw.TextAlign.right),
-        _cell('Total Amt.', bold: true, align: pw.TextAlign.right),
+        _cell('Amount', bold: true, align: pw.TextAlign.right),
       ]),
       for (var i = 0; i < items.length; i++)
         pw.TableRow(children: [
           _cell('${i + 1}', align: pw.TextAlign.center),
-          _cell(items[i].hsCode.isEmpty ? '-' : items[i].hsCode),
           _cell(items[i].description),
           _cell(qty(items[i].qty), align: pw.TextAlign.right),
           _cell(items[i].rate.toStringAsFixed(2), align: pw.TextAlign.right),
@@ -196,14 +187,12 @@ pw.Widget _cell(String text, {bool bold = false, pw.TextAlign align = pw.TextAli
 }
 
 pw.Widget _totalsSection(
-  DateTime printedAt,
   double taxable,
   double nonTaxable,
   double subtotal,
   String vatRateLabel,
   double tax,
   double total,
-  PdfColor border,
 ) {
   pw.Widget summaryRow(String label, double value, {bool bold = false}) {
     final style = pw.TextStyle(fontSize: bold ? 10 : 9, fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal);
@@ -216,36 +205,23 @@ pw.Widget _totalsSection(
     );
   }
 
-  return pw.Container(
-    padding: const pw.EdgeInsets.symmetric(vertical: 8),
-    decoration: pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: border, width: 1))),
-    child: pw.Row(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Expanded(
-          flex: 5,
-          child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
-            pw.Text('Print Date/Time : ${printDateTimeLabel(printedAt)}', style: const pw.TextStyle(fontSize: 9)),
-            pw.Text('Nepali Date : ${nepaliDateLabel(printedAt)}', style: const pw.TextStyle(fontSize: 9)),
-            pw.SizedBox(height: 6),
-            pw.Text('Original', style: const pw.TextStyle(fontSize: 9)),
-          ]),
-        ),
-        pw.SizedBox(width: 12),
-        pw.Expanded(
-          flex: 4,
-          child: pw.Column(children: [
-            summaryRow('Taxable :', taxable),
-            summaryRow('Non Taxable :', nonTaxable),
-            summaryRow('Sub Total :', subtotal),
-            summaryRow('Discount : 0 %', 0),
-            summaryRow(vatRateLabel.isEmpty ? 'VAT Amount :' : 'VAT Amount ($vatRateLabel) :', tax),
-            summaryRow('Net Total :', total, bold: true),
-          ]),
-        ),
-      ],
-    ),
-  );
+  return pw.Column(children: [
+    summaryRow('Taxable :', taxable),
+    summaryRow('Non Taxable :', nonTaxable),
+    summaryRow('Sub Total :', subtotal),
+    summaryRow('Discount : 0 %', 0),
+    summaryRow(vatRateLabel.isEmpty ? 'VAT Amount :' : 'VAT Amount ($vatRateLabel) :', tax),
+    pw.Divider(color: PdfColors.grey900, thickness: 1, height: 6),
+    summaryRow('Net Total :', total, bold: true),
+  ]);
+}
+
+pw.Widget _dateAndOriginalSection(DateTime printedAt) {
+  return pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+    pw.Text('Print Date/Time : ${printDateTimeLabel(printedAt)}', style: const pw.TextStyle(fontSize: 9)),
+    pw.Text('Nepali Date : ${nepaliDateLabel(printedAt)}', style: const pw.TextStyle(fontSize: 9)),
+    pw.Text('Original', style: const pw.TextStyle(fontSize: 9)),
+  ]);
 }
 
 pw.Widget _signatureColumn(String name, String label) {
