@@ -44,7 +44,7 @@ Future<void> showPurchaseInvoicePreview(
     ],
     [('Bill Date', _formatDate(billDate)), ('MRN No.', result.documentNo)],
     [('Vendor Name', vendorName), ('Counter No.', counterNo)],
-    if ((vendorVatNumber ?? '').isNotEmpty) [('Vendor Pan', vendorVatNumber!), null],
+    [('Vendor Pan', vendorVatNumber ?? ''), null],
   ];
   final invoiceLines = items
       .map((i) => InvoiceLineData(

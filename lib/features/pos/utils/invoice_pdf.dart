@@ -74,6 +74,7 @@ Future<Uint8List> buildInvoicePdfBytes({
   required double subtotal,
   required String vatRateLabel,
   required double tax,
+  double delivery = 0,
   required double total,
   required String preparedBy,
   required String signatureRightLabel,
@@ -86,35 +87,38 @@ Future<Uint8List> buildInvoicePdfBytes({
 
   doc.addPage(
     pw.MultiPage(
-      pageFormat: PdfPageFormat.a5,
-      margin: const pw.EdgeInsets.all(20),
+      // 80mm x 297mm thermal roll — matches the physical thermal printer
+      // this actually prints on (not an A5 sheet printer), and the same
+      // "80mm 297mm" @page size the web app's browser print CSS already
+      // uses for this printer.
+      pageFormat: PdfPageFormat(80 * PdfPageFormat.mm, 297 * PdfPageFormat.mm),
+      margin: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 10),
       build: (context) => [
         pw.Center(
           child: pw.Column(children: [
-            pw.Text(companyName.toUpperCase(), style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
+            // Printed exactly as stored — no forced upper-casing — matching
+            // the physical receipt showing "Head Office", not "HEAD OFFICE".
+            // The web receipt never prints phone/VAT in the header (dead
+            // variables in its print template), so neither does this.
+            pw.Text(companyName, style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
             if ((companyAddress ?? '').isNotEmpty) pw.Text(companyAddress!, style: const pw.TextStyle(fontSize: 9)),
-            if ((companyPhone ?? '').isNotEmpty) pw.Text('Phone No : $companyPhone', style: const pw.TextStyle(fontSize: 9)),
-            if ((companyVatNo ?? '').isNotEmpty) pw.Text('VAT # : $companyVatNo', style: const pw.TextStyle(fontSize: 9)),
           ]),
         ),
-        pw.SizedBox(height: 6),
+        pw.SizedBox(height: 4),
         pw.Center(
-          child: pw.Text(
-            title,
-            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, decoration: pw.TextDecoration.underline),
-          ),
+          child: pw.Text(title, style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
         ),
-        pw.Divider(color: border, thickness: 1, height: 14),
-        for (final row in metaRows) ..._metaRowLines(row),
-        pw.Divider(color: border, thickness: 1, height: 14),
+        pw.Divider(color: border, thickness: 1, height: 9),
+        ..._metaFieldWidgets(metaRows, border),
+        pw.Divider(color: border, thickness: 1, height: 9),
         _itemsTable(items, border),
-        pw.Divider(color: border, thickness: 1, height: 14),
-        _totalsSection(taxable, nonTaxable, subtotal, vatRateLabel, tax, total),
-        pw.Divider(color: border, thickness: 1, height: 14),
+        pw.Divider(color: border, thickness: 1, height: 9),
+        _totalsSection(taxable, nonTaxable, subtotal, vatRateLabel, tax, delivery, total),
+        pw.Divider(color: border, thickness: 1, height: 9),
         _dateAndOriginalSection(printedAt),
-        pw.Divider(color: border, thickness: 1, height: 14),
+        pw.Divider(color: border, thickness: 1, height: 9),
         pw.Text(amountToWords(total), style: pw.TextStyle(fontSize: 9, fontStyle: pw.FontStyle.italic)),
-        pw.SizedBox(height: 24),
+        pw.SizedBox(height: 12),
         pw.Row(children: [
           pw.Expanded(child: _signatureColumn(preparedBy.isEmpty ? 'Prepared By' : preparedBy, 'Prepare By')),
           pw.SizedBox(width: 24),
@@ -127,53 +131,78 @@ Future<Uint8List> buildInvoicePdfBytes({
   return doc.save();
 }
 
-List<pw.Widget> _metaRowLines(List<MetaField> row) {
-  return row.whereType<(String, String)>().map(_metaField).toList();
-}
+/// Short No./Date fields render right-aligned (label left, value right, same
+/// line) — matching the physical receipt's 50/50 two-column rows. Name
+/// fields print as their own two-line block (label, then value on the next
+/// line) and Pan fields glue the value straight onto the label with no
+/// space — both matching the receipt's colspan="2" rows exactly. The first
+/// Name/Pan/Payment/Ref field triggers the divider that separates the two
+/// groups on the real receipt.
+List<pw.Widget> _metaFieldWidgets(List<List<MetaField>> metaRows, PdfColor border) {
+  const style = pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.normal);
+  const normal = pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.normal);
+  final widgets = <pw.Widget>[];
+  var printedGroupDivider = false;
 
-pw.Widget _metaField((String, String) field) {
-  final (label, value) = field;
-  return pw.RichText(
-    text: pw.TextSpan(
-      style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold),
-      children: [
-        pw.TextSpan(text: '$label : '),
-        pw.TextSpan(text: value, style: pw.TextStyle(fontWeight: pw.FontWeight.normal)),
-      ],
-    ),
-  );
+  for (final row in metaRows) {
+    for (final field in row) {
+      if (field == null) continue;
+      final (label, value) = field;
+      final isFullWidthField = label.contains('Name') || label.contains('Pan') || label.contains('Payment');
+      if (isFullWidthField && !printedGroupDivider) {
+        widgets.add(pw.Divider(color: border, thickness: 1, height: 9));
+        printedGroupDivider = true;
+      }
+      if (label.contains('Name')) {
+        widgets.add(pw.Text('$label :', style: style));
+        widgets.add(pw.Text(value, style: normal));
+      } else if (label.contains('Pan')) {
+        widgets.add(pw.RichText(text: pw.TextSpan(style: style, children: [pw.TextSpan(text: '$label :'), pw.TextSpan(text: value, style: normal)])));
+      } else if (isFullWidthField) {
+        widgets.add(pw.RichText(text: pw.TextSpan(style: style, children: [pw.TextSpan(text: '$label : '), pw.TextSpan(text: value, style: normal)])));
+      } else {
+        widgets.add(pw.Row(children: [
+          pw.Expanded(child: pw.Text('$label :', style: style)),
+          pw.Text(value, style: normal),
+        ]));
+      }
+    }
+  }
+  return widgets;
 }
 
 pw.Widget _itemsTable(List<InvoiceLineData> items, PdfColor border) {
-  String qty(double q) => q.toStringAsFixed(q.truncateToDouble() == q ? 0 : 2);
+  // Always 2 decimals — matching the physical receipt's "1.00", not "1".
+  String qty(double q) => q.toStringAsFixed(2);
+  // No TableBorder here — the surrounding pw.Divider calls in
+  // buildInvoicePdfBytes already draw the line above/below the table; a
+  // table-level top/bottom border on top of those doubled up the rule.
   return pw.Table(
-    border: pw.TableBorder(
-      top: pw.BorderSide(color: border, width: 1),
-      bottom: pw.BorderSide(color: border, width: 1),
-      horizontalInside: pw.BorderSide(color: border, width: 0.5),
-    ),
     columnWidths: const {
       0: pw.FlexColumnWidth(0.7),
-      1: pw.FlexColumnWidth(3.6),
-      2: pw.FlexColumnWidth(1.1),
-      3: pw.FlexColumnWidth(1.3),
-      4: pw.FlexColumnWidth(1.3),
+      1: pw.FlexColumnWidth(3.0),
+      2: pw.FlexColumnWidth(0.9),
+      3: pw.FlexColumnWidth(1.7),
+      4: pw.FlexColumnWidth(1.7),
     },
     children: [
-      pw.TableRow(children: [
-        _cell('Sn.', bold: true, align: pw.TextAlign.center),
-        _cell('Description', bold: true),
-        _cell('Qty.', bold: true, align: pw.TextAlign.right),
-        _cell('Rate', bold: true, align: pw.TextAlign.right),
-        _cell('Amount', bold: true, align: pw.TextAlign.right),
-      ]),
+      pw.TableRow(
+        decoration: pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: border, width: 1))),
+        children: [
+          _cell('Sn', bold: true, align: pw.TextAlign.center),
+          _cell('Description', bold: true),
+          _cell('Qty', bold: true, align: pw.TextAlign.right),
+          _cell('Rate', bold: true, align: pw.TextAlign.right),
+          _cell('Amount', bold: true, align: pw.TextAlign.right),
+        ],
+      ),
       for (var i = 0; i < items.length; i++)
         pw.TableRow(children: [
           _cell('${i + 1}', align: pw.TextAlign.center),
           _cell(items[i].description),
           _cell(qty(items[i].qty), align: pw.TextAlign.right),
-          _cell(items[i].rate.toStringAsFixed(2), align: pw.TextAlign.right),
-          _cell(items[i].total.toStringAsFixed(2), align: pw.TextAlign.right),
+          _cell(_money(items[i].rate), align: pw.TextAlign.right),
+          _cell(_money(items[i].total), align: pw.TextAlign.right),
         ]),
     ],
   );
@@ -181,7 +210,7 @@ pw.Widget _itemsTable(List<InvoiceLineData> items, PdfColor border) {
 
 pw.Widget _cell(String text, {bool bold = false, pw.TextAlign align = pw.TextAlign.left}) {
   return pw.Padding(
-    padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 4),
+    padding: const pw.EdgeInsets.symmetric(horizontal: 1, vertical: 2),
     child: pw.Text(text, textAlign: align, style: pw.TextStyle(fontSize: 8, fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal)),
   );
 }
@@ -192,15 +221,16 @@ pw.Widget _totalsSection(
   double subtotal,
   String vatRateLabel,
   double tax,
+  double delivery,
   double total,
 ) {
   pw.Widget summaryRow(String label, double value, {bool bold = false}) {
-    final style = pw.TextStyle(fontSize: bold ? 10 : 9, fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal);
+    final style = pw.TextStyle(fontSize: bold ? 11 : 9, fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal);
     return pw.Padding(
-      padding: const pw.EdgeInsets.symmetric(vertical: 1),
+      padding: const pw.EdgeInsets.symmetric(vertical: 0.5),
       child: pw.Row(children: [
         pw.Expanded(child: pw.Text(label, style: style)),
-        pw.Text(value.toStringAsFixed(2), style: style),
+        pw.Text(_money(value), style: style),
       ]),
     );
   }
@@ -209,26 +239,67 @@ pw.Widget _totalsSection(
     summaryRow('Taxable :', taxable),
     summaryRow('Non Taxable :', nonTaxable),
     summaryRow('Sub Total :', subtotal),
-    summaryRow('Discount : 0 %', 0),
-    summaryRow(vatRateLabel.isEmpty ? 'VAT Amount :' : 'VAT Amount ($vatRateLabel) :', tax),
-    pw.Divider(color: PdfColors.grey900, thickness: 1, height: 6),
+    summaryRow('Discount 0.00% :', 0),
+    summaryRow(_vatLine(vatRateLabel), tax),
+    if (delivery > 0) summaryRow('Delivery Charge :', delivery),
+    pw.Divider(color: PdfColors.grey900, thickness: 1, height: 5),
     summaryRow('Net Total :', total, bold: true),
   ]);
 }
 
 pw.Widget _dateAndOriginalSection(DateTime printedAt) {
-  return pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
-    pw.Text('Print Date/Time : ${printDateTimeLabel(printedAt)}', style: const pw.TextStyle(fontSize: 9)),
-    pw.Text('Nepali Date : ${nepaliDateLabel(printedAt)}', style: const pw.TextStyle(fontSize: 9)),
+  final nepaliDate = nepaliDateLabel(printedAt);
+  return pw.Column(children: [
+    pw.Align(
+      alignment: pw.Alignment.centerLeft,
+      child: pw.Text('Print Date/Time : ${printDateTimeLabel(printedAt)}', style: const pw.TextStyle(fontSize: 9)),
+    ),
+    if (nepaliDate.isNotEmpty)
+      pw.Align(alignment: pw.Alignment.centerLeft, child: pw.Text('Nepali Date : $nepaliDate', style: const pw.TextStyle(fontSize: 9))),
     pw.Text('Original', style: const pw.TextStyle(fontSize: 9)),
   ]);
 }
 
+/// e.g. "13 %" (`vatRateLabel`) -> "VAT 13% :", matching the physical
+/// receipt's "VAT 13% :" line exactly (no "Amount", no parentheses).
+String _vatLine(String vatRateLabel) {
+  final rate = vatRateLabel.replaceAll(RegExp(r'[^0-9.]'), '');
+  return 'VAT ${rate.isEmpty ? '13' : rate}% :';
+}
+
+/// e.g. 300000 -> "3,00,000.00" — the web receipt formats with
+/// `Intl.NumberFormat("en-IN")`, which groups the last 3 digits then pairs
+/// of 2 (lakh/crore style), not the western 3-3-3 grouping.
+String _money(double amount) {
+  final fixed = amount.toStringAsFixed(2);
+  final negative = fixed.startsWith('-');
+  final unsigned = negative ? fixed.substring(1) : fixed;
+  final dot = unsigned.indexOf('.');
+  final whole = unsigned.substring(0, dot);
+  final decimals = unsigned.substring(dot);
+
+  String grouped;
+  if (whole.length <= 3) {
+    grouped = whole;
+  } else {
+    final last3 = whole.substring(whole.length - 3);
+    var rest = whole.substring(0, whole.length - 3);
+    final parts = <String>[];
+    while (rest.length > 2) {
+      parts.insert(0, rest.substring(rest.length - 2));
+      rest = rest.substring(0, rest.length - 2);
+    }
+    if (rest.isNotEmpty) parts.insert(0, rest);
+    grouped = '${parts.join(',')},$last3';
+  }
+  return '${negative ? '-' : ''}$grouped$decimals';
+}
+
 pw.Widget _signatureColumn(String name, String label) {
   return pw.Column(children: [
-    pw.SizedBox(height: 14, child: pw.Text(name, textAlign: pw.TextAlign.center, style: const pw.TextStyle(fontSize: 9))),
-    pw.Text('--------------------', textAlign: pw.TextAlign.center, style: const pw.TextStyle(fontSize: 8)),
-    pw.SizedBox(height: 3),
+    pw.SizedBox(height: 12, child: pw.Text(name, textAlign: pw.TextAlign.center, style: const pw.TextStyle(fontSize: 9))),
+    pw.Text('--------------', textAlign: pw.TextAlign.center, style: const pw.TextStyle(fontSize: 9)),
+    pw.SizedBox(height: 2),
     pw.Text(label, textAlign: pw.TextAlign.center, style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
   ]);
 }

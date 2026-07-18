@@ -20,6 +20,7 @@ class ThermalReceiptData {
   final double subtotal;
   final String vatRateLabel;
   final double tax;
+  final double delivery;
   final double total;
   final String preparedBy;
   final String signatureRightLabel;
@@ -38,6 +39,7 @@ class ThermalReceiptData {
     required this.subtotal,
     required this.vatRateLabel,
     required this.tax,
+    this.delivery = 0,
     required this.total,
     required this.preparedBy,
     required this.signatureRightLabel,
@@ -57,7 +59,11 @@ class ThermalReceiptData {
 /// everything. Only the company name and title use double-size styling;
 /// numbers stay at normal size like the preview.
 List<int> buildThermalReceiptBytes(Generator generator, ThermalReceiptData data, {required int charsPerLine}) {
-  const big = PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2, width: PosTextSize.size2);
+  // Company name is the only double-size line — the title and everything
+  // else print at normal size, matching the actual printed receipt (the
+  // title is bold but NOT double-height like the company name).
+  const companyStyle = PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2, width: PosTextSize.size2);
+  const titleStyle = PosStyles(align: PosAlign.center, bold: true);
   const center = PosStyles(align: PosAlign.center);
   const bold = PosStyles(bold: true);
 
@@ -76,55 +82,177 @@ List<int> buildThermalReceiptBytes(Generator generator, ThermalReceiptData data,
     return out;
   }
 
-  bytes += generator.text(data.companyName.toUpperCase(), styles: big);
+  // Company name is printed exactly as stored (no forced upper-casing) —
+  // matches the physical receipt showing "Head Office", not "HEAD OFFICE".
+  // The web receipt never prints phone/VAT in the header (dead variables in
+  // its print template), so neither does this — even when they're set.
+  bytes += generator.text(data.companyName, styles: companyStyle);
   if ((data.companyAddress ?? '').isNotEmpty) bytes += generator.text(data.companyAddress!, styles: center);
-  if ((data.companyPhone ?? '').isNotEmpty) bytes += generator.text('Phone No : ${data.companyPhone}', styles: center);
-  if ((data.companyVatNo ?? '').isNotEmpty) bytes += generator.text('VAT # : ${data.companyVatNo}', styles: center);
-  bytes += generator.hr(ch: '=', len: charsPerLine);
-  bytes += generator.text(data.title, styles: big);
-  bytes += generator.hr(ch: '=', len: charsPerLine);
+  bytes += generator.text(data.title, styles: titleStyle);
+  bytes += generator.hr(len: charsPerLine);
 
+  // Short No./Date fields render right-aligned (label left, value right,
+  // same line) — matching the web receipt's 50/50 two-column table. Name
+  // fields print as their own two-line block (label, then value on the next
+  // line) and Pan fields glue the value straight onto the label with no
+  // space — both matching the web receipt's colspan="2" rows exactly. The
+  // first Name/Pan-style field triggers the divider that separates the two
+  // groups on the real receipt.
+  var printedGroupDivider = false;
   for (final row in data.metaRows) {
     for (final field in row) {
       if (field == null) continue;
       final (label, value) = field;
-      bytes += generator.text('$label : $value', maxCharsPerLine: charsPerLine);
+      final isFullWidthField = label.contains('Name') || label.contains('Pan') || label.contains('Payment');
+      if (isFullWidthField && !printedGroupDivider) {
+        bytes += generator.hr(len: charsPerLine);
+        printedGroupDivider = true;
+      }
+      if (label.contains('Name')) {
+        bytes += generator.text('$label :', styles: bold, maxCharsPerLine: charsPerLine);
+        bytes += generator.text(value, maxCharsPerLine: charsPerLine);
+      } else if (label.contains('Pan')) {
+        bytes += generator.text('$label :$value', styles: bold, maxCharsPerLine: charsPerLine);
+      } else if (isFullWidthField) {
+        bytes += generator.text('$label : $value', styles: bold, maxCharsPerLine: charsPerLine);
+      } else {
+        bytes += lr('$label :', value, styles: bold);
+      }
     }
   }
 
+  // Sn/Description/Qty/Rate/Amount as real fixed-width columns (proportions
+  // mirror invoice_pdf.dart's FlexColumnWidth ratios: 0.7 : 3.6 : 1.1 : 1.3 : 1.3),
+  // wrapping the description onto extra lines under its own column when it's
+  // too long for a single row — matching the receipt's "LPG 50 KG" then
+  // "(Customer Price)" on the next line.
+  final cols = _ItemColumns(charsPerLine);
   bytes += generator.hr(len: charsPerLine);
-  bytes += lr('Description  Qty x Rate', 'Amount', styles: bold);
+  bytes += generator.text(cols.header(), styles: bold, maxCharsPerLine: charsPerLine);
   bytes += generator.hr(len: charsPerLine);
   for (var i = 0; i < data.items.length; i++) {
     final item = data.items[i];
-    bytes += generator.text('${i + 1}. ${item.description}', styles: bold, maxCharsPerLine: charsPerLine);
-    bytes += lr('   ${_qty(item.qty)} x ${item.rate.toStringAsFixed(2)}', item.total.toStringAsFixed(2));
+    for (final line in cols.itemLines('${i + 1}', item.description, _qty(item.qty), _money(item.rate), _money(item.total))) {
+      bytes += generator.text(line, maxCharsPerLine: charsPerLine);
+    }
   }
   bytes += generator.hr(len: charsPerLine);
 
-  bytes += lr('Taxable :', data.taxable.toStringAsFixed(2));
-  bytes += lr('Non Taxable :', data.nonTaxable.toStringAsFixed(2));
-  bytes += lr('Sub Total :', data.subtotal.toStringAsFixed(2));
-  bytes += lr('Discount : 0 %', (0.0).toStringAsFixed(2));
-  bytes += lr(data.vatRateLabel.isEmpty ? 'VAT Amount :' : 'VAT Amount (${data.vatRateLabel}) :', data.tax.toStringAsFixed(2));
+  bytes += lr('Taxable :', _money(data.taxable));
+  bytes += lr('Non Taxable :', _money(data.nonTaxable));
+  bytes += lr('Sub Total :', _money(data.subtotal));
+  bytes += lr('Discount 0.00% :', _money(0));
+  bytes += lr(_vatLine(data.vatRateLabel), _money(data.tax));
+  if (data.delivery > 0) bytes += lr('Delivery Charge :', _money(data.delivery));
   bytes += generator.hr(len: charsPerLine);
-  bytes += lr('Net Total :', data.total.toStringAsFixed(2), styles: bold);
-  bytes += generator.hr(ch: '=', len: charsPerLine);
+  bytes += lr('Net Total :', _money(data.total), styles: const PosStyles(bold: true, height: PosTextSize.size2));
+  bytes += generator.hr(len: charsPerLine);
 
-  bytes += generator.text(amountToWords(data.total), maxCharsPerLine: charsPerLine);
-  bytes += generator.feed(1);
   bytes += generator.text('Print Date/Time : ${printDateTimeLabel(data.printedAt)}', maxCharsPerLine: charsPerLine);
   final nepaliDate = nepaliDateLabel(data.printedAt);
   if (nepaliDate.isNotEmpty) bytes += generator.text('Nepali Date : $nepaliDate', maxCharsPerLine: charsPerLine);
-  bytes += generator.text('Original', maxCharsPerLine: charsPerLine);
+  bytes += generator.text('Original', styles: center, maxCharsPerLine: charsPerLine);
+  bytes += generator.hr(len: charsPerLine);
 
+  bytes += generator.text(amountToWords(data.total), maxCharsPerLine: charsPerLine);
   bytes += generator.feed(2);
   if (data.preparedBy.isNotEmpty) bytes += lr(data.preparedBy, '');
   bytes += lr('-' * 12, '-' * 12);
-  bytes += lr('Prepare By', data.signatureRightLabel);
+  bytes += lr('Prepare By', data.signatureRightLabel, styles: bold);
   bytes += generator.feed(3);
   bytes += generator.cut();
   return bytes;
 }
 
-String _qty(double qty) => qty.toStringAsFixed(qty.truncateToDouble() == qty ? 0 : 2);
+/// e.g. "13 %" (web's `vatRateLabel`) -> "VAT 13% :", matching the physical
+/// receipt's "VAT 13% :" line exactly (no "Amount", no parentheses).
+String _vatLine(String vatRateLabel) {
+  final rate = vatRateLabel.replaceAll(RegExp(r'[^0-9.]'), '');
+  return 'VAT ${rate.isEmpty ? '13' : rate}% :';
+}
+
+// Always 2 decimals — matching the physical receipt's "1.00", not "1".
+String _qty(double qty) => qty.toStringAsFixed(2);
+
+/// e.g. 300000 -> "3,00,000.00" — the web receipt formats with
+/// `Intl.NumberFormat("en-IN")`, which groups the last 3 digits then pairs
+/// of 2 (lakh/crore style), not the western 3-3-3 grouping.
+String _money(double amount) {
+  final fixed = amount.toStringAsFixed(2);
+  final negative = fixed.startsWith('-');
+  final unsigned = negative ? fixed.substring(1) : fixed;
+  final dot = unsigned.indexOf('.');
+  final whole = unsigned.substring(0, dot);
+  final decimals = unsigned.substring(dot);
+
+  String grouped;
+  if (whole.length <= 3) {
+    grouped = whole;
+  } else {
+    final last3 = whole.substring(whole.length - 3);
+    var rest = whole.substring(0, whole.length - 3);
+    final parts = <String>[];
+    while (rest.length > 2) {
+      parts.insert(0, rest.substring(rest.length - 2));
+      rest = rest.substring(0, rest.length - 2);
+    }
+    if (rest.isNotEmpty) parts.insert(0, rest);
+    grouped = '${parts.join(',')},$last3';
+  }
+  return '${negative ? '-' : ''}$grouped$decimals';
+}
+
+/// Fixed-width Sn/Description/Qty/Rate/Amount columns for the item table,
+/// proportioned like invoice_pdf.dart's FlexColumnWidth ratios
+/// (0.6 : 3.0 : 1.0 : 1.7 : 1.7) so the thermal ticket's table lines up the
+/// same way the PDF/on-screen table does — Rate/Amount get extra room so
+/// comma-grouped amounts (e.g. "3,00,000.00") don't get truncated.
+class _ItemColumns {
+  final int sn;
+  final int description;
+  final int qty;
+  final int rate;
+  final int amount;
+
+  _ItemColumns(int charsPerLine)
+      : sn = (charsPerLine * 0.6 / 8).round(),
+        qty = (charsPerLine * 1.0 / 8).round(),
+        rate = (charsPerLine * 1.7 / 8).round(),
+        amount = charsPerLine - (charsPerLine * 0.6 / 8).round() - (charsPerLine * 3.0 / 8).round() - (charsPerLine * 1.0 / 8).round() - (charsPerLine * 1.7 / 8).round(),
+        description = (charsPerLine * 3.0 / 8).round();
+
+  String _left(String s, int width) => s.length >= width ? s.substring(0, width) : s.padRight(width);
+  String _right(String s, int width) => s.length >= width ? s.substring(0, width) : s.padLeft(width);
+
+  String header() => _left('Sn', sn) + _left('Description', description) + _right('Qty', qty) + _right('Rate', rate) + _right('Amount', amount);
+
+  /// First line carries Sn/Qty/Rate/Amount; the description wraps onto
+  /// blank-column continuation lines when it doesn't fit (e.g. "LPG 50 KG"
+  /// then "(Customer Price)" on its own line, indented under Description).
+  List<String> itemLines(String snValue, String descriptionValue, String qtyValue, String rateValue, String amountValue) {
+    final words = descriptionValue.split(' ');
+    final lines = <String>[];
+    var current = '';
+    for (final word in words) {
+      final candidate = current.isEmpty ? word : '$current $word';
+      if (candidate.length > description && current.isNotEmpty) {
+        lines.add(current);
+        current = word;
+      } else {
+        current = candidate;
+      }
+    }
+    if (current.isNotEmpty) lines.add(current);
+    if (lines.isEmpty) lines.add('');
+
+    final out = <String>[];
+    for (var i = 0; i < lines.length; i++) {
+      if (i == 0) {
+        out.add(_left(snValue, sn) + _left(lines[i], description) + _right(qtyValue, qty) + _right(rateValue, rate) + _right(amountValue, amount));
+      } else {
+        out.add(_left('', sn) + _left(lines[i], description));
+      }
+    }
+    return out;
+  }
+}

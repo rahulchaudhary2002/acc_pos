@@ -45,6 +45,7 @@ class TaxInvoiceDocument extends StatelessWidget {
   final double subtotal;
   final String vatRateLabel;
   final double tax;
+  final double delivery;
   final double total;
   final String preparedBy;
   final String signatureRightLabel;
@@ -65,6 +66,7 @@ class TaxInvoiceDocument extends StatelessWidget {
     required this.subtotal,
     required this.vatRateLabel,
     required this.tax,
+    this.delivery = 0,
     required this.total,
     required this.preparedBy,
     required this.signatureRightLabel,
@@ -81,23 +83,19 @@ class TaxInvoiceDocument extends StatelessWidget {
         children: [
           Column(
             children: [
-              Text(companyName.toUpperCase(), textAlign: TextAlign.center, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+              // Printed exactly as stored — no forced upper-casing — matching
+              // the physical receipt showing "Head Office", not "HEAD OFFICE".
+              // The web receipt never prints phone/VAT in the header (dead
+              // variables in its print template), so neither does this.
+              Text(companyName, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
               if ((companyAddress ?? '').isNotEmpty)
                 Text(companyAddress!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
-              if ((companyPhone ?? '').isNotEmpty)
-                Text('Phone No : $companyPhone', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
-              if ((companyVatNo ?? '').isNotEmpty)
-                Text('VAT # : $companyVatNo', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
             ],
           ),
           const SizedBox(height: AppSpacing.field),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, decoration: TextDecoration.underline),
-          ),
+          Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
           _divider(),
-          for (final row in metaRows) ..._metaRowLines(row),
+          ..._metaFieldWidgets(),
           _divider(),
           _itemsTable(),
           _divider(),
@@ -123,61 +121,98 @@ class TaxInvoiceDocument extends StatelessWidget {
 
   Widget _divider() => const Divider(height: 17, thickness: 1, color: AppColors.textPrimary);
 
-  List<Widget> _metaRowLines(List<MetaField> row) {
-    return row.whereType<(String, String)>().map(_metaField).toList();
-  }
+  /// Short No./Date fields render right-aligned (label left, value right,
+  /// same line) — matching the physical receipt's 50/50 two-column rows.
+  /// Name fields print as their own two-line block (label, then value on
+  /// the next line) and Pan fields glue the value straight onto the label
+  /// with no space — both matching the receipt's colspan="2" rows exactly.
+  /// The first Name/Pan/Payment/Ref field triggers the divider that
+  /// separates the two groups on the real receipt.
+  List<Widget> _metaFieldWidgets() {
+    const style = TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary);
+    const normal = TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textPrimary);
+    final widgets = <Widget>[];
+    var printedGroupDivider = false;
 
-  Widget _metaField((String, String) field) {
-    final (label, value) = field;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1),
-      child: Text.rich(
-        TextSpan(
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-          children: [
-            TextSpan(text: '$label : '),
-            TextSpan(text: value, style: const TextStyle(fontWeight: FontWeight.w500)),
-          ],
-        ),
-      ),
-    );
+    for (final row in metaRows) {
+      for (final field in row) {
+        if (field == null) continue;
+        final (label, value) = field;
+        final isFullWidthField = label.contains('Name') || label.contains('Pan') || label.contains('Payment');
+        if (isFullWidthField && !printedGroupDivider) {
+          widgets.add(_divider());
+          printedGroupDivider = true;
+        }
+        if (label.contains('Name')) {
+          widgets.add(Padding(padding: const EdgeInsets.symmetric(vertical: 1), child: Text('$label :', style: style)));
+          widgets.add(Padding(padding: const EdgeInsets.symmetric(vertical: 1), child: Text(value, style: normal)));
+        } else if (label.contains('Pan')) {
+          widgets.add(Padding(
+            padding: const EdgeInsets.symmetric(vertical: 1),
+            child: Text.rich(TextSpan(style: style, children: [TextSpan(text: '$label :'), TextSpan(text: value, style: normal)])),
+          ));
+        } else if (isFullWidthField) {
+          widgets.add(Padding(
+            padding: const EdgeInsets.symmetric(vertical: 1),
+            child: Text.rich(TextSpan(style: style, children: [TextSpan(text: '$label : '), TextSpan(text: value, style: normal)])),
+          ));
+        } else {
+          widgets.add(Padding(
+            padding: const EdgeInsets.symmetric(vertical: 1),
+            child: Row(children: [
+              Expanded(child: Text('$label :', style: style)),
+              Text(value, style: normal),
+            ]),
+          ));
+        }
+      }
+    }
+    return widgets;
   }
 
   Widget _itemsTable() {
+    // No TableBorder here — the surrounding `_divider()` calls in build()
+    // already draw the line above/below the table; adding the table's own
+    // top/bottom border on top of those doubled up the rule.
     return Table(
-      border: TableBorder(
-        top: const BorderSide(color: AppColors.textPrimary, width: 1.5),
-        bottom: const BorderSide(color: AppColors.textPrimary, width: 1.5),
-        horizontalInside: const BorderSide(color: AppColors.textPrimary, width: 0.75),
-      ),
       columnWidths: const {
-        0: FlexColumnWidth(0.7),
-        1: FlexColumnWidth(3.6),
-        2: FlexColumnWidth(1.1),
-        3: FlexColumnWidth(1.3),
-        4: FlexColumnWidth(1.3),
+        0: FlexColumnWidth(1.0),
+        1: FlexColumnWidth(2.6),
+        2: FlexColumnWidth(1.0),
+        3: FlexColumnWidth(1.7),
+        4: FlexColumnWidth(1.7),
       },
       children: [
         TableRow(children: [
-          _InvoiceCell('Sn.', bold: true, align: TextAlign.center),
-          _InvoiceCell('Description', bold: true),
-          _InvoiceCell('Qty.', bold: true, align: TextAlign.right),
-          _InvoiceCell('Rate', bold: true, align: TextAlign.right),
-          _InvoiceCell('Amount', bold: true, align: TextAlign.right),
+          _headerCell('Sn', align: TextAlign.center),
+          _headerCell('Description'),
+          _headerCell('Qty', align: TextAlign.right),
+          _headerCell('Rate', align: TextAlign.right),
+          _headerCell('Amount', align: TextAlign.right),
         ]),
         for (var i = 0; i < items.length; i++)
           TableRow(children: [
             _InvoiceCell('${i + 1}', align: TextAlign.center),
             _InvoiceCell(items[i].description),
             _InvoiceCell(_qty(items[i].qty), align: TextAlign.right),
-            _InvoiceCell(items[i].rate.toStringAsFixed(2), align: TextAlign.right),
-            _InvoiceCell(items[i].total.toStringAsFixed(2), align: TextAlign.right),
+            _InvoiceCell(_money(items[i].rate), align: TextAlign.right),
+            _InvoiceCell(_money(items[i].total), align: TextAlign.right),
           ]),
       ],
     );
   }
 
-  static String _qty(double qty) => qty.toStringAsFixed(qty.truncateToDouble() == qty ? 0 : 2);
+  // Always 2 decimals — matching the physical receipt's "1.00", not "1".
+  static String _qty(double qty) => qty.toStringAsFixed(2);
+
+  Widget _headerCell(String text, {TextAlign align = TextAlign.left}) {
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.textPrimary, width: 1)),
+      ),
+      child: _InvoiceCell(text, bold: true, align: align),
+    );
+  }
 
   Widget _totalsSection() {
     return Column(
@@ -185,20 +220,56 @@ class TaxInvoiceDocument extends StatelessWidget {
         _summaryRow('Taxable :', taxable),
         _summaryRow('Non Taxable :', nonTaxable),
         _summaryRow('Sub Total :', subtotal),
-        _summaryRow('Discount : 0 %', 0),
-        _summaryRow(vatRateLabel.isEmpty ? 'VAT Amount :' : 'VAT Amount ($vatRateLabel) :', tax),
+        _summaryRow('Discount 0.00% :', 0),
+        _summaryRow(_vatLine(vatRateLabel), tax),
+        if (delivery > 0) _summaryRow('Delivery Charge :', delivery),
         const Divider(height: 9, thickness: 1, color: AppColors.textPrimary),
         _summaryRow('Net Total :', total, bold: true),
       ],
     );
   }
 
+  /// e.g. "13 %" (`vatRateLabel`) -> "VAT 13% :", matching the physical
+  /// receipt's "VAT 13% :" line exactly (no "Amount", no parentheses).
+  static String _vatLine(String vatRateLabel) {
+    final rate = vatRateLabel.replaceAll(RegExp(r'[^0-9.]'), '');
+    return 'VAT ${rate.isEmpty ? '13' : rate}% :';
+  }
+
+  /// e.g. 300000 -> "3,00,000.00" — the web receipt formats with
+  /// `Intl.NumberFormat("en-IN")`, which groups the last 3 digits then
+  /// pairs of 2 (lakh/crore style), not the western 3-3-3 grouping.
+  static String _money(double amount) {
+    final fixed = amount.toStringAsFixed(2);
+    final negative = fixed.startsWith('-');
+    final unsigned = negative ? fixed.substring(1) : fixed;
+    final dot = unsigned.indexOf('.');
+    final whole = unsigned.substring(0, dot);
+    final decimals = unsigned.substring(dot);
+
+    String grouped;
+    if (whole.length <= 3) {
+      grouped = whole;
+    } else {
+      final last3 = whole.substring(whole.length - 3);
+      var rest = whole.substring(0, whole.length - 3);
+      final parts = <String>[];
+      while (rest.length > 2) {
+        parts.insert(0, rest.substring(rest.length - 2));
+        rest = rest.substring(0, rest.length - 2);
+      }
+      if (rest.isNotEmpty) parts.insert(0, rest);
+      grouped = '${parts.join(',')},$last3';
+    }
+    return '${negative ? '-' : ''}$grouped$decimals';
+  }
+
   Widget _dateAndOriginalSection() {
+    final nepaliDate = nepaliDateLabel(printedAt);
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _plainRow('Print Date/Time :', printDateTimeLabel(printedAt)),
-        _plainRow('Nepali Date :', nepaliDateLabel(printedAt)),
+        Align(alignment: Alignment.centerLeft, child: _plainRow('Print Date/Time :', printDateTimeLabel(printedAt))),
+        if (nepaliDate.isNotEmpty) Align(alignment: Alignment.centerLeft, child: _plainRow('Nepali Date :', nepaliDate)),
         const Text('Original', style: TextStyle(fontSize: 12)),
       ],
     );
@@ -218,7 +289,7 @@ class TaxInvoiceDocument extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: Text(label, style: style)),
-          Text(value.toStringAsFixed(2), style: style),
+          Text(_money(value), style: style),
         ],
       ),
     );
@@ -267,17 +338,21 @@ class _InvoiceCell extends StatelessWidget {
   }
 }
 
-/// Shared dialog chrome — an A5-receipt-like scrollable card, matching the
-/// web modal's rounded white card on a dark scrim.
+/// Shared dialog chrome — a sharp-cornered white card on a dark scrim,
+/// matching the web modal's flat bordered card exactly (no rounded corners
+/// or elevation shadow, which `Dialog`'s Material default would otherwise add).
 Future<void> showTaxInvoiceDialog(BuildContext context, {required Widget document}) {
   return showDialog(
     context: context,
     barrierColor: AppColors.overlayScrim,
     builder: (_) => Dialog(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 380, maxHeight: 700),
         child: Container(
-          decoration: BoxDecoration(border: Border.all(color: AppColors.textPrimary)),
+          decoration: BoxDecoration(color: Colors.white, border: Border.all(color: AppColors.textPrimary)),
           padding: const EdgeInsets.all(AppSpacing.card),
           child: SingleChildScrollView(child: document),
         ),
