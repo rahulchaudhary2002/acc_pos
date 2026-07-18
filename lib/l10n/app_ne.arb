@@ -20,6 +20,7 @@
   "sellScreenSalesReturnSubtitle": "वस्तु फिर्ता",
   "sellScreenVendorLabel": "विक्रेता",
   "sellScreenSelectVendorHint": "विक्रेता छान्नुहोस् (वैकल्पिक)",
+  "sellScreenVendorFooterHint": "यो बिक्री कुन विक्रेतासँग सम्बन्धित छ भनी रेकर्ड गर्दछ।",
   "sellScreenCurrentSaleTitle": "हालको बिक्री",
   "sellScreenNoItemsAddedTitle": "अहिलेसम्म कुनै वस्तु थपिएको छैन",
   "sellScreenNoItemsAddedSubtitle": "उत्पादन थप्न तलको बटन क्लिक गर्नुहोस्",

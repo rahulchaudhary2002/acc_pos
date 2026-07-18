@@ -278,15 +278,33 @@ class _SellScreenState extends State<SellScreen> {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.card),
-                DropdownButtonFormField<Party?>(
-                  isExpanded: true,
-                  initialValue: _selectedVendor,
-                  decoration: InputDecoration(labelText: AppLocalizations.of(context)!.sellScreenVendorLabel),
-                  items: [
-                    DropdownMenuItem<Party?>(value: null, child: Text(AppLocalizations.of(context)!.sellScreenSelectVendorHint)),
-                    ...data.suppliers.map((s) => DropdownMenuItem<Party?>(value: s, child: Text(s.name, overflow: TextOverflow.ellipsis))),
-                  ],
-                  onChanged: (v) => setState(() => _selectedVendor = v),
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.card),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(AppRadius.section),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      DropdownButtonFormField<Party?>(
+                        isExpanded: true,
+                        initialValue: _selectedVendor,
+                        decoration: InputDecoration(labelText: AppLocalizations.of(context)!.sellScreenVendorLabel),
+                        items: [
+                          DropdownMenuItem<Party?>(value: null, child: Text(AppLocalizations.of(context)!.sellScreenSelectVendorHint)),
+                          ...data.suppliers.map((s) => DropdownMenuItem<Party?>(value: s, child: Text(s.name, overflow: TextOverflow.ellipsis))),
+                        ],
+                        onChanged: (v) => setState(() => _selectedVendor = v),
+                      ),
+                      const SizedBox(height: AppSpacing.item),
+                      Text(
+                        AppLocalizations.of(context)!.sellScreenVendorFooterHint,
+                        style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.card),
                 if (_mode == 'return') ..._buildReturnMode(data) else ..._buildSaleMode(cart, data),

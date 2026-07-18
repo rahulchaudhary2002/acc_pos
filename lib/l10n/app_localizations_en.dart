@@ -74,6 +74,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sellScreenSelectVendorHint => 'Select vendor (optional)';
 
   @override
+  String get sellScreenVendorFooterHint =>
+      'Records which vendor this sale is attributed to for reporting.';
+
+  @override
   String get sellScreenCurrentSaleTitle => 'Current Sale';
 
   @override

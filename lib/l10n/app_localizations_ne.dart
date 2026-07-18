@@ -74,6 +74,10 @@ class AppLocalizationsNe extends AppLocalizations {
   String get sellScreenSelectVendorHint => 'विक्रेता छान्नुहोस् (वैकल्पिक)';
 
   @override
+  String get sellScreenVendorFooterHint =>
+      'यो बिक्री कुन विक्रेतासँग सम्बन्धित छ भनी रेकर्ड गर्दछ।';
+
+  @override
   String get sellScreenCurrentSaleTitle => 'हालको बिक्री';
 
   @override

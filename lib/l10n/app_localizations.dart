@@ -218,6 +218,12 @@ abstract class AppLocalizations {
   /// **'Select vendor (optional)'**
   String get sellScreenSelectVendorHint;
 
+  /// No description provided for @sellScreenVendorFooterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Records which vendor this sale is attributed to for reporting.'**
+  String get sellScreenVendorFooterHint;
+
   /// No description provided for @sellScreenCurrentSaleTitle.
   ///
   /// In en, this message translates to:

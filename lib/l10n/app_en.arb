@@ -30,6 +30,7 @@
   "sellScreenSalesReturnSubtitle": "Refund items",
   "sellScreenVendorLabel": "Vendor",
   "sellScreenSelectVendorHint": "Select vendor (optional)",
+  "sellScreenVendorFooterHint": "Records which vendor this sale is attributed to for reporting.",
   "sellScreenCurrentSaleTitle": "Current Sale",
   "sellScreenNoItemsAddedTitle": "No items added yet",
   "sellScreenNoItemsAddedSubtitle": "Click the button below to add products",
