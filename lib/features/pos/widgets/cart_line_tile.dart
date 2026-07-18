@@ -15,6 +15,7 @@ class CartLineTile extends StatelessWidget {
   final double rate;
   final double lineTotal;
   final String? rateLabel;
+  final bool rateEditable;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
   final ValueChanged<double> onQtyChanged;
@@ -29,6 +30,7 @@ class CartLineTile extends StatelessWidget {
     required this.rate,
     required this.lineTotal,
     this.rateLabel,
+    this.rateEditable = true,
     required this.onIncrement,
     required this.onDecrement,
     required this.onQtyChanged,
@@ -97,6 +99,7 @@ class CartLineTile extends StatelessWidget {
                     height: 40,
                     child: TextFormField(
                       initialValue: rate.toStringAsFixed(2),
+                      enabled: rateEditable,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       textAlign: TextAlign.center,
                       style: const TextStyle(fontSize: 13),

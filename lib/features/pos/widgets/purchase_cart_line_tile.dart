@@ -13,6 +13,7 @@ class PurchaseCartLineTile extends StatelessWidget {
   final double qty;
   final double unitCost;
   final double lineTotal;
+  final bool unitCostEditable;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
   final ValueChanged<double> onQtyChanged;
@@ -25,6 +26,7 @@ class PurchaseCartLineTile extends StatelessWidget {
     required this.qty,
     required this.unitCost,
     required this.lineTotal,
+    this.unitCostEditable = true,
     required this.onIncrement,
     required this.onDecrement,
     required this.onQtyChanged,
@@ -75,6 +77,7 @@ class PurchaseCartLineTile extends StatelessWidget {
                   height: 40,
                   child: TextFormField(
                     initialValue: unitCost.toStringAsFixed(2),
+                    enabled: unitCostEditable,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(

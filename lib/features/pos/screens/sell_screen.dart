@@ -366,6 +366,7 @@ class _SellScreenState extends State<SellScreen> {
                               category: item.product.category,
                               qty: item.qty,
                               rate: item.rate,
+                              rateEditable: false,
                               // Web cart rows show qty × rate (tax-exclusive).
                               lineTotal: item.lineSubtotal,
                               onIncrement: () => cart.incrementQty(index),
@@ -529,6 +530,7 @@ class _SellScreenState extends State<SellScreen> {
                               category: item.product.category,
                               qty: item.qty,
                               rate: item.rate,
+                              rateEditable: false,
                               // Web return rows show qty × rate (tax-exclusive).
                               lineTotal: item.lineSubtotal,
                               onIncrement: () => setState(() => item.qty += 1),
