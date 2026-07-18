@@ -40,7 +40,10 @@ class BreakdownRow {
       outletId: json_utils.asIntOrNull(json['outlet_id']),
       outletName: json['outlet_name'] as String?,
       vendorId: json_utils.asIntOrNull(json['vendor_id']),
-      vendorName: json['vendor_name'] as String?,
+      // Vendor-wise sales (`/admin/sales-reports/vendor-wise`) returns the
+      // party name as plain `name`, unlike the purchase-side vendor report's
+      // `vendor_name` — accept either.
+      vendorName: (json['vendor_name'] ?? json['name']) as String?,
       customerId: json_utils.asIntOrNull(json['customer_id']),
       customerName: json['customer_name'] as String?,
       panVatNo: json['pan_vat_no'] as String?,

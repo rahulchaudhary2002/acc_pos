@@ -146,6 +146,7 @@
   "reportsScreenTabStores": "Stores",
   "reportsScreenTabVendors": "Vendors",
   "reportsScreenTabCustomers": "Customers",
+  "reportsScreenTabVendorSales": "Vendor Sales",
   "reportsScreenTabMore": "More",
   "reportsScreenSalesPurchasesTrendTitle": "Sales vs Purchases Trend",
   "reportsScreenTopProductsTitle": "Top Products · {period}",

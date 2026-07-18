@@ -24,8 +24,8 @@ import '../widgets/top_products_list.dart';
 
 const _periodKeys = ['today', 'yesterday', 'last_7_days', 'last_30_days', 'this_month', 'last_month', 'lifetime', 'custom'];
 
-const _tabKeys = ['overview', 'stores', 'vendors', 'customers', 'more'];
-const _moreTabIndex = 4;
+const _tabKeys = ['overview', 'stores', 'vendors', 'customers', 'vendor_sales', 'more'];
+const _moreTabIndex = 5;
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -87,6 +87,35 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
   String? get _fromDate => _period == 'custom' && _customRange != null ? DateFormat('yyyy-MM-dd').format(_customRange!.start) : null;
   String? get _toDate => _period == 'custom' && _customRange != null ? DateFormat('yyyy-MM-dd').format(_customRange!.end) : null;
 
+  /// `/admin/sales-reports/vendor-wise` (unlike the `/pos/reports/...`
+  /// endpoints) has no server-side `period` shortcut — only explicit
+  /// `from_date`/`to_date`. Resolve the selected period to a concrete range
+  /// client-side, mirroring `PosController::reports()`'s period switch.
+  (String?, String?) _resolvedDateRangeForPeriod() {
+    final fmt = DateFormat('yyyy-MM-dd');
+    final now = DateTime.now();
+    switch (_period) {
+      case 'today':
+        return (fmt.format(now), fmt.format(now));
+      case 'yesterday':
+        final yesterday = now.subtract(const Duration(days: 1));
+        return (fmt.format(yesterday), fmt.format(yesterday));
+      case 'last_7_days':
+        return (fmt.format(now.subtract(const Duration(days: 6))), fmt.format(now));
+      case 'last_30_days':
+        return (fmt.format(now.subtract(const Duration(days: 29))), fmt.format(now));
+      case 'this_month':
+        return (fmt.format(DateTime(now.year, now.month, 1)), fmt.format(now));
+      case 'last_month':
+        return (fmt.format(DateTime(now.year, now.month - 1, 1)), fmt.format(DateTime(now.year, now.month, 0)));
+      case 'custom':
+        return (_fromDate, _toDate);
+      case 'lifetime':
+      default:
+        return (null, null);
+    }
+  }
+
   String _periodLabelFor(AppLocalizations l10n, String key) {
     switch (key) {
       case 'today':
@@ -120,6 +149,8 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
         return l10n.reportsScreenTabVendors;
       case 'customers':
         return l10n.reportsScreenTabCustomers;
+      case 'vendor_sales':
+        return l10n.reportsScreenTabVendorSales;
       case 'more':
         return l10n.reportsScreenTabMore;
       default:
@@ -243,6 +274,10 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
         case 2:
           rows = await service.fetchVendorWiseReport(period: _period, companyId: config.selectedCompanyId, fromDate: _fromDate, toDate: _toDate);
           break;
+        case 4:
+          final (fromDate, toDate) = _resolvedDateRangeForPeriod();
+          rows = await service.fetchVendorWiseSalesReport(companyId: config.selectedCompanyId, fromDate: fromDate, toDate: toDate);
+          break;
         case 3:
         default:
           rows = await service.fetchCustomerWiseReport(
@@ -299,6 +334,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
               _breakdownTab(index: 1, nameOf: (r) => r.outletName ?? '-', valueOf: (r) => r.totalSales, color: AppColors.success),
               _breakdownTab(index: 2, nameOf: (r) => r.vendorName ?? '-', valueOf: (r) => r.totalPurchases, color: AppColors.warningDark),
               _breakdownTab(index: 3, nameOf: (r) => r.customerName ?? '-', valueOf: (r) => r.totalSales, color: AppColors.info),
+              _breakdownTab(index: 4, nameOf: (r) => r.vendorName ?? '-', valueOf: (r) => r.totalSales, color: AppColors.success),
               _moreTab(),
             ],
           ),

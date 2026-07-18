@@ -597,6 +597,20 @@ class PosService {
     return (response['data'] as List).map((e) => BreakdownRow.fromJson(e)).toList();
   }
 
+  /// Sales-side vendor attribution (`sales_invoices.vendor_id`, captured from
+  /// the POS vendor selector) — hits the admin sales-reports endpoint
+  /// directly, same as `sell()`/`buy()` calling `/admin/...` rather than a
+  /// `/pos/...` alias. Unlike `fetchVendorWiseReport` above (purchase-side),
+  /// this endpoint has no `period` shortcut — only explicit date filters.
+  Future<List<BreakdownRow>> fetchVendorWiseSalesReport({int? companyId, String? fromDate, String? toDate}) async {
+    final response = await _client.get('/admin/sales-reports/vendor-wise', query: {
+      if (companyId != null) 'company_id': companyId,
+      if (fromDate != null) 'from_date': fromDate,
+      if (toDate != null) 'to_date': toDate,
+    });
+    return (response['data'] as List).map((e) => BreakdownRow.fromJson(e)).toList();
+  }
+
   Future<List<BreakdownRow>> fetchCustomerWiseReport({String? period, int? companyId, int? outletId, String? fromDate, String? toDate}) async {
     final response = await _client.get('/pos/reports/customer-wise', query: {
       if (period != null) 'period': period,

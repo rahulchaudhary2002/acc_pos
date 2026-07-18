@@ -409,6 +409,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportsScreenTabCustomers => 'Customers';
 
   @override
+  String get reportsScreenTabVendorSales => 'Vendor Sales';
+
+  @override
   String get reportsScreenTabMore => 'More';
 
   @override

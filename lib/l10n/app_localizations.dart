@@ -854,6 +854,12 @@ abstract class AppLocalizations {
   /// **'Customers'**
   String get reportsScreenTabCustomers;
 
+  /// No description provided for @reportsScreenTabVendorSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendor Sales'**
+  String get reportsScreenTabVendorSales;
+
   /// No description provided for @reportsScreenTabMore.
   ///
   /// In en, this message translates to:

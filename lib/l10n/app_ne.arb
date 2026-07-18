@@ -126,6 +126,7 @@
   "reportsScreenTabStores": "पसलहरू",
   "reportsScreenTabVendors": "विक्रेताहरू",
   "reportsScreenTabCustomers": "ग्राहकहरू",
+  "reportsScreenTabVendorSales": "विक्रेता बिक्री",
   "reportsScreenTabMore": "थप",
   "reportsScreenSalesPurchasesTrendTitle": "बिक्री बनाम खरिद प्रवृत्ति",
   "reportsScreenTopProductsTitle": "बढी बिक्री हुने उत्पादनहरू · {period}",

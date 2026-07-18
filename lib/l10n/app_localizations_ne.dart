@@ -412,6 +412,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get reportsScreenTabCustomers => 'ग्राहकहरू';
 
   @override
+  String get reportsScreenTabVendorSales => 'विक्रेता बिक्री';
+
+  @override
   String get reportsScreenTabMore => 'थप';
 
   @override
