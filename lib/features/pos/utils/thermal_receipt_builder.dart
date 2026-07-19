@@ -153,10 +153,11 @@ List<int> buildThermalReceiptBytes(Generator generator, ThermalReceiptData data,
   final nepaliDate = nepaliDateLabel(data.printedAt);
   if (nepaliDate.isNotEmpty) bytes += generator.text('Nepali Date : $nepaliDate', maxCharsPerLine: charsPerLine);
   bytes += generator.text('Original', styles: center, maxCharsPerLine: charsPerLine);
-  bytes += generator.feed(2);
+  bytes += generator.hr(len: charsPerLine);
   if (data.preparedBy.isNotEmpty) bytes += lr(data.preparedBy, '');
   bytes += lr('-' * 12, '-' * 12);
   bytes += lr('Prepare By', data.signatureRightLabel, styles: bold);
+  bytes += generator.hr(len: charsPerLine);
   bytes += generator.feed(3);
   bytes += generator.cut();
   return bytes;

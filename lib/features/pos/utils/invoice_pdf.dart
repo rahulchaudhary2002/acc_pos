@@ -117,12 +117,14 @@ Future<Uint8List> buildInvoicePdfBytes({
         pw.Text(amountToWords(total), style: pw.TextStyle(fontSize: 9, fontStyle: pw.FontStyle.italic)),
         pw.Divider(color: border, thickness: 1, height: 9),
         _dateAndOriginalSection(printedAt),
-        pw.SizedBox(height: 12),
+        pw.Divider(color: border, thickness: 1, height: 9),
+        pw.SizedBox(height: 8),
         pw.Row(children: [
           pw.Expanded(child: _signatureColumn(preparedBy.isEmpty ? 'Prepared By' : preparedBy, 'Prepare By')),
           pw.SizedBox(width: 24),
           pw.Expanded(child: _signatureColumn('', signatureRightLabel)),
         ]),
+        pw.Divider(color: border, thickness: 1, height: 9),
       ],
     ),
   );
