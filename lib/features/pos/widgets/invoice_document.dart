@@ -204,8 +204,7 @@ class TaxInvoiceDocument extends StatelessWidget {
     );
   }
 
-  // Always 2 decimals — matching the physical receipt's "1.00", not "1".
-  static String _qty(double qty) => qty.toStringAsFixed(2);
+  static String _qty(double qty) => qty.round().toString();
 
   Widget _headerCell(String text, {TextAlign align = TextAlign.left}) {
     return Container(

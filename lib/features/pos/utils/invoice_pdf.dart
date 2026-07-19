@@ -171,8 +171,7 @@ List<pw.Widget> _metaFieldWidgets(List<List<MetaField>> metaRows, PdfColor borde
 }
 
 pw.Widget _itemsTable(List<InvoiceLineData> items, PdfColor border) {
-  // Always 2 decimals — matching the physical receipt's "1.00", not "1".
-  String qty(double q) => q.toStringAsFixed(2);
+  String qty(double q) => q.round().toString();
   // No TableBorder here — the surrounding pw.Divider calls in
   // buildInvoicePdfBytes already draw the line above/below the table; a
   // table-level top/bottom border on top of those doubled up the rule.

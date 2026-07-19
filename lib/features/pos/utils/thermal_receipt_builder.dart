@@ -169,8 +169,7 @@ String _vatLine(String vatRateLabel) {
   return 'VAT ${rate.isEmpty ? '13' : rate}% :';
 }
 
-// Always 2 decimals — matching the physical receipt's "1.00", not "1".
-String _qty(double qty) => qty.toStringAsFixed(2);
+String _qty(double qty) => qty.round().toString();
 
 /// e.g. 300000 -> "3,00,000.00" — the web receipt formats with
 /// `Intl.NumberFormat("en-IN")`, which groups the last 3 digits then pairs
