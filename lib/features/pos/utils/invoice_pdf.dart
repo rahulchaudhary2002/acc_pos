@@ -179,17 +179,19 @@ pw.Widget _itemsTable(List<InvoiceLineData> items, PdfColor border) {
   // table-level top/bottom border on top of those doubled up the rule.
   return pw.Table(
     columnWidths: const {
-      0: pw.FlexColumnWidth(0.7),
-      1: pw.FlexColumnWidth(3.0),
-      2: pw.FlexColumnWidth(0.9),
-      3: pw.FlexColumnWidth(1.7),
-      4: pw.FlexColumnWidth(1.7),
+      0: pw.FlexColumnWidth(0.6),
+      1: pw.FlexColumnWidth(1.2),
+      2: pw.FlexColumnWidth(2.2),
+      3: pw.FlexColumnWidth(0.8),
+      4: pw.FlexColumnWidth(1.6),
+      5: pw.FlexColumnWidth(1.6),
     },
     children: [
       pw.TableRow(
         decoration: pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: border, width: 1))),
         children: [
           _cell('Sn', bold: true, align: pw.TextAlign.center),
+          _cell('H.S. Code', bold: true),
           _cell('Description', bold: true),
           _cell('Qty', bold: true, align: pw.TextAlign.right),
           _cell('Rate', bold: true, align: pw.TextAlign.right),
@@ -199,6 +201,7 @@ pw.Widget _itemsTable(List<InvoiceLineData> items, PdfColor border) {
       for (var i = 0; i < items.length; i++)
         pw.TableRow(children: [
           _cell('${i + 1}', align: pw.TextAlign.center),
+          _cell(items[i].hsCode),
           _cell(items[i].description),
           _cell(qty(items[i].qty), align: pw.TextAlign.right),
           _cell(_money(items[i].rate), align: pw.TextAlign.right),

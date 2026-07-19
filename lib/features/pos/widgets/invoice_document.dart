@@ -176,15 +176,17 @@ class TaxInvoiceDocument extends StatelessWidget {
     // top/bottom border on top of those doubled up the rule.
     return Table(
       columnWidths: const {
-        0: FlexColumnWidth(1.0),
-        1: FlexColumnWidth(2.6),
-        2: FlexColumnWidth(1.0),
-        3: FlexColumnWidth(1.7),
-        4: FlexColumnWidth(1.7),
+        0: FlexColumnWidth(0.8),
+        1: FlexColumnWidth(1.4),
+        2: FlexColumnWidth(2.2),
+        3: FlexColumnWidth(1.0),
+        4: FlexColumnWidth(1.6),
+        5: FlexColumnWidth(1.6),
       },
       children: [
         TableRow(children: [
           _headerCell('Sn', align: TextAlign.center),
+          _headerCell('H.S. Code'),
           _headerCell('Description'),
           _headerCell('Qty', align: TextAlign.right),
           _headerCell('Rate', align: TextAlign.right),
@@ -193,6 +195,7 @@ class TaxInvoiceDocument extends StatelessWidget {
         for (var i = 0; i < items.length; i++)
           TableRow(children: [
             _InvoiceCell('${i + 1}', align: TextAlign.center),
+            _InvoiceCell(items[i].hsCode),
             _InvoiceCell(items[i].description),
             _InvoiceCell(_qty(items[i].qty), align: TextAlign.right),
             _InvoiceCell(_money(items[i].rate), align: TextAlign.right),

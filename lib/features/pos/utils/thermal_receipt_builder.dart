@@ -121,8 +121,7 @@ List<int> buildThermalReceiptBytes(Generator generator, ThermalReceiptData data,
     }
   }
 
-  // Sn/Description/Qty/Rate/Amount as real fixed-width columns (proportions
-  // mirror invoice_pdf.dart's FlexColumnWidth ratios: 0.7 : 3.6 : 1.1 : 1.3 : 1.3),
+  // Sn/H.S. Code/Description/Qty/Rate/Amount as real fixed-width columns,
   // wrapping the description onto extra lines under its own column when it's
   // too long for a single row — matching the receipt's "LPG 50 KG" then
   // "(Customer Price)" on the next line.
@@ -132,7 +131,7 @@ List<int> buildThermalReceiptBytes(Generator generator, ThermalReceiptData data,
   bytes += generator.hr(len: charsPerLine);
   for (var i = 0; i < data.items.length; i++) {
     final item = data.items[i];
-    for (final line in cols.itemLines('${i + 1}', item.description, _qty(item.qty), _money(item.rate), _money(item.total))) {
+    for (final line in cols.itemLines('${i + 1}', item.hsCode, item.description, _qty(item.qty), _money(item.rate), _money(item.total))) {
       bytes += generator.text(line, maxCharsPerLine: charsPerLine);
     }
   }
@@ -202,34 +201,50 @@ String _money(double amount) {
   return '${negative ? '-' : ''}$grouped$decimals';
 }
 
-/// Fixed-width Sn/Description/Qty/Rate/Amount columns for the item table,
-/// proportioned like invoice_pdf.dart's FlexColumnWidth ratios
-/// (0.6 : 3.0 : 1.0 : 1.7 : 1.7) so the thermal ticket's table lines up the
-/// same way the PDF/on-screen table does — Rate/Amount get extra room so
+/// Fixed-width Sn/H.S. Code/Description/Qty/Rate/Amount columns for the item
+/// table, proportioned like invoice_pdf.dart's FlexColumnWidth ratios
+/// (0.6 : 1.0 : 2.2 : 1.0 : 1.7 : 1.7) so the thermal ticket's table lines up
+/// the same way the PDF/on-screen table does — Rate/Amount get extra room so
 /// comma-grouped amounts (e.g. "3,00,000.00") don't get truncated.
 class _ItemColumns {
   final int sn;
+  final int hsCode;
   final int description;
   final int qty;
   final int rate;
   final int amount;
 
   _ItemColumns(int charsPerLine)
-      : sn = (charsPerLine * 0.6 / 8).round(),
-        qty = (charsPerLine * 1.0 / 8).round(),
-        rate = (charsPerLine * 1.7 / 8).round(),
-        amount = charsPerLine - (charsPerLine * 0.6 / 8).round() - (charsPerLine * 3.0 / 8).round() - (charsPerLine * 1.0 / 8).round() - (charsPerLine * 1.7 / 8).round(),
-        description = (charsPerLine * 3.0 / 8).round();
+      : sn = (charsPerLine * 0.6 / 8.2).round(),
+        hsCode = (charsPerLine * 1.0 / 8.2).round(),
+        qty = (charsPerLine * 1.0 / 8.2).round(),
+        rate = (charsPerLine * 1.7 / 8.2).round(),
+        amount = charsPerLine -
+            (charsPerLine * 0.6 / 8.2).round() -
+            (charsPerLine * 1.0 / 8.2).round() -
+            (charsPerLine * 2.2 / 8.2).round() -
+            (charsPerLine * 1.0 / 8.2).round() -
+            (charsPerLine * 1.7 / 8.2).round(),
+        description = (charsPerLine * 2.2 / 8.2).round();
 
   String _left(String s, int width) => s.length >= width ? s.substring(0, width) : s.padRight(width);
   String _right(String s, int width) => s.length >= width ? s.substring(0, width) : s.padLeft(width);
 
-  String header() => _left('Sn', sn) + _left('Description', description) + _right('Qty', qty) + _right('Rate', rate) + _right('Amount', amount);
+  String header() =>
+      _left('Sn', sn) + _left('HS', hsCode) + _left('Description', description) + _right('Qty', qty) + _right('Rate', rate) + _right('Amount', amount);
 
-  /// First line carries Sn/Qty/Rate/Amount; the description wraps onto
-  /// blank-column continuation lines when it doesn't fit (e.g. "LPG 50 KG"
-  /// then "(Customer Price)" on its own line, indented under Description).
-  List<String> itemLines(String snValue, String descriptionValue, String qtyValue, String rateValue, String amountValue) {
+  /// First line carries Sn/H.S. Code/Qty/Rate/Amount; the description wraps
+  /// onto blank-column continuation lines when it doesn't fit (e.g.
+  /// "LPG 50 KG" then "(Customer Price)" on its own line, indented under
+  /// Description).
+  List<String> itemLines(
+    String snValue,
+    String hsCodeValue,
+    String descriptionValue,
+    String qtyValue,
+    String rateValue,
+    String amountValue,
+  ) {
     final words = descriptionValue.split(' ');
     final lines = <String>[];
     var current = '';
@@ -248,9 +263,14 @@ class _ItemColumns {
     final out = <String>[];
     for (var i = 0; i < lines.length; i++) {
       if (i == 0) {
-        out.add(_left(snValue, sn) + _left(lines[i], description) + _right(qtyValue, qty) + _right(rateValue, rate) + _right(amountValue, amount));
+        out.add(_left(snValue, sn) +
+            _left(hsCodeValue, hsCode) +
+            _left(lines[i], description) +
+            _right(qtyValue, qty) +
+            _right(rateValue, rate) +
+            _right(amountValue, amount));
       } else {
-        out.add(_left('', sn) + _left(lines[i], description));
+        out.add(_left('', sn) + _left('', hsCode) + _left(lines[i], description));
       }
     }
     return out;

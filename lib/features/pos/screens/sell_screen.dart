@@ -25,6 +25,7 @@ import '../widgets/invoice_preview_dialog.dart';
 import '../widgets/payment_type_section.dart';
 import '../widgets/pos_screen_header.dart';
 import '../widgets/product_picker_dialog.dart';
+import '../widgets/sales_return_invoice_preview_dialog.dart';
 import '../widgets/totals_block.dart';
 
 /// Sell tab: Cash/Customer sale plus an inline Sales Return mode — mirrors
@@ -191,6 +192,13 @@ class _SellScreenState extends State<SellScreen> {
         items: _returnItems,
       );
       if (!mounted) return;
+      final company = config.companies.firstWhere((c) => c.id == config.selectedCompanyId, orElse: () => Company(id: 0, name: 'Company'));
+      final matchingOutlets = config.outlets.where((o) => o.id == config.selectedOutletId);
+      final outlet = matchingOutlets.isEmpty ? null : matchingOutlets.first;
+      final posData = context.read<PosDataProvider>();
+      final returnCustomer = posData.customers.where((c) => c.id == _returnCustomerId);
+      final itemsSnapshot = List.of(_returnItems);
+      final preparedBy = context.read<AuthProvider>().user?.name;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.sellScreenReturnCompletedMessage(result.documentNo, result.total.toStringAsFixed(2)))),
       );
@@ -199,11 +207,22 @@ class _SellScreenState extends State<SellScreen> {
         _returnCustomerId = null;
         _selectedVendor = null;
       });
-      unawaited(context.read<PosDataProvider>().loadProducts(
+      unawaited(posData.loadProducts(
             companyId: config.selectedCompanyId,
             outletId: config.selectedOutletId,
             locationId: config.selectedLocationId,
           ));
+
+      await showSalesReturnInvoicePreview(
+        context,
+        result: result,
+        items: itemsSnapshot,
+        company: company,
+        outlet: outlet,
+        customerName: returnCustomer.isEmpty ? null : returnCustomer.first.name,
+        customerVatNumber: returnCustomer.isEmpty ? null : returnCustomer.first.panVatNo,
+        preparedBy: preparedBy,
+      );
     } on ApiException catch (e) {
       setState(() => _errorMessage = e.message);
     } finally {

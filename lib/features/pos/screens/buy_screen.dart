@@ -25,6 +25,7 @@ import '../widgets/pos_screen_header.dart';
 import '../widgets/product_picker_dialog.dart';
 import '../widgets/purchase_cart_line_tile.dart';
 import '../widgets/purchase_invoice_preview_dialog.dart';
+import '../widgets/purchase_return_invoice_preview_dialog.dart';
 
 /// Buy tab: New Purchase plus an inline Purchase Return mode — mirrors
 /// `PosTerminal.jsx`'s `buyMode: "purchase" | "return"` toggle.
@@ -176,6 +177,12 @@ class _BuyScreenState extends State<BuyScreen> {
         items: _returnItems,
       );
       if (!mounted) return;
+      final company = config.companies.firstWhere((c) => c.id == config.selectedCompanyId, orElse: () => Company(id: 0, name: 'Company'));
+      final matchingOutlets = config.outlets.where((o) => o.id == config.selectedOutletId);
+      final outlet = matchingOutlets.isEmpty ? null : matchingOutlets.first;
+      final returnVendorSnapshot = _returnVendor!;
+      final itemsSnapshot = List.of(_returnItems);
+      final preparedBy = context.read<AuthProvider>().user?.name;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -195,6 +202,17 @@ class _BuyScreenState extends State<BuyScreen> {
             outletId: config.selectedOutletId,
             locationId: config.selectedLocationId,
           ));
+
+      await showPurchaseReturnInvoicePreview(
+        context,
+        result: result,
+        items: itemsSnapshot,
+        company: company,
+        outlet: outlet,
+        vendorName: returnVendorSnapshot.name,
+        vendorVatNumber: returnVendorSnapshot.panVatNo,
+        preparedBy: preparedBy,
+      );
     } on ApiException catch (e) {
       setState(() => _errorMessage = e.message);
     } finally {
