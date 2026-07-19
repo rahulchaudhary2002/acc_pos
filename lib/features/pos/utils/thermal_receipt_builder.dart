@@ -84,10 +84,9 @@ List<int> buildThermalReceiptBytes(Generator generator, ThermalReceiptData data,
 
   // Company name is printed exactly as stored (no forced upper-casing) —
   // matches the physical receipt showing "Head Office", not "HEAD OFFICE".
-  // The web receipt never prints phone/VAT in the header (dead variables in
-  // its print template), so neither does this — even when they're set.
   bytes += generator.text(data.companyName, styles: companyStyle);
   if ((data.companyAddress ?? '').isNotEmpty) bytes += generator.text(data.companyAddress!, styles: center);
+  bytes += generator.text('VAT # : ${data.companyVatNo ?? ''}', styles: center);
   bytes += generator.text(data.title, styles: titleStyle);
   bytes += generator.hr(len: charsPerLine);
 
@@ -147,13 +146,13 @@ List<int> buildThermalReceiptBytes(Generator generator, ThermalReceiptData data,
   bytes += lr('Net Total :', _money(data.total), styles: const PosStyles(bold: true, height: PosTextSize.size2));
   bytes += generator.hr(len: charsPerLine);
 
+  bytes += generator.text(amountToWords(data.total), maxCharsPerLine: charsPerLine);
+  bytes += generator.hr(len: charsPerLine);
+
   bytes += generator.text('Print Date/Time : ${printDateTimeLabel(data.printedAt)}', maxCharsPerLine: charsPerLine);
   final nepaliDate = nepaliDateLabel(data.printedAt);
   if (nepaliDate.isNotEmpty) bytes += generator.text('Nepali Date : $nepaliDate', maxCharsPerLine: charsPerLine);
   bytes += generator.text('Original', styles: center, maxCharsPerLine: charsPerLine);
-  bytes += generator.hr(len: charsPerLine);
-
-  bytes += generator.text(amountToWords(data.total), maxCharsPerLine: charsPerLine);
   bytes += generator.feed(2);
   if (data.preparedBy.isNotEmpty) bytes += lr(data.preparedBy, '');
   bytes += lr('-' * 12, '-' * 12);

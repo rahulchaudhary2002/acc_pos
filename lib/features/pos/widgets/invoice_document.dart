@@ -85,11 +85,10 @@ class TaxInvoiceDocument extends StatelessWidget {
             children: [
               // Printed exactly as stored — no forced upper-casing — matching
               // the physical receipt showing "Head Office", not "HEAD OFFICE".
-              // The web receipt never prints phone/VAT in the header (dead
-              // variables in its print template), so neither does this.
               Text(companyName, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
               if ((companyAddress ?? '').isNotEmpty)
                 Text(companyAddress!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
+              Text('VAT # : ${companyVatNo ?? ''}', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
             ],
           ),
           const SizedBox(height: AppSpacing.field),
@@ -101,8 +100,6 @@ class TaxInvoiceDocument extends StatelessWidget {
           _divider(),
           _totalsSection(),
           _divider(),
-          _dateAndOriginalSection(),
-          _divider(),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Text(
@@ -110,6 +107,8 @@ class TaxInvoiceDocument extends StatelessWidget {
               style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
             ),
           ),
+          _divider(),
+          _dateAndOriginalSection(),
           const SizedBox(height: AppSpacing.section),
           _signatureBlock(),
           const SizedBox(height: AppSpacing.section),

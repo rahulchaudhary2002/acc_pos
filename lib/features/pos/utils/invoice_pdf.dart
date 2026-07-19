@@ -98,10 +98,9 @@ Future<Uint8List> buildInvoicePdfBytes({
           child: pw.Column(children: [
             // Printed exactly as stored — no forced upper-casing — matching
             // the physical receipt showing "Head Office", not "HEAD OFFICE".
-            // The web receipt never prints phone/VAT in the header (dead
-            // variables in its print template), so neither does this.
             pw.Text(companyName, style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
             if ((companyAddress ?? '').isNotEmpty) pw.Text(companyAddress!, style: const pw.TextStyle(fontSize: 9)),
+            pw.Text('VAT # : ${companyVatNo ?? ''}', style: const pw.TextStyle(fontSize: 9)),
           ]),
         ),
         pw.SizedBox(height: 4),
@@ -115,9 +114,9 @@ Future<Uint8List> buildInvoicePdfBytes({
         pw.Divider(color: border, thickness: 1, height: 9),
         _totalsSection(taxable, nonTaxable, subtotal, vatRateLabel, tax, delivery, total),
         pw.Divider(color: border, thickness: 1, height: 9),
-        _dateAndOriginalSection(printedAt),
-        pw.Divider(color: border, thickness: 1, height: 9),
         pw.Text(amountToWords(total), style: pw.TextStyle(fontSize: 9, fontStyle: pw.FontStyle.italic)),
+        pw.Divider(color: border, thickness: 1, height: 9),
+        _dateAndOriginalSection(printedAt),
         pw.SizedBox(height: 12),
         pw.Row(children: [
           pw.Expanded(child: _signatureColumn(preparedBy.isEmpty ? 'Prepared By' : preparedBy, 'Prepare By')),
