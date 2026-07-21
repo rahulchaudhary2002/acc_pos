@@ -8,7 +8,6 @@ import '../models/json_utils.dart';
 import '../models/outlet.dart';
 import '../models/party.dart';
 import '../models/product.dart';
-import '../models/product_price.dart';
 import '../models/purchase_cart_item.dart';
 import '../models/report_metric.dart';
 import '../models/sale_cart_item.dart';
@@ -87,68 +86,23 @@ class PosService {
     );
   }
 
-  /// Catalog = `/admin/products?pos_context=true` merged with
-  /// `/admin/product-prices` using the web's 4-tier price fallback
-  /// (outlet+retail → any+retail → outlet+any → any+any → product sale price).
+  /// Catalog = `/admin/products?pos_context=true`. Selling price is the
+  /// flat `products.selling_price` column returned directly on each row —
+  /// the old per-outlet/date `/admin/product-prices` 4-tier fallback was
+  /// retired in favor of this single field, mirroring `PosTerminal.jsx`'s
+  /// `productCatalog` memo.
   Future<List<Product>> fetchProducts({int? companyId, int? outletId, int? locationId}) async {
-    final responses = await Future.wait([
-      _client.get('/admin/products', query: {
-        'per_page': 1000,
-        if (companyId != null) 'company_id': companyId,
-        if (outletId != null) 'outlet_id': outletId,
-        if (locationId != null) 'location_id': locationId,
-        'pos_context': true,
-      }),
-      if (companyId != null)
-        _client.get('/admin/product-prices', query: {
-          'company_id': companyId,
-          'per_page': 1000,
-          'sort_by': 'effective_from',
-          'sort_dir': 'desc',
-        }),
-    ]);
-
-    final priceRows = responses.length > 1
-        ? _listData(responses[1]).map(ProductPrice.fromJson).toList()
-        : <ProductPrice>[];
-
-    // Latest price wins per tier — same sort the web applies before its
-    // first-hit-wins maps: effective_from desc, then created_at desc.
-    priceRows.sort((a, b) {
-      final effective = b.effectiveFrom.compareTo(a.effectiveFrom);
-      if (effective != 0) return effective;
-      return b.createdAt.compareTo(a.createdAt);
+    final response = await _client.get('/admin/products', query: {
+      'per_page': 1000,
+      if (companyId != null) 'company_id': companyId,
+      if (outletId != null) 'outlet_id': outletId,
+      if (locationId != null) 'location_id': locationId,
+      'pos_context': true,
     });
 
-    final outletRetail = <int, double>{};
-    final fallbackRetail = <int, double>{};
-    final outletAny = <int, double>{};
-    final fallbackAny = <int, double>{};
-
-    for (final price in priceRows) {
-      fallbackAny.putIfAbsent(price.productId, () => price.sellingPrice);
-      final matchesOutlet = outletId != null && price.outletId == outletId;
-      if (matchesOutlet) {
-        outletAny.putIfAbsent(price.productId, () => price.sellingPrice);
-      }
-      if (price.priceType.toLowerCase() == 'retail') {
-        fallbackRetail.putIfAbsent(price.productId, () => price.sellingPrice);
-        if (matchesOutlet) {
-          outletRetail.putIfAbsent(price.productId, () => price.sellingPrice);
-        }
-      }
-    }
-
-    return _listData(responses[0])
+    return _listData(response)
         .map((json) {
-          final id = asInt(json['id']);
-          final price = outletRetail[id] ??
-              fallbackRetail[id] ??
-              outletAny[id] ??
-              fallbackAny[id] ??
-              asDoubleOrNull(json['sale_price']) ??
-              asDoubleOrNull(json['selling_price']) ??
-              0;
+          final price = asDoubleOrNull(json['selling_price']) ?? 0;
           return Product.fromAdminJson(json, price: price);
         })
         .where((product) => product.isActive)

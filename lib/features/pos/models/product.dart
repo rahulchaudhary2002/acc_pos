@@ -1,9 +1,9 @@
 import 'json_utils.dart';
 
 /// A catalog product, parsed from `GET /admin/products?pos_context=true` —
-/// the same endpoint and row shape the web POS terminal consumes — with the
-/// selling price resolved client-side from `/admin/product-prices` (see
-/// `PosService.fetchProducts`), mirroring `PosTerminal.jsx`'s
+/// the same endpoint and row shape the web POS terminal consumes. Selling
+/// price is the flat `products.selling_price` column returned on the row
+/// (see `PosService.fetchProducts`), mirroring `PosTerminal.jsx`'s
 /// `productCatalog` memo.
 class Product {
   final int id;
