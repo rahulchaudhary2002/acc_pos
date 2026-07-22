@@ -38,11 +38,19 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get sellScreenVatNumberLengthError =>
-      'भ्याट नम्बर ठ्याक्कै ९ अक्षर/अंकको हुनुपर्छ।';
+      'भ्याट नम्बर ठ्याक्कै १० अक्षर/अंकको हुनुपर्छ।';
 
   @override
   String get sellScreenCashLimitExceededError =>
       'नगद बिक्री NPR २५,००० भन्दा बढी हुन सक्दैन। बढी रकमको लागि ग्राहक बिक्रीमा जानुहोस्।';
+
+  @override
+  String get sellScreenPhoneNumberFormatError =>
+      'फोन नम्बर ठ्याक्कै १० अंकको हुनुपर्छ।';
+
+  @override
+  String get sellScreenOnlineReferenceRequiredError =>
+      'अनलाइन भुक्तानीको लागि सन्दर्भ नं. आवश्यक छ।';
 
   @override
   String sellScreenReturnCompletedMessage(String documentNo, String total) {
@@ -565,7 +573,7 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get customerPickerVatFormatError =>
-      'भ्याट नम्बर ठ्याक्कै ९ अक्षर/अंकको हुनुपर्छ।';
+      'भ्याट नम्बर ठ्याक्कै १० अक्षर/अंकको हुनुपर्छ।';
 
   @override
   String get customerPickerTitle => 'ग्राहक';

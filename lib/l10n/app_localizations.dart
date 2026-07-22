@@ -155,7 +155,7 @@ abstract class AppLocalizations {
   /// No description provided for @sellScreenVatNumberLengthError.
   ///
   /// In en, this message translates to:
-  /// **'VAT number must be exactly 9 alphanumeric characters.'**
+  /// **'VAT number must be exactly 10 alphanumeric characters.'**
   String get sellScreenVatNumberLengthError;
 
   /// No description provided for @sellScreenCashLimitExceededError.
@@ -163,6 +163,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cash sales cannot exceed NPR 25,000. Please switch to Customer Sale for higher amounts.'**
   String get sellScreenCashLimitExceededError;
+
+  /// No description provided for @sellScreenPhoneNumberFormatError.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number must be exactly 10 digits.'**
+  String get sellScreenPhoneNumberFormatError;
+
+  /// No description provided for @sellScreenOnlineReferenceRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference No. is required for online payments.'**
+  String get sellScreenOnlineReferenceRequiredError;
 
   /// No description provided for @sellScreenReturnCompletedMessage.
   ///
@@ -1115,7 +1127,7 @@ abstract class AppLocalizations {
   /// No description provided for @customerPickerVatFormatError.
   ///
   /// In en, this message translates to:
-  /// **'VAT number must be exactly 9 alphanumeric characters.'**
+  /// **'VAT number must be exactly 10 alphanumeric characters.'**
   String get customerPickerVatFormatError;
 
   /// No description provided for @customerPickerTitle.

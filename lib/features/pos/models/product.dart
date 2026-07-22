@@ -1,10 +1,10 @@
 import 'json_utils.dart';
 
-/// A catalog product, parsed from `GET /admin/products?pos_context=true` —
-/// the same endpoint and row shape the web POS terminal consumes. Selling
-/// price is the flat `products.selling_price` column returned on the row
-/// (see `PosService.fetchProducts`), mirroring `PosTerminal.jsx`'s
-/// `productCatalog` memo.
+/// A catalog product, parsed from `GET /pos/products` — the same dedicated
+/// POS endpoint (`PosController::products`) the web POS terminal's
+/// `productCatalog` memo consumes, already server-filtered to active items
+/// and pre-joined with tax rate / stock, unlike the paginated admin CRUD
+/// listing (`/admin/products`).
 class Product {
   final int id;
   final String name;
@@ -82,9 +82,10 @@ class Product {
     return 'Products';
   }
 
-  factory Product.fromAdminJson(Map<String, dynamic> json, {required double price}) {
-    final taxCode = json['tax_code'] as Map<String, dynamic>?;
-    final uom = json['uom'] as Map<String, dynamic>?;
+  /// `GET /pos/products` row shape (`PosController::products`): tax rate and
+  /// selling price are already flattened server-side, unlike the nested
+  /// `tax_code`/`uom` relation objects the admin CRUD listing returns.
+  factory Product.fromPosJson(Map<String, dynamic> json) {
     return Product(
       id: asInt(json['id']),
       name: json['name'] as String,
@@ -93,15 +94,13 @@ class Product {
       companyId: asInt(json['company_id']),
       category: _categoryLabel(json['category']),
       taxCodeId: asIntOrNull(json['tax_code_id']),
-      // Same default the web's resolveTaxRate() applies when no tax code.
-      taxRate: asDoubleOrNull(taxCode?['rate']) ?? 13,
-      price: price,
+      taxRate: asDoubleOrNull(json['tax_rate']) ?? 13,
+      price: asDoubleOrNull(json['price']) ?? 0,
       purchasePrice: asDoubleOrNull(json['purchase_price']) ?? 0,
-      unit: uom?['code'] as String? ?? json['unit'] as String? ?? '',
+      unit: json['unit'] as String? ?? '',
       type: json['type'] as String? ?? 'inventory',
       trackInventory: _asBool(json['track_inventory'], fallback: true),
       allowNegativeStock: _asBool(json['allow_negative_stock'], fallback: false),
-      isActive: _asBool(json['is_active'], fallback: true),
       currentStock: asDoubleOrNull(json['current_stock']) ?? 0,
     );
   }

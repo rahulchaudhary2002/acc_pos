@@ -38,11 +38,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sellScreenVatNumberLengthError =>
-      'VAT number must be exactly 9 alphanumeric characters.';
+      'VAT number must be exactly 10 alphanumeric characters.';
 
   @override
   String get sellScreenCashLimitExceededError =>
       'Cash sales cannot exceed NPR 25,000. Please switch to Customer Sale for higher amounts.';
+
+  @override
+  String get sellScreenPhoneNumberFormatError =>
+      'Phone number must be exactly 10 digits.';
+
+  @override
+  String get sellScreenOnlineReferenceRequiredError =>
+      'Reference No. is required for online payments.';
 
   @override
   String sellScreenReturnCompletedMessage(String documentNo, String total) {
@@ -563,7 +571,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customerPickerVatFormatError =>
-      'VAT number must be exactly 9 alphanumeric characters.';
+      'VAT number must be exactly 10 alphanumeric characters.';
 
   @override
   String get customerPickerTitle => 'Customer';

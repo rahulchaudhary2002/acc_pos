@@ -85,12 +85,21 @@ class _SellScreenState extends State<SellScreen> {
       return;
     }
     final vatNumber = _customerVatController.text.trim();
-    if (cart.saleType == 'customer' && _selectedCustomer == null && vatNumber.isNotEmpty && !RegExp(r'^[A-Za-z0-9]{9}$').hasMatch(vatNumber)) {
+    if (cart.saleType == 'customer' && _selectedCustomer == null && vatNumber.isNotEmpty && !RegExp(r'^[A-Za-z0-9]{10}$').hasMatch(vatNumber)) {
       setState(() => _errorMessage = AppLocalizations.of(context)!.sellScreenVatNumberLengthError);
+      return;
+    }
+    final customerPhone = _customerPhoneController.text.trim();
+    if (cart.saleType == 'customer' && _selectedCustomer == null && customerPhone.isNotEmpty && !RegExp(r'^\d{10}$').hasMatch(customerPhone)) {
+      setState(() => _errorMessage = AppLocalizations.of(context)!.sellScreenPhoneNumberFormatError);
       return;
     }
     if (cart.saleType == 'cash' && cart.paymentMode == 'cash' && cart.grandTotal > 25000) {
       setState(() => _errorMessage = AppLocalizations.of(context)!.sellScreenCashLimitExceededError);
+      return;
+    }
+    if (cart.paymentMode == 'online' && cart.paymentReference.trim().isEmpty) {
+      setState(() => _errorMessage = AppLocalizations.of(context)!.sellScreenOnlineReferenceRequiredError);
       return;
     }
 

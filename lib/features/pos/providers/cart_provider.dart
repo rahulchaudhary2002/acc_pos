@@ -26,11 +26,17 @@ class CartProvider extends ChangeNotifier {
   void setSaleType(String type) {
     saleType = type;
     if (type == 'cash' && paymentMode == 'credit') paymentMode = 'cash';
+    // Mirrors PosTerminal.jsx's changeSaleType: a customer sale defaults to
+    // credit payment rather than carrying over whatever cash-sale mode was set.
+    if (type == 'customer' && paymentMode == 'cash') paymentMode = 'credit';
     notifyListeners();
   }
 
   void setPaymentMode(String mode) {
     paymentMode = mode;
+    // Mirrors PosTerminal.jsx's changeSalePaymentMode: picking credit payment
+    // forces the sale into customer mode (credit isn't valid for cash sales).
+    if (mode == 'credit') saleType = 'customer';
     notifyListeners();
   }
 
@@ -51,11 +57,13 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Sellable cap for a product's cart qty, or null when unlimited (services,
-  /// untracked items, and items with negative-stock override all skip the
-  /// stock check — the server re-validates authoritatively at checkout).
+  /// Sellable cap for a product's cart qty, or null when unlimited (services
+  /// and untracked items only). Mirrors PosTerminal.jsx's
+  /// `isTrackedInventoryItem` check, which caps at `current_stock` for any
+  /// tracked item regardless of `allow_negative_stock` — that flag only
+  /// controls whether the *server* accepts an oversell, not the client cap.
   double? _maxQty(Product product) {
-    if (product.isService || !product.trackInventory || product.allowNegativeStock) return null;
+    if (product.isService || !product.trackInventory) return null;
     return product.currentStock;
   }
 

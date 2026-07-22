@@ -9,8 +9,10 @@
   "sellScreenTitle": "Sell LPG",
   "sellScreenSubtitle": "Easy POS for Gas Dealers",
   "sellScreenSelectCustomerOrNameError": "Select an existing customer or enter a full name for a customer sale.",
-  "sellScreenVatNumberLengthError": "VAT number must be exactly 9 alphanumeric characters.",
+  "sellScreenVatNumberLengthError": "VAT number must be exactly 10 alphanumeric characters.",
   "sellScreenCashLimitExceededError": "Cash sales cannot exceed NPR 25,000. Please switch to Customer Sale for higher amounts.",
+  "sellScreenPhoneNumberFormatError": "Phone number must be exactly 10 digits.",
+  "sellScreenOnlineReferenceRequiredError": "Reference No. is required for online payments.",
   "sellScreenReturnCompletedMessage": "Return {documentNo} completed — NPR {total}",
   "@sellScreenReturnCompletedMessage": {
     "placeholders": {
@@ -268,7 +270,7 @@
   "productCardNotTracked": "Not tracked",
   "productCardOutOfStock": "Out of Stock",
   "customerPickerFullNameRequired": "Full name is required.",
-  "customerPickerVatFormatError": "VAT number must be exactly 9 alphanumeric characters.",
+  "customerPickerVatFormatError": "VAT number must be exactly 10 alphanumeric characters.",
   "customerPickerTitle": "Customer",
   "customerPickerExistingCustomerLabel": "Existing Customer",
   "customerPickerWalkInHint": "Or create a new walk-in customer below",

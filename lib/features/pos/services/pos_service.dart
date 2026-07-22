@@ -86,27 +86,19 @@ class PosService {
     );
   }
 
-  /// Catalog = `/admin/products?pos_context=true`. Selling price is the
-  /// flat `products.selling_price` column returned directly on each row —
-  /// the old per-outlet/date `/admin/product-prices` 4-tier fallback was
-  /// retired in favor of this single field, mirroring `PosTerminal.jsx`'s
-  /// `productCatalog` memo.
+  /// Catalog = `GET /pos/products` — the same dedicated POS endpoint
+  /// (`PosController::products`) `PosTerminal.jsx`'s `productCatalog` memo
+  /// calls, not the paginated `/admin/products` CRUD listing (which requires
+  /// `company.scope`-resolved `active_company_id` and ignores `pos_context`
+  /// entirely). Already server-filtered to active items.
   Future<List<Product>> fetchProducts({int? companyId, int? outletId, int? locationId}) async {
-    final response = await _client.get('/admin/products', query: {
-      'per_page': 1000,
+    final response = await _client.get('/pos/products', query: {
       if (companyId != null) 'company_id': companyId,
       if (outletId != null) 'outlet_id': outletId,
       if (locationId != null) 'location_id': locationId,
-      'pos_context': true,
     });
 
-    return _listData(response)
-        .map((json) {
-          final price = asDoubleOrNull(json['selling_price']) ?? 0;
-          return Product.fromAdminJson(json, price: price);
-        })
-        .where((product) => product.isActive)
-        .toList();
+    return _listData(response).map(Product.fromPosJson).toList();
   }
 
   // ── Parties ───────────────────────────────────────────────────────────
