@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show FilteringTextInputFormatter;
 
 import '../../../core/theme/app_colors.dart';
 
@@ -31,7 +32,7 @@ class _QtyStepperFieldState extends State<QtyStepperField> {
   late final TextEditingController _controller;
   final _focusNode = FocusNode();
 
-  static String _format(double qty) => qty.toStringAsFixed(qty.truncateToDouble() == qty ? 0 : 2);
+  static String _format(double qty) => qty.round().toString();
 
   @override
   void initState() {
@@ -69,7 +70,8 @@ class _QtyStepperFieldState extends State<QtyStepperField> {
       child: TextFormField(
         controller: _controller,
         focusNode: _focusNode,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         textAlign: TextAlign.center,
         style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
         decoration: const InputDecoration(
@@ -84,8 +86,8 @@ class _QtyStepperFieldState extends State<QtyStepperField> {
           ),
         ),
         onChanged: (value) {
-          final qty = double.tryParse(value);
-          if (qty != null && qty > 0) widget.onQtyChanged(qty);
+          final qty = int.tryParse(value);
+          if (qty != null && qty > 0) widget.onQtyChanged(qty.toDouble());
         },
       ),
     );
