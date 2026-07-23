@@ -13,6 +13,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../models/company.dart';
 import '../models/party.dart';
+import '../models/product.dart';
 import '../models/purchase_cart_item.dart';
 import '../providers/buy_cart_provider.dart';
 import '../providers/pos_config_provider.dart';
@@ -47,6 +48,11 @@ class _BuyScreenState extends State<BuyScreen> {
 
   final List<PurchaseCartItem> _returnItems = [];
   Party? _returnVendor;
+  final _returnBillNoController = TextEditingController();
+  int? _returnReferenceBillId;
+  bool _returnLookupLoading = false;
+  String? _returnLookupMessage;
+  Timer? _returnLookupDebounce;
 
   // Web `buyReturnTotals`: subtotal = Σ qty×rate, tax = Σ line tax,
   // total = subtotal + tax.
@@ -58,10 +64,97 @@ class _BuyScreenState extends State<BuyScreen> {
   void dispose() {
     _invoiceNumberController.dispose();
     _vendorNameController.dispose();
+    _returnBillNoController.dispose();
+    _returnLookupDebounce?.cancel();
     super.dispose();
   }
 
   void _announce(String key) => context.read<VoiceAnnouncer>().announceAction(key);
+
+  void _onReturnBillNoChanged(String value) {
+    _returnLookupDebounce?.cancel();
+    final billNo = value.trim();
+    if (billNo.isEmpty) {
+      setState(() {
+        _returnLookupLoading = false;
+        _returnLookupMessage = null;
+        _returnReferenceBillId = null;
+      });
+      return;
+    }
+    _returnLookupDebounce = Timer(const Duration(milliseconds: 350), () => _lookupReturnBill(billNo));
+  }
+
+  Future<void> _lookupReturnBill(String billNo) async {
+    final config = context.read<PosConfigProvider>();
+    final l10n = AppLocalizations.of(context)!;
+    setState(() {
+      _returnLookupLoading = true;
+      _returnLookupMessage = null;
+    });
+    try {
+      final service = context.read<PosService>();
+      final result = await service.findPurchaseBillByNumber(
+        billNo,
+        companyId: config.selectedCompanyId,
+        outletId: config.selectedOutletId,
+      );
+      if (!mounted) return;
+      if (result == null) {
+        setState(() {
+          _returnLookupLoading = false;
+          _returnLookupMessage = l10n.buyScreenReturnBillLookupNotFound;
+          _returnReferenceBillId = null;
+        });
+        return;
+      }
+
+      final posData = context.read<PosDataProvider>();
+      final nextItems = <PurchaseCartItem>[];
+      for (final line in result.lines) {
+        Product? product;
+        for (final p in posData.products) {
+          if (p.id == line.productId) {
+            product = p;
+            break;
+          }
+        }
+        if (product == null) continue;
+        nextItems.add(PurchaseCartItem(product: product, qty: line.qty, unitCost: line.rate));
+      }
+
+      Party? matchedVendor;
+      if (result.partyId != null) {
+        for (final v in posData.suppliers) {
+          if (v.id == result.partyId) {
+            matchedVendor = v;
+            break;
+          }
+        }
+      }
+
+      setState(() {
+        _returnItems
+          ..clear()
+          ..addAll(nextItems);
+        _returnReferenceBillId = result.documentId;
+        if (matchedVendor != null) _returnVendor = matchedVendor;
+        _returnLookupLoading = false;
+        _returnLookupMessage = l10n.buyScreenReturnBillLookupFound(
+          nextItems.length,
+          nextItems.length == 1 ? '' : 's',
+          result.documentNo,
+        );
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _returnLookupLoading = false;
+        _returnLookupMessage = e.message;
+        _returnReferenceBillId = null;
+      });
+    }
+  }
 
   Future<void> _submit() async {
     final cart = context.read<BuyCartProvider>();
@@ -174,6 +267,7 @@ class _BuyScreenState extends State<BuyScreen> {
         outletId: config.selectedOutletId!,
         locationId: config.selectedLocationId,
         vendorId: _returnVendor!.id,
+        referenceBillId: _returnReferenceBillId,
         items: _returnItems,
       );
       if (!mounted) return;
@@ -196,6 +290,9 @@ class _BuyScreenState extends State<BuyScreen> {
       setState(() {
         _returnItems.clear();
         _returnVendor = null;
+        _returnReferenceBillId = null;
+        _returnBillNoController.clear();
+        _returnLookupMessage = null;
       });
       unawaited(context.read<PosDataProvider>().loadProducts(
             companyId: config.selectedCompanyId,
@@ -465,6 +562,33 @@ class _BuyScreenState extends State<BuyScreen> {
               ],
             ),
             const SizedBox(height: AppSpacing.item),
+            Text(AppLocalizations.of(context)!.buyScreenReturnBillNumberLabel, style: AppTextStyles.label),
+            const SizedBox(height: 4),
+            TextField(
+              controller: _returnBillNoController,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.surface,
+                hintText: AppLocalizations.of(context)!.buyScreenReturnBillNumberHint,
+                suffixIcon: _returnLookupLoading
+                    ? const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                      )
+                    : null,
+              ),
+              onChanged: _onReturnBillNoChanged,
+            ),
+            if (_returnLookupMessage != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                _returnLookupMessage!,
+                style: AppTextStyles.label.copyWith(
+                  color: _returnReferenceBillId != null ? AppColors.success : AppColors.warningDark,
+                ),
+              ),
+            ],
+            const SizedBox(height: AppSpacing.item),
             Text(AppLocalizations.of(context)!.buyScreenSupplierLabel, style: AppTextStyles.label),
             const SizedBox(height: 4),
             DropdownButtonFormField<Party>(
@@ -571,6 +695,9 @@ class _BuyScreenState extends State<BuyScreen> {
                   : () => setState(() {
                         _returnItems.clear();
                         _returnVendor = null;
+                        _returnReferenceBillId = null;
+                        _returnBillNoController.clear();
+                        _returnLookupMessage = null;
                       }),
               style: AppButtonStyles.filled(AppColors.danger),
               child: Text(AppLocalizations.of(context)!.buyScreenClearReturnLabel),

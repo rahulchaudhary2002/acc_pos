@@ -114,6 +114,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sellScreenWalkInNoCustomerLabel => 'Walk-in / No customer';
 
   @override
+  String get sellScreenInvoiceNumberLabel => 'Enter Bill Number';
+
+  @override
+  String get sellScreenInvoiceNumberHint => 'e.g. XXXX-001';
+
+  @override
+  String get sellScreenInvoiceLookupButton => 'Fetch';
+
+  @override
+  String get sellScreenInvoiceLookupLoading => 'Looking up invoice...';
+
+  @override
+  String get sellScreenInvoiceLookupNotFound =>
+      'No posted invoice found for that number.';
+
+  @override
+  String sellScreenInvoiceLookupFound(
+    int count,
+    String plural,
+    String invoiceNo,
+  ) {
+    return 'Loaded $count item$plural from invoice $invoiceNo';
+  }
+
+  @override
   String get sellScreenReturnItemsTitle => 'Return Items';
 
   @override
@@ -235,6 +260,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get buyScreenSupplierLabel => 'Supplier';
+
+  @override
+  String get buyScreenReturnBillNumberLabel => 'Enter Bill Number';
+
+  @override
+  String get buyScreenReturnBillNumberHint => 'e.g. PB-POS-...';
+
+  @override
+  String get buyScreenReturnBillLookupButton => 'Fetch';
+
+  @override
+  String get buyScreenReturnBillLookupLoading => 'Looking up bill...';
+
+  @override
+  String get buyScreenReturnBillLookupNotFound =>
+      'No posted bill found for that number.';
+
+  @override
+  String buyScreenReturnBillLookupFound(
+    int count,
+    String plural,
+    String billNo,
+  ) {
+    return 'Loaded $count item$plural from bill $billNo';
+  }
 
   @override
   String get buyScreenReturnItemsTitle => 'Return Items';

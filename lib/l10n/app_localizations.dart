@@ -290,6 +290,46 @@ abstract class AppLocalizations {
   /// **'Walk-in / No customer'**
   String get sellScreenWalkInNoCustomerLabel;
 
+  /// No description provided for @sellScreenInvoiceNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Bill Number'**
+  String get sellScreenInvoiceNumberLabel;
+
+  /// No description provided for @sellScreenInvoiceNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. XXXX-001'**
+  String get sellScreenInvoiceNumberHint;
+
+  /// No description provided for @sellScreenInvoiceLookupButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetch'**
+  String get sellScreenInvoiceLookupButton;
+
+  /// No description provided for @sellScreenInvoiceLookupLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking up invoice...'**
+  String get sellScreenInvoiceLookupLoading;
+
+  /// No description provided for @sellScreenInvoiceLookupNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No posted invoice found for that number.'**
+  String get sellScreenInvoiceLookupNotFound;
+
+  /// No description provided for @sellScreenInvoiceLookupFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded {count} item{plural} from invoice {invoiceNo}'**
+  String sellScreenInvoiceLookupFound(
+    int count,
+    String plural,
+    String invoiceNo,
+  );
+
   /// No description provided for @sellScreenReturnItemsTitle.
   ///
   /// In en, this message translates to:
@@ -523,6 +563,46 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Supplier'**
   String get buyScreenSupplierLabel;
+
+  /// No description provided for @buyScreenReturnBillNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Bill Number'**
+  String get buyScreenReturnBillNumberLabel;
+
+  /// No description provided for @buyScreenReturnBillNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. PB-POS-...'**
+  String get buyScreenReturnBillNumberHint;
+
+  /// No description provided for @buyScreenReturnBillLookupButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetch'**
+  String get buyScreenReturnBillLookupButton;
+
+  /// No description provided for @buyScreenReturnBillLookupLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking up bill...'**
+  String get buyScreenReturnBillLookupLoading;
+
+  /// No description provided for @buyScreenReturnBillLookupNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No posted bill found for that number.'**
+  String get buyScreenReturnBillLookupNotFound;
+
+  /// No description provided for @buyScreenReturnBillLookupFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded {count} item{plural} from bill {billNo}'**
+  String buyScreenReturnBillLookupFound(
+    int count,
+    String plural,
+    String billNo,
+  );
 
   /// No description provided for @buyScreenReturnItemsTitle.
   ///

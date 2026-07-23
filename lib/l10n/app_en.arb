@@ -42,6 +42,25 @@
   "sellScreenGenerateVatBillLabel": "Generate VAT Bill",
   "sellScreenCustomerOptionalLabel": "Customer (optional)",
   "sellScreenWalkInNoCustomerLabel": "Walk-in / No customer",
+  "sellScreenInvoiceNumberLabel": "Enter Bill Number",
+  "sellScreenInvoiceNumberHint": "e.g. XXXX-001",
+  "sellScreenInvoiceLookupButton": "Fetch",
+  "sellScreenInvoiceLookupLoading": "Looking up invoice...",
+  "sellScreenInvoiceLookupNotFound": "No posted invoice found for that number.",
+  "sellScreenInvoiceLookupFound": "Loaded {count} item{plural} from invoice {invoiceNo}",
+  "@sellScreenInvoiceLookupFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "plural": {
+        "type": "String"
+      },
+      "invoiceNo": {
+        "type": "String"
+      }
+    }
+  },
   "sellScreenReturnItemsTitle": "Return Items",
   "sellScreenNoItemsSelectedTitle": "No items selected",
   "sellScreenSelectProductsToReturnSubtitle": "Select products to return",
@@ -91,6 +110,25 @@
   "buyScreenClearPurchaseLabel": "Clear Purchase",
   "buyScreenSavePurchaseLabel": "Save Purchase",
   "buyScreenSupplierLabel": "Supplier",
+  "buyScreenReturnBillNumberLabel": "Enter Bill Number",
+  "buyScreenReturnBillNumberHint": "e.g. PB-POS-...",
+  "buyScreenReturnBillLookupButton": "Fetch",
+  "buyScreenReturnBillLookupLoading": "Looking up bill...",
+  "buyScreenReturnBillLookupNotFound": "No posted bill found for that number.",
+  "buyScreenReturnBillLookupFound": "Loaded {count} item{plural} from bill {billNo}",
+  "@buyScreenReturnBillLookupFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "plural": {
+        "type": "String"
+      },
+      "billNo": {
+        "type": "String"
+      }
+    }
+  },
   "buyScreenReturnItemsTitle": "Return Items",
   "buyScreenNoItemsToReturnTitle": "No items to return",
   "buyScreenTotalAmountLabel": "Total Amount",

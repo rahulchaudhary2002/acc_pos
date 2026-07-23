@@ -114,6 +114,31 @@ class AppLocalizationsNe extends AppLocalizations {
   String get sellScreenWalkInNoCustomerLabel => 'वाक-इन / ग्राहक नभएको';
 
   @override
+  String get sellScreenInvoiceNumberLabel => 'बिल नम्बर लेख्नुहोस्';
+
+  @override
+  String get sellScreenInvoiceNumberHint => 'जस्तै XXXX-001';
+
+  @override
+  String get sellScreenInvoiceLookupButton => 'खोज्नुहोस्';
+
+  @override
+  String get sellScreenInvoiceLookupLoading => 'बीजक खोजिँदैछ...';
+
+  @override
+  String get sellScreenInvoiceLookupNotFound =>
+      'त्यो नम्बरको कुनै पोस्ट गरिएको बीजक भेटिएन।';
+
+  @override
+  String sellScreenInvoiceLookupFound(
+    int count,
+    String plural,
+    String invoiceNo,
+  ) {
+    return 'बीजक $invoiceNo बाट $count वस्तु$plural लोड भयो';
+  }
+
+  @override
   String get sellScreenReturnItemsTitle => 'फिर्ता वस्तुहरू';
 
   @override
@@ -236,6 +261,31 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get buyScreenSupplierLabel => 'आपूर्तिकर्ता';
+
+  @override
+  String get buyScreenReturnBillNumberLabel => 'बिल नम्बर लेख्नुहोस्';
+
+  @override
+  String get buyScreenReturnBillNumberHint => 'जस्तै PB-POS-...';
+
+  @override
+  String get buyScreenReturnBillLookupButton => 'खोज्नुहोस्';
+
+  @override
+  String get buyScreenReturnBillLookupLoading => 'बिल खोजिँदैछ...';
+
+  @override
+  String get buyScreenReturnBillLookupNotFound =>
+      'त्यो नम्बरको कुनै पोस्ट गरिएको बिल भेटिएन।';
+
+  @override
+  String buyScreenReturnBillLookupFound(
+    int count,
+    String plural,
+    String billNo,
+  ) {
+    return 'बिल $billNo बाट $count वस्तु$plural लोड भयो';
+  }
 
   @override
   String get buyScreenReturnItemsTitle => 'फिर्ता वस्तुहरू';

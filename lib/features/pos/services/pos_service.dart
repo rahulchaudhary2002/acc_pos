@@ -10,6 +10,7 @@ import '../models/party.dart';
 import '../models/product.dart';
 import '../models/purchase_cart_item.dart';
 import '../models/report_metric.dart';
+import '../models/return_lookup_result.dart';
 import '../models/sale_cart_item.dart';
 import '../models/payment_mode_stat.dart';
 import '../models/tax_code.dart';
@@ -403,6 +404,7 @@ class PosService {
     int? locationId,
     int? customerId,
     int? vendorId,
+    int? referenceInvoiceId,
     required List<SaleCartItem> items,
   }) async {
     final response = await _client.post('/pos/sell-return', data: {
@@ -411,6 +413,7 @@ class PosService {
       'location_id': locationId,
       'customer_id': customerId,
       'vendor_id': vendorId,
+      'reference_invoice_id': referenceInvoiceId,
       'return_date': _today(),
       'items': items.map((e) => e.toPosReturnJson()).toList(),
     });
@@ -424,6 +427,7 @@ class PosService {
     required int outletId,
     int? locationId,
     required int vendorId,
+    int? referenceBillId,
     required List<PurchaseCartItem> items,
   }) async {
     final response = await _client.post('/pos/purchase-return', data: {
@@ -431,10 +435,82 @@ class PosService {
       'outlet_id': outletId,
       'location_id': locationId,
       'vendor_id': vendorId,
+      'reference_bill_id': referenceBillId,
       'return_date': _today(),
       'items': items.map((e) => e.toPosReturnJson()).toList(),
     });
     return _posReturnResult(response, 'Purchase return completed successfully.');
+  }
+
+  /// Looks up a posted sales invoice by its `invoice_no` (mirrors the web
+  /// POS's sell-return bill-number lookup) so its lines can be loaded into a
+  /// return cart. Returns null if no exact match is found.
+  Future<ReturnLookupResult?> findSalesInvoiceByNumber(
+    String invoiceNo, {
+    int? companyId,
+    int? outletId,
+  }) async {
+    final normalized = invoiceNo.trim().toLowerCase();
+    if (normalized.isEmpty) return null;
+
+    final response = await _client.get('/admin/sales-invoices', query: {
+      if (companyId != null) 'company_id': companyId,
+      if (outletId != null) 'outlet_id': outletId,
+      'search': invoiceNo,
+      'per_page': 5,
+      'sort_by': 'created_at',
+      'sort_dir': 'desc',
+    });
+
+    Map<String, dynamic>? matched;
+    for (final row in _listData(response)) {
+      final rowInvoiceNo = (row['invoice_no'] as String? ?? '').trim().toLowerCase();
+      if (rowInvoiceNo == normalized) {
+        matched = row;
+        break;
+      }
+    }
+    if (matched == null) return null;
+
+    final detail = await _client.get('/admin/sales-invoices/${asInt(matched['id'])}');
+    final invoice = detail['data'] as Map<String, dynamic>? ?? matched;
+    return ReturnLookupResult.fromSalesInvoiceJson(invoice);
+  }
+
+  /// Looks up a posted purchase bill by its `bill_no` or `vendor_invoice_no`
+  /// (mirrors the web POS's purchase-return bill-number lookup) so its lines
+  /// can be loaded into a return cart. Returns null if no exact match is found.
+  Future<ReturnLookupResult?> findPurchaseBillByNumber(
+    String billNo, {
+    int? companyId,
+    int? outletId,
+  }) async {
+    final normalized = billNo.trim().toLowerCase();
+    if (normalized.isEmpty) return null;
+
+    final response = await _client.get('/admin/purchase-bills', query: {
+      if (companyId != null) 'company_id': companyId,
+      if (outletId != null) 'outlet_id': outletId,
+      'search': billNo,
+      'per_page': 5,
+      'sort_by': 'created_at',
+      'sort_dir': 'desc',
+    });
+
+    Map<String, dynamic>? matched;
+    for (final row in _listData(response)) {
+      final rowBillNo = (row['bill_no'] as String? ?? '').trim().toLowerCase();
+      final rowVendorInvoiceNo = (row['vendor_invoice_no'] as String? ?? '').trim().toLowerCase();
+      if (rowBillNo == normalized || rowVendorInvoiceNo == normalized) {
+        matched = row;
+        break;
+      }
+    }
+    if (matched == null) return null;
+
+    final detail = await _client.get('/admin/purchase-bills/${asInt(matched['id'])}');
+    final bill = detail['data'] as Map<String, dynamic>? ?? matched;
+    return ReturnLookupResult.fromPurchaseBillJson(bill);
   }
 
   TransactionResult _posReturnResult(Map<String, dynamic> response, String fallbackMessage) {
