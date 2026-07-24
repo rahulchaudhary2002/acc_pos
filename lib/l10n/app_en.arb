@@ -9,7 +9,7 @@
   "sellScreenTitle": "Sell LPG",
   "sellScreenSubtitle": "Easy POS for Gas Dealers",
   "sellScreenSelectCustomerOrNameError": "Select an existing customer or enter a full name for a customer sale.",
-  "sellScreenVatNumberLengthError": "VAT number must be exactly 9 alphanumeric characters.",
+  "sellScreenVatNumberLengthError": "VAT number must be exactly 9 digits.",
   "sellScreenCashLimitExceededError": "Cash sales cannot exceed NPR 25,000. Please switch to Customer Sale for higher amounts.",
   "sellScreenPhoneNumberFormatError": "Phone number must be exactly 10 digits.",
   "sellScreenOnlineReferenceRequiredError": "Reference No. is required for online payments.",

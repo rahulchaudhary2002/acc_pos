@@ -168,7 +168,7 @@ class _SellScreenState extends State<SellScreen> {
       return;
     }
     final vatNumber = _customerVatController.text.trim();
-    if (cart.saleType == 'customer' && _selectedCustomer == null && vatNumber.isNotEmpty && !RegExp(r'^[A-Za-z0-9]{10}$').hasMatch(vatNumber)) {
+    if (cart.saleType == 'customer' && _selectedCustomer == null && vatNumber.isNotEmpty && !RegExp(r'^[0-9]{9}$').hasMatch(vatNumber)) {
       setState(() => _errorMessage = AppLocalizations.of(context)!.sellScreenVatNumberLengthError);
       return;
     }

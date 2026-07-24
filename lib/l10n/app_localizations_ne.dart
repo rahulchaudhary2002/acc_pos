@@ -38,7 +38,7 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get sellScreenVatNumberLengthError =>
-      'भ्याट नम्बर ठ्याक्कै १० अक्षर/अंकको हुनुपर्छ।';
+      'भ्याट नम्बर ठ्याक्कै ९ अंकको हुनुपर्छ।';
 
   @override
   String get sellScreenCashLimitExceededError =>

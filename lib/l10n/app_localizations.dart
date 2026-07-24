@@ -155,7 +155,7 @@ abstract class AppLocalizations {
   /// No description provided for @sellScreenVatNumberLengthError.
   ///
   /// In en, this message translates to:
-  /// **'VAT number must be exactly 9 alphanumeric characters.'**
+  /// **'VAT number must be exactly 9 digits.'**
   String get sellScreenVatNumberLengthError;
 
   /// No description provided for @sellScreenCashLimitExceededError.

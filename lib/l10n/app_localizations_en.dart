@@ -38,7 +38,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sellScreenVatNumberLengthError =>
-      'VAT number must be exactly 9 alphanumeric characters.';
+      'VAT number must be exactly 9 digits.';
 
   @override
   String get sellScreenCashLimitExceededError =>
