@@ -1207,7 +1207,7 @@ abstract class AppLocalizations {
   /// No description provided for @customerPickerVatFormatError.
   ///
   /// In en, this message translates to:
-  /// **'VAT number must be exactly 9 alphanumeric characters.'**
+  /// **'VAT number must be exactly 9 digits.'**
   String get customerPickerVatFormatError;
 
   /// No description provided for @customerPickerTitle.

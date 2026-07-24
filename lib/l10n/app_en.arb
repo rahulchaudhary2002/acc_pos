@@ -308,7 +308,7 @@
   "productCardNotTracked": "Not tracked",
   "productCardOutOfStock": "Out of Stock",
   "customerPickerFullNameRequired": "Full name is required.",
-  "customerPickerVatFormatError": "VAT number must be exactly 9 alphanumeric characters.",
+  "customerPickerVatFormatError": "VAT number must be exactly 9 digits.",
   "customerPickerTitle": "Customer",
   "customerPickerExistingCustomerLabel": "Existing Customer",
   "customerPickerWalkInHint": "Or create a new walk-in customer below",

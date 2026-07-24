@@ -64,7 +64,7 @@ class _CustomerPickerDialogState extends State<_CustomerPickerDialog> {
       return;
     }
     final vatNumber = _vatController.text.trim();
-    if (vatNumber.isNotEmpty && !RegExp(r'^[A-Za-z0-9]{10}$').hasMatch(vatNumber)) {
+    if (vatNumber.isNotEmpty && !RegExp(r'^[0-9]{9}$').hasMatch(vatNumber)) {
       setState(() => _error = AppLocalizations.of(context)!.customerPickerVatFormatError);
       return;
     }

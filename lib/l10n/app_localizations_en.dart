@@ -621,7 +621,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customerPickerVatFormatError =>
-      'VAT number must be exactly 9 alphanumeric characters.';
+      'VAT number must be exactly 9 digits.';
 
   @override
   String get customerPickerTitle => 'Customer';
