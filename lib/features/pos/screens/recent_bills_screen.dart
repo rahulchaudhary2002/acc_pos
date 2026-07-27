@@ -9,6 +9,7 @@ import '../../../l10n/app_localizations.dart';
 import '../models/transaction_summary.dart';
 import '../providers/pos_config_provider.dart';
 import '../services/pos_service.dart';
+import '../widgets/historical_invoice_preview.dart';
 import '../widgets/pos_screen_header.dart';
 import '../widgets/recent_transactions_list.dart';
 
@@ -28,6 +29,7 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
   String? _error;
   List<TransactionSummary> _purchases = [];
   List<TransactionSummary> _sales = [];
+  int? _printingId;
 
   @override
   void initState() {
@@ -75,6 +77,36 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
     }
   }
 
+  Future<void> _printPurchase(TransactionSummary item) async {
+    setState(() => _printingId = item.id);
+    try {
+      final service = context.read<PosService>();
+      final bill = await service.fetchPurchaseBillDetail(item.id);
+      if (!mounted) return;
+      await showHistoricalPurchaseBillPreview(context, bill: bill);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _printingId = null);
+    }
+  }
+
+  Future<void> _printSale(TransactionSummary item) async {
+    setState(() => _printingId = item.id);
+    try {
+      final service = context.read<PosService>();
+      final invoice = await service.fetchSalesInvoiceDetail(item.id);
+      if (!mounted) return;
+      await showHistoricalSalesInvoicePreview(context, invoice: invoice);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _printingId = null);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -99,8 +131,8 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
           child: TabBarView(
             controller: _tabController,
             children: [
-              _list(items: _purchases, color: AppColors.warningDark, emptyMessage: l10n.recentBillsScreenEmptyPurchase),
-              _list(items: _sales, color: AppColors.success, emptyMessage: l10n.recentBillsScreenEmptySales),
+              _list(items: _purchases, color: AppColors.warningDark, emptyMessage: l10n.recentBillsScreenEmptyPurchase, onPrint: _printPurchase),
+              _list(items: _sales, color: AppColors.success, emptyMessage: l10n.recentBillsScreenEmptySales, onPrint: _printSale),
             ],
           ),
         ),
@@ -108,7 +140,12 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
     );
   }
 
-  Widget _list({required List<TransactionSummary> items, required Color color, required String emptyMessage}) {
+  Widget _list({
+    required List<TransactionSummary> items,
+    required Color color,
+    required String emptyMessage,
+    required void Function(TransactionSummary item) onPrint,
+  }) {
     return RefreshIndicator(
       onRefresh: _load,
       child: SingleChildScrollView(
@@ -124,7 +161,14 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
                 child: Center(child: CircularProgressIndicator()),
               )
             else
-              RecentTransactionsList(items: items, color: color, emptyMessage: emptyMessage, limit: null),
+              RecentTransactionsList(
+                items: items,
+                color: color,
+                emptyMessage: emptyMessage,
+                limit: null,
+                onPrint: onPrint,
+                printingId: _printingId,
+              ),
           ],
         ),
       ),

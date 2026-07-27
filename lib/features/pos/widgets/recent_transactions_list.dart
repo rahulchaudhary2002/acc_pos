@@ -18,7 +18,24 @@ class RecentTransactionsList extends StatelessWidget {
   /// everything.
   final int? limit;
 
-  const RecentTransactionsList({super.key, required this.items, this.color = AppColors.info, this.emptyMessage, this.limit = 10});
+  /// When set, each row gets a trailing print button — used by the Recent
+  /// Bills screen to re-print a historical document. Omitted (null) on the
+  /// Reports "More" tab, which stays a read-only preview.
+  final void Function(TransactionSummary item)? onPrint;
+
+  /// The id of the row currently being fetched/printed, so its print button
+  /// can show a spinner instead of the icon while [onPrint] is in flight.
+  final int? printingId;
+
+  const RecentTransactionsList({
+    super.key,
+    required this.items,
+    this.color = AppColors.info,
+    this.emptyMessage,
+    this.limit = 10,
+    this.onPrint,
+    this.printingId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +75,17 @@ class RecentTransactionsList extends StatelessWidget {
                   if (t.subtitle.isNotEmpty) Text(t.subtitle, style: AppTextStyles.tiny),
                 ],
               ),
+              if (onPrint != null) ...[
+                const SizedBox(width: AppSpacing.field),
+                printingId == t.id
+                    ? const SizedBox(height: 32, width: 32, child: Padding(padding: EdgeInsets.all(6), child: CircularProgressIndicator(strokeWidth: 2)))
+                    : IconButton(
+                        onPressed: () => onPrint!(t),
+                        icon: Icon(Icons.print, size: 20, color: color),
+                        tooltip: 'Print',
+                        visualDensity: VisualDensity.compact,
+                      ),
+              ],
             ],
           ),
         );

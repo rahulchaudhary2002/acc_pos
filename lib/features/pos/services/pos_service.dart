@@ -513,6 +513,20 @@ class PosService {
     return ReturnLookupResult.fromPurchaseBillJson(bill);
   }
 
+  /// Full sales invoice by id — company/outlet/customer/lines with product,
+  /// for re-printing a Recent Bills row (unlike [findSalesInvoiceByNumber],
+  /// no search/normalize step since the row already carries the id).
+  Future<Map<String, dynamic>> fetchSalesInvoiceDetail(int id) async {
+    final response = await _client.get('/admin/sales-invoices/$id');
+    return response['data'] as Map<String, dynamic>;
+  }
+
+  /// Full purchase bill by id — same rationale as [fetchSalesInvoiceDetail].
+  Future<Map<String, dynamic>> fetchPurchaseBillDetail(int id) async {
+    final response = await _client.get('/admin/purchase-bills/$id');
+    return response['data'] as Map<String, dynamic>;
+  }
+
   TransactionResult _posReturnResult(Map<String, dynamic> response, String fallbackMessage) {
     final data = response['data'] as Map<String, dynamic>;
     return TransactionResult(

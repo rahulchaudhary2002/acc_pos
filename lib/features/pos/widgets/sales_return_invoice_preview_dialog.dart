@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
@@ -9,6 +10,7 @@ import '../models/company.dart';
 import '../models/outlet.dart';
 import '../models/sale_cart_item.dart';
 import '../models/transaction_result.dart';
+import '../providers/printer_provider.dart';
 import '../utils/invoice_format_utils.dart';
 import '../utils/invoice_pdf.dart';
 import '../utils/thermal_receipt_builder.dart';
@@ -134,28 +136,18 @@ Future<void> showSalesReturnInvoicePreview(
       signatureRightLabel: 'Customer',
       actions: [
         ElevatedButton.icon(
-          onPressed: () => printBillOnThermalPrinter(context, data: thermalData),
-          style: AppButtonStyles.filled(AppColors.success).copyWith(
-            padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
-          ),
-          icon: const Icon(Icons.receipt_long, size: 18),
-          label: const Text('Print Bill'),
-        ),
-        ElevatedButton.icon(
-          onPressed: () async => Printing.layoutPdf(onLayout: (_) => buildPdf(), name: 'SalesReturn-${result.documentNo}'),
+          onPressed: () async {
+            if (context.read<PrinterProvider>().hasSavedPrinter) {
+              await printBillOnThermalPrinter(context, data: thermalData);
+            } else {
+              await Printing.layoutPdf(onLayout: (_) => buildPdf(), name: 'SalesReturn-${result.documentNo}');
+            }
+          },
           style: AppButtonStyles.filled(AppColors.info).copyWith(
             padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
           ),
           icon: const Icon(Icons.print, size: 18),
           label: const Text('Print'),
-        ),
-        ElevatedButton.icon(
-          onPressed: () async => Printing.sharePdf(bytes: await buildPdf(), filename: 'SalesReturn-${result.documentNo}.pdf'),
-          style: AppButtonStyles.filled(AppColors.share).copyWith(
-            padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
-          ),
-          icon: const Icon(Icons.share, size: 18),
-          label: const Text('Share'),
         ),
         ElevatedButton(
           onPressed: () => Navigator.of(context).pop(),
