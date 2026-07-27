@@ -27,6 +27,16 @@ class RecentTransactionsList extends StatelessWidget {
   /// can show a spinner instead of the icon while [onPrint] is in flight.
   final int? printingId;
 
+  /// When set, each row gets a trailing cancel button — used by the Recent
+  /// Bills screen to cancel a posted purchase bill/sales invoice (reversing
+  /// its stock movement and linked journal entries server-side). Omitted
+  /// (null) on the Reports "More" tab, which stays a read-only preview.
+  final void Function(TransactionSummary item)? onCancel;
+
+  /// The id of the row currently being cancelled, so its cancel button can
+  /// show a spinner instead of the icon while [onCancel] is in flight.
+  final int? cancellingId;
+
   const RecentTransactionsList({
     super.key,
     required this.items,
@@ -35,6 +45,8 @@ class RecentTransactionsList extends StatelessWidget {
     this.limit = 10,
     this.onPrint,
     this.printingId,
+    this.onCancel,
+    this.cancellingId,
   });
 
   @override
@@ -75,8 +87,8 @@ class RecentTransactionsList extends StatelessWidget {
                   if (t.subtitle.isNotEmpty) Text(t.subtitle, style: AppTextStyles.tiny),
                 ],
               ),
-              if (onPrint != null) ...[
-                const SizedBox(width: AppSpacing.field),
+              if (onPrint != null || onCancel != null) const SizedBox(width: 4),
+              if (onPrint != null)
                 printingId == t.id
                     ? const SizedBox(height: 32, width: 32, child: Padding(padding: EdgeInsets.all(6), child: CircularProgressIndicator(strokeWidth: 2)))
                     : IconButton(
@@ -84,8 +96,21 @@ class RecentTransactionsList extends StatelessWidget {
                         icon: Icon(Icons.print, size: 20, color: color),
                         tooltip: 'Print',
                         visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                       ),
-              ],
+              if (onPrint != null && onCancel != null) const SizedBox(width: 2),
+              if (onCancel != null)
+                cancellingId == t.id
+                    ? const SizedBox(height: 32, width: 32, child: Padding(padding: EdgeInsets.all(6), child: CircularProgressIndicator(strokeWidth: 2)))
+                    : IconButton(
+                        onPressed: () => onCancel!(t),
+                        icon: const Icon(Icons.cancel_outlined, size: 20, color: AppColors.danger),
+                        tooltip: AppLocalizations.of(context)!.recentBillsScreenCancelTooltip,
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                      ),
             ],
           ),
         );

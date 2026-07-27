@@ -454,6 +454,37 @@ class AppLocalizationsNe extends AppLocalizations {
       'गएको २४ घण्टामा कुनै बिक्री बीजक छैन';
 
   @override
+  String get recentBillsScreenCancelTooltip => 'रद्द गर्नुहोस्';
+
+  @override
+  String get recentBillsScreenCancelSaleDialogTitle =>
+      'बिक्री बीजक रद्द गर्ने?';
+
+  @override
+  String get recentBillsScreenCancelSaleDialogMessage =>
+      'यसले पोस्ट भएको बिक्री बीजक रद्द गर्नेछ र यसको स्टक चालचलन र सम्बन्धित लेजर प्रविष्टिहरू उल्टाउनेछ। सिर्जना भएको २४ घण्टाभित्र मात्र अनुमति छ।';
+
+  @override
+  String get recentBillsScreenCancelPurchaseDialogTitle =>
+      'खरिद बिल रद्द गर्ने?';
+
+  @override
+  String get recentBillsScreenCancelPurchaseDialogMessage =>
+      'यसले पोस्ट भएको खरिद बिल रद्द गर्नेछ र यसको स्टक चालचलन र सम्बन्धित लेजर प्रविष्टिहरू उल्टाउनेछ। सिर्जना भएको २४ घण्टाभित्र मात्र अनुमति छ।';
+
+  @override
+  String get recentBillsScreenCancelConfirmButton => 'बिल रद्द गर्नुहोस्';
+
+  @override
+  String get recentBillsScreenKeepButton => 'राख्नुहोस्';
+
+  @override
+  String get recentBillsScreenCancelSaleSuccess => 'बिक्री बीजक रद्द भयो।';
+
+  @override
+  String get recentBillsScreenCancelPurchaseSuccess => 'खरिद बिल रद्द भयो।';
+
+  @override
   String get searchableSelectSheetSearchHint => 'खोज्नुहोस्...';
 
   @override

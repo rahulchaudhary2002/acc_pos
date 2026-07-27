@@ -453,6 +453,37 @@ class AppLocalizationsEn extends AppLocalizations {
       'No sales invoices in the last 24 hours';
 
   @override
+  String get recentBillsScreenCancelTooltip => 'Cancel';
+
+  @override
+  String get recentBillsScreenCancelSaleDialogTitle => 'Cancel sales invoice?';
+
+  @override
+  String get recentBillsScreenCancelSaleDialogMessage =>
+      'This will cancel the posted sales invoice and reverse its stock movement and linked journal entries. Allowed only within 24 hours of creation.';
+
+  @override
+  String get recentBillsScreenCancelPurchaseDialogTitle =>
+      'Cancel purchase bill?';
+
+  @override
+  String get recentBillsScreenCancelPurchaseDialogMessage =>
+      'This will cancel the posted purchase bill and reverse its stock movement and linked journal entries. Allowed only within 24 hours of creation.';
+
+  @override
+  String get recentBillsScreenCancelConfirmButton => 'Cancel Bill';
+
+  @override
+  String get recentBillsScreenKeepButton => 'Keep';
+
+  @override
+  String get recentBillsScreenCancelSaleSuccess => 'Sales invoice cancelled.';
+
+  @override
+  String get recentBillsScreenCancelPurchaseSuccess =>
+      'Purchase bill cancelled.';
+
+  @override
   String get searchableSelectSheetSearchHint => 'Search...';
 
   @override

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,6 +10,7 @@ import '../../../core/widgets/error_banner.dart';
 import '../../../l10n/app_localizations.dart';
 import '../models/transaction_summary.dart';
 import '../providers/pos_config_provider.dart';
+import '../providers/pos_data_provider.dart';
 import '../services/pos_service.dart';
 import '../widgets/historical_invoice_preview.dart';
 import '../widgets/pos_screen_header.dart';
@@ -30,6 +33,7 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
   List<TransactionSummary> _purchases = [];
   List<TransactionSummary> _sales = [];
   int? _printingId;
+  int? _cancellingId;
 
   @override
   void initState() {
@@ -79,6 +83,20 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
     }
   }
 
+  /// Refetches product stock after a cancellation — cancelling reverses the
+  /// bill's stock movement server-side, but `PosDataProvider.products` (the
+  /// Sell/Buy screens' cached stock quantities) won't reflect that until
+  /// re-fetched, mirroring the refresh `sell_screen.dart`/`buy_screen.dart`
+  /// already do right after completing a sale/purchase.
+  void _refreshProductStock() {
+    final config = context.read<PosConfigProvider>();
+    unawaited(context.read<PosDataProvider>().loadProducts(
+          companyId: config.selectedCompanyId,
+          outletId: config.selectedOutletId,
+          locationId: config.selectedLocationId,
+        ));
+  }
+
   Future<void> _printPurchase(TransactionSummary item) async {
     setState(() => _printingId = item.id);
     try {
@@ -109,6 +127,74 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
     }
   }
 
+  /// Cancels a posted purchase bill/sales invoice — reverses its stock
+  /// movement and linked journal vouchers server-side, mirroring the web
+  /// admin's "Cancel" action. The server only allows this within 24 hours of
+  /// creation; this screen already only lists rows from the last 24 hours
+  /// (see [_load]), so every visible row is eligible when tapped.
+  Future<void> _cancelPurchase(TransactionSummary item) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.recentBillsScreenCancelPurchaseDialogTitle),
+        content: Text(l10n.recentBillsScreenCancelPurchaseDialogMessage),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: Text(l10n.recentBillsScreenKeepButton)),
+          TextButton(onPressed: () => Navigator.pop(dialogContext, true), child: Text(l10n.recentBillsScreenCancelConfirmButton)),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _cancellingId = item.id);
+    try {
+      final service = context.read<PosService>();
+      await service.cancelPurchaseBill(item.id);
+      if (!mounted) return;
+      setState(() => _purchases = _purchases.where((p) => p.id != item.id).toList());
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.recentBillsScreenCancelPurchaseSuccess)));
+      _refreshProductStock();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _cancellingId = null);
+    }
+  }
+
+  /// Sales-invoice counterpart of [_cancelPurchase].
+  Future<void> _cancelSale(TransactionSummary item) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.recentBillsScreenCancelSaleDialogTitle),
+        content: Text(l10n.recentBillsScreenCancelSaleDialogMessage),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: Text(l10n.recentBillsScreenKeepButton)),
+          TextButton(onPressed: () => Navigator.pop(dialogContext, true), child: Text(l10n.recentBillsScreenCancelConfirmButton)),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _cancellingId = item.id);
+    try {
+      final service = context.read<PosService>();
+      await service.cancelSalesInvoice(item.id);
+      if (!mounted) return;
+      setState(() => _sales = _sales.where((s) => s.id != item.id).toList());
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.recentBillsScreenCancelSaleSuccess)));
+      _refreshProductStock();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _cancellingId = null);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -133,8 +219,8 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
           child: TabBarView(
             controller: _tabController,
             children: [
-              _list(items: _purchases, color: AppColors.warningDark, emptyMessage: l10n.recentBillsScreenEmptyPurchase, onPrint: _printPurchase),
-              _list(items: _sales, color: AppColors.success, emptyMessage: l10n.recentBillsScreenEmptySales, onPrint: _printSale),
+              _list(items: _purchases, color: AppColors.warningDark, emptyMessage: l10n.recentBillsScreenEmptyPurchase, onPrint: _printPurchase, onCancel: _cancelPurchase),
+              _list(items: _sales, color: AppColors.success, emptyMessage: l10n.recentBillsScreenEmptySales, onPrint: _printSale, onCancel: _cancelSale),
             ],
           ),
         ),
@@ -147,6 +233,7 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
     required Color color,
     required String emptyMessage,
     required void Function(TransactionSummary item) onPrint,
+    required void Function(TransactionSummary item) onCancel,
   }) {
     return RefreshIndicator(
       onRefresh: _load,
@@ -170,6 +257,8 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
                 limit: null,
                 onPrint: onPrint,
                 printingId: _printingId,
+                onCancel: onCancel,
+                cancellingId: _cancellingId,
               ),
           ],
         ),

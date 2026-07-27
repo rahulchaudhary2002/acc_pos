@@ -910,6 +910,60 @@ abstract class AppLocalizations {
   /// **'No sales invoices in the last 24 hours'**
   String get recentBillsScreenEmptySales;
 
+  /// No description provided for @recentBillsScreenCancelTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get recentBillsScreenCancelTooltip;
+
+  /// No description provided for @recentBillsScreenCancelSaleDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel sales invoice?'**
+  String get recentBillsScreenCancelSaleDialogTitle;
+
+  /// No description provided for @recentBillsScreenCancelSaleDialogMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will cancel the posted sales invoice and reverse its stock movement and linked journal entries. Allowed only within 24 hours of creation.'**
+  String get recentBillsScreenCancelSaleDialogMessage;
+
+  /// No description provided for @recentBillsScreenCancelPurchaseDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel purchase bill?'**
+  String get recentBillsScreenCancelPurchaseDialogTitle;
+
+  /// No description provided for @recentBillsScreenCancelPurchaseDialogMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will cancel the posted purchase bill and reverse its stock movement and linked journal entries. Allowed only within 24 hours of creation.'**
+  String get recentBillsScreenCancelPurchaseDialogMessage;
+
+  /// No description provided for @recentBillsScreenCancelConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Bill'**
+  String get recentBillsScreenCancelConfirmButton;
+
+  /// No description provided for @recentBillsScreenKeepButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get recentBillsScreenKeepButton;
+
+  /// No description provided for @recentBillsScreenCancelSaleSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales invoice cancelled.'**
+  String get recentBillsScreenCancelSaleSuccess;
+
+  /// No description provided for @recentBillsScreenCancelPurchaseSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase bill cancelled.'**
+  String get recentBillsScreenCancelPurchaseSuccess;
+
   /// No description provided for @searchableSelectSheetSearchHint.
   ///
   /// In en, this message translates to:

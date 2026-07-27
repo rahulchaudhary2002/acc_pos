@@ -540,6 +540,17 @@ class PosService {
     return response['data'] as Map<String, dynamic>;
   }
 
+  /// Cancels a posted sales invoice — mirrors the web admin's `DELETE
+  /// /admin/sales-invoices/{id}`: reverses its stock movement and linked
+  /// journal vouchers server-side. The server only allows this within 24
+  /// hours of the invoice's `created_at` and throws [ApiException] with that
+  /// explanation otherwise (surface it to the user, don't swallow it).
+  Future<void> cancelSalesInvoice(int id) => _client.delete('/admin/sales-invoices/$id');
+
+  /// Purchase-bill counterpart of [cancelSalesInvoice] — same 24-hour
+  /// server-side window and stock/journal reversal.
+  Future<void> cancelPurchaseBill(int id) => _client.delete('/admin/purchase-bills/$id');
+
   TransactionResult _posReturnResult(Map<String, dynamic> response, String fallbackMessage) {
     final data = response['data'] as Map<String, dynamic>;
     return TransactionResult(
