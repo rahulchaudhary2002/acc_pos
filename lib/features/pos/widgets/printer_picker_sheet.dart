@@ -38,10 +38,17 @@ String printerErrorMessage(AppLocalizations l10n, PrinterErrorCode code) {
   }
 }
 
-/// One-tap bill printing for the invoice previews: prints [data] on the
-/// saved Bluetooth printer, first opening the picker sheet when no printer is
-/// configured yet. Reports progress/success/failure via snackbars.
-Future<void> printBillOnThermalPrinter(BuildContext context, {required ThermalReceiptData data}) async {
+/// One-tap bill printing for the invoice previews: prints [data] (or, when
+/// [extraCopies] is given, [data] followed by each extra copy as one
+/// continuous print job — e.g. a sales invoice's tax invoice + plain invoice
+/// copies) on the saved Bluetooth printer, first opening the picker sheet
+/// when no printer is configured yet. Reports progress/success/failure via
+/// snackbars.
+Future<void> printBillOnThermalPrinter(
+  BuildContext context, {
+  required ThermalReceiptData data,
+  List<ThermalReceiptData> extraCopies = const [],
+}) async {
   final printer = context.read<PrinterProvider>();
   final messenger = ScaffoldMessenger.of(context);
   final l10n = AppLocalizations.of(context)!;
@@ -53,7 +60,7 @@ Future<void> printBillOnThermalPrinter(BuildContext context, {required ThermalRe
     SnackBar(content: Text(l10n.printerPrintingMessage), duration: const Duration(seconds: 30)),
   );
   try {
-    await printer.printReceipt(data);
+    await printer.printReceipts([data, ...extraCopies]);
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(SnackBar(content: Text(l10n.printerPrintSuccessMessage)));
   } on PrinterException catch (e) {

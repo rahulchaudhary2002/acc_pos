@@ -10,6 +10,7 @@ import '../models/company.dart';
 import '../models/json_utils.dart';
 import '../models/outlet.dart';
 import '../providers/printer_provider.dart';
+import '../services/pos_service.dart';
 import '../utils/invoice_format_utils.dart';
 import '../utils/invoice_pdf.dart';
 import '../utils/thermal_receipt_builder.dart';
@@ -73,6 +74,8 @@ Future<void> showHistoricalSalesInvoicePreview(
   ];
 
   final documentNo = (invoice['invoice_no'] as String?) ?? '-';
+  final invoiceId = asIntOrNull(invoice['id']);
+  final printCount = asIntOrNull(invoice['print_count']) ?? 0;
 
   return _showHistoricalDialog(
     context,
@@ -89,6 +92,11 @@ Future<void> showHistoricalSalesInvoicePreview(
     signatureRightLabel: 'Customer',
     pdfName: 'Invoice-$documentNo',
     title: null,
+    // A sales invoice always prints both the tax invoice and the plain
+    // invoice copy together, as a single print action.
+    dualInvoiceCopies: true,
+    salesInvoiceId: invoiceId,
+    copyLabel: printCopyLabel(printCount + 1),
   );
 }
 
@@ -163,6 +171,9 @@ Future<void> _showHistoricalDialog(
   required String signatureRightLabel,
   required String pdfName,
   required String? title,
+  bool dualInvoiceCopies = false,
+  int? salesInvoiceId,
+  String copyLabel = 'Original',
 }) {
   final resolvedTitle = title ?? 'TAX INVOICE';
   final preparedBy = 'Prepared By';
@@ -173,6 +184,7 @@ Future<void> _showHistoricalDialog(
     companyPhone: company.phone,
     companyVatNo: company.panVatNo,
     title: resolvedTitle,
+    copyLabel: copyLabel,
     metaRows: metaRows,
     items: lines,
     printedAt: printedOn,
@@ -186,48 +198,96 @@ Future<void> _showHistoricalDialog(
     preparedBy: preparedBy,
     signatureRightLabel: signatureRightLabel,
   );
+  // A sales invoice always prints both the tax invoice and the plain
+  // invoice copy together, as a single print action.
+  final invoiceCopyData = dualInvoiceCopies
+      ? ThermalReceiptData(
+          companyName: company.name,
+          companyAddress: company.address ?? outlet?.address,
+          companyPhone: company.phone,
+          companyVatNo: company.panVatNo,
+          title: 'INVOICE',
+          copyLabel: copyLabel,
+          metaRows: metaRows,
+          items: lines,
+          printedAt: printedOn,
+          taxable: taxSummary.taxable,
+          nonTaxable: taxSummary.nonTaxable,
+          subtotal: subtotal,
+          vatRateLabel: taxSummary.vatRateLabel,
+          tax: tax,
+          delivery: delivery,
+          total: total,
+          preparedBy: preparedBy,
+          signatureRightLabel: signatureRightLabel,
+        )
+      : null;
 
-  Future<Uint8List> buildPdf() => buildInvoicePdfBytes(
-        companyName: company.name,
-        companyAddress: company.address ?? outlet?.address,
-        companyPhone: company.phone,
-        companyVatNo: company.panVatNo,
-        title: resolvedTitle,
-        metaRows: metaRows,
-        items: lines,
-        printedAt: printedOn,
-        taxable: taxSummary.taxable,
-        nonTaxable: taxSummary.nonTaxable,
-        subtotal: subtotal,
-        vatRateLabel: taxSummary.vatRateLabel,
-        tax: tax,
-        delivery: delivery,
-        total: total,
-        preparedBy: preparedBy,
-        signatureRightLabel: signatureRightLabel,
-        labels: const PosInvoiceLabels(
-          phone: _englishPhoneLabel,
-          vat: _englishVatLabel,
-          srHeader: 'Sr.',
-          hsCodeHeader: 'H.S. Code',
-          descriptionHeader: 'Description',
-          qtyHeader: 'Qty.',
-          rateHeader: 'Rate',
-          totalAmtHeader: 'Total Amt.',
-          printDateTime: 'Print Date/Time :',
-          nepaliDate: 'Nepali Date :',
-          original: 'Original',
-          taxable: 'Taxable :',
-          nonTaxable: 'Non Taxable :',
-          subTotal: 'Sub Total :',
-          discount: 'Discount :',
-          vatAmount: 'VAT Amount :',
-          vatAmountWithRate: _englishVatAmountWithRate,
-          netTotal: 'Net Total :',
-          preparedByFallback: 'Prepared By',
-          prepareBy: 'Prepare By',
-        ),
-      );
+  const pdfLabels = PosInvoiceLabels(
+    phone: _englishPhoneLabel,
+    vat: _englishVatLabel,
+    srHeader: 'Sr.',
+    hsCodeHeader: 'H.S. Code',
+    descriptionHeader: 'Description',
+    qtyHeader: 'Qty.',
+    rateHeader: 'Rate',
+    totalAmtHeader: 'Total Amt.',
+    printDateTime: 'Print Date/Time :',
+    nepaliDate: 'Nepali Date :',
+    original: 'Original',
+    taxable: 'Taxable :',
+    nonTaxable: 'Non Taxable :',
+    subTotal: 'Sub Total :',
+    discount: 'Discount :',
+    vatAmount: 'VAT Amount :',
+    vatAmountWithRate: _englishVatAmountWithRate,
+    netTotal: 'Net Total :',
+    preparedByFallback: 'Prepared By',
+    prepareBy: 'Prepare By',
+  );
+
+  Future<Uint8List> buildPdf() => dualInvoiceCopies
+      ? buildInvoicePdfBytesForCopies(
+          companyName: company.name,
+          companyAddress: company.address ?? outlet?.address,
+          companyPhone: company.phone,
+          companyVatNo: company.panVatNo,
+          metaRows: metaRows,
+          items: lines,
+          printedAt: printedOn,
+          taxable: taxSummary.taxable,
+          nonTaxable: taxSummary.nonTaxable,
+          subtotal: subtotal,
+          vatRateLabel: taxSummary.vatRateLabel,
+          tax: tax,
+          delivery: delivery,
+          total: total,
+          preparedBy: preparedBy,
+          signatureRightLabel: signatureRightLabel,
+          labels: pdfLabels,
+          copies: [('TAX INVOICE', copyLabel), ('INVOICE', copyLabel)],
+        )
+      : buildInvoicePdfBytes(
+          companyName: company.name,
+          companyAddress: company.address ?? outlet?.address,
+          companyPhone: company.phone,
+          companyVatNo: company.panVatNo,
+          title: resolvedTitle,
+          copyLabel: copyLabel,
+          metaRows: metaRows,
+          items: lines,
+          printedAt: printedOn,
+          taxable: taxSummary.taxable,
+          nonTaxable: taxSummary.nonTaxable,
+          subtotal: subtotal,
+          vatRateLabel: taxSummary.vatRateLabel,
+          tax: tax,
+          delivery: delivery,
+          total: total,
+          preparedBy: preparedBy,
+          signatureRightLabel: signatureRightLabel,
+          labels: pdfLabels,
+        );
 
   return showTaxInvoiceDialog(
     context,
@@ -253,9 +313,16 @@ Future<void> _showHistoricalDialog(
         ElevatedButton.icon(
           onPressed: () async {
             if (context.read<PrinterProvider>().hasSavedPrinter) {
-              await printBillOnThermalPrinter(context, data: thermalData);
+              await printBillOnThermalPrinter(
+                context,
+                data: thermalData,
+                extraCopies: invoiceCopyData != null ? [invoiceCopyData] : const [],
+              );
             } else {
               await Printing.layoutPdf(onLayout: (_) => buildPdf(), name: pdfName);
+            }
+            if (salesInvoiceId != null && context.mounted) {
+              await context.read<PosService>().recordSalesInvoicePrint(salesInvoiceId);
             }
           },
           style: AppButtonStyles.filled(AppColors.info).copyWith(

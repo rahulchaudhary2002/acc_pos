@@ -80,56 +80,144 @@ Future<Uint8List> buildInvoicePdfBytes({
   required String signatureRightLabel,
   required PosInvoiceLabels labels,
   String title = 'TAX INVOICE',
+  String copyLabel = 'Original',
   String amountInWordsLocale = 'en',
 }) async {
   final doc = pw.Document();
-  final border = PdfColors.grey900;
-
-  doc.addPage(
-    pw.MultiPage(
-      // 80mm x 297mm thermal roll — matches the physical thermal printer
-      // this actually prints on (not an A5 sheet printer), and the same
-      // "80mm 297mm" @page size the web app's browser print CSS already
-      // uses for this printer.
-      pageFormat: PdfPageFormat(80 * PdfPageFormat.mm, 297 * PdfPageFormat.mm),
-      margin: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 10),
-      build: (context) => [
-        pw.Center(
-          child: pw.Column(children: [
-            // Printed exactly as stored — no forced upper-casing — matching
-            // the physical receipt showing "Head Office", not "HEAD OFFICE".
-            pw.Text(companyName, style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
-            if ((companyAddress ?? '').isNotEmpty) pw.Text(companyAddress!, style: const pw.TextStyle(fontSize: 9)),
-            pw.Text('VAT # : ${companyVatNo ?? ''}', style: const pw.TextStyle(fontSize: 9)),
-          ]),
-        ),
-        pw.SizedBox(height: 4),
-        pw.Center(
-          child: pw.Text(title, style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
-        ),
-        pw.Divider(color: border, thickness: 1, height: 9),
-        ..._metaFieldWidgets(metaRows, border),
-        pw.Divider(color: border, thickness: 1, height: 9),
-        _itemsTable(items, border),
-        pw.Divider(color: border, thickness: 1, height: 9),
-        _totalsSection(taxable, nonTaxable, subtotal, vatRateLabel, tax, delivery, total),
-        pw.Divider(color: border, thickness: 1, height: 9),
-        pw.Text(amountToWords(total), style: pw.TextStyle(fontSize: 9, fontStyle: pw.FontStyle.italic)),
-        pw.Divider(color: border, thickness: 1, height: 9),
-        _dateAndOriginalSection(printedAt),
-        pw.Divider(color: border, thickness: 1, height: 9),
-        pw.SizedBox(height: 8),
-        pw.Row(children: [
-          pw.Expanded(child: _signatureColumn(preparedBy.isEmpty ? 'Prepared By' : preparedBy, 'Prepare By')),
-          pw.SizedBox(width: 24),
-          pw.Expanded(child: _signatureColumn('', signatureRightLabel)),
-        ]),
-        pw.Divider(color: border, thickness: 1, height: 9),
-      ],
-    ),
-  );
+  doc.addPage(_invoicePage(
+    companyName: companyName,
+    companyAddress: companyAddress,
+    companyVatNo: companyVatNo,
+    metaRows: metaRows,
+    items: items,
+    printedAt: printedAt,
+    taxable: taxable,
+    nonTaxable: nonTaxable,
+    subtotal: subtotal,
+    vatRateLabel: vatRateLabel,
+    tax: tax,
+    delivery: delivery,
+    total: total,
+    preparedBy: preparedBy,
+    signatureRightLabel: signatureRightLabel,
+    title: title,
+    copyLabel: copyLabel,
+  ));
 
   return doc.save();
+}
+
+/// A sales invoice always prints both the tax invoice and the plain invoice
+/// copy together, as a single print/share action — [copies] is
+/// `[('TAX INVOICE', copyLabel), ('INVOICE', copyLabel)]`, each rendered as
+/// its own page in one PDF so a single Print/Share hands over both at once.
+Future<Uint8List> buildInvoicePdfBytesForCopies({
+  required String companyName,
+  String? companyAddress,
+  String? companyPhone,
+  String? companyVatNo,
+  required List<List<MetaField>> metaRows,
+  required List<InvoiceLineData> items,
+  required DateTime printedAt,
+  required double taxable,
+  required double nonTaxable,
+  required double subtotal,
+  required String vatRateLabel,
+  required double tax,
+  double delivery = 0,
+  required double total,
+  required String preparedBy,
+  required String signatureRightLabel,
+  required PosInvoiceLabels labels,
+  required List<(String title, String copyLabel)> copies,
+}) async {
+  final doc = pw.Document();
+  for (final (title, copyLabel) in copies) {
+    doc.addPage(_invoicePage(
+      companyName: companyName,
+      companyAddress: companyAddress,
+      companyVatNo: companyVatNo,
+      metaRows: metaRows,
+      items: items,
+      printedAt: printedAt,
+      taxable: taxable,
+      nonTaxable: nonTaxable,
+      subtotal: subtotal,
+      vatRateLabel: vatRateLabel,
+      tax: tax,
+      delivery: delivery,
+      total: total,
+      preparedBy: preparedBy,
+      signatureRightLabel: signatureRightLabel,
+      title: title,
+      copyLabel: copyLabel,
+    ));
+  }
+
+  return doc.save();
+}
+
+pw.MultiPage _invoicePage({
+  required String companyName,
+  String? companyAddress,
+  String? companyVatNo,
+  required List<List<MetaField>> metaRows,
+  required List<InvoiceLineData> items,
+  required DateTime printedAt,
+  required double taxable,
+  required double nonTaxable,
+  required double subtotal,
+  required String vatRateLabel,
+  required double tax,
+  required double delivery,
+  required double total,
+  required String preparedBy,
+  required String signatureRightLabel,
+  required String title,
+  required String copyLabel,
+}) {
+  final border = PdfColors.grey900;
+  return pw.MultiPage(
+    // 80mm x 297mm thermal roll — matches the physical thermal printer
+    // this actually prints on (not an A5 sheet printer), and the same
+    // "80mm 297mm" @page size the web app's browser print CSS already
+    // uses for this printer.
+    pageFormat: PdfPageFormat(80 * PdfPageFormat.mm, 297 * PdfPageFormat.mm),
+    margin: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+    build: (context) => [
+      pw.Center(
+        child: pw.Column(children: [
+          // Printed exactly as stored — no forced upper-casing — matching
+          // the physical receipt showing "Head Office", not "HEAD OFFICE".
+          pw.Text(companyName, style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
+          if ((companyAddress ?? '').isNotEmpty) pw.Text(companyAddress!, style: const pw.TextStyle(fontSize: 9)),
+          pw.Text('VAT # : ${companyVatNo ?? ''}', style: const pw.TextStyle(fontSize: 9)),
+        ]),
+      ),
+      pw.SizedBox(height: 4),
+      pw.Center(
+        child: pw.Text(title, style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
+      ),
+      pw.Divider(color: border, thickness: 1, height: 9),
+      ..._metaFieldWidgets(metaRows, border),
+      pw.Divider(color: border, thickness: 1, height: 9),
+      _itemsTable(items, border),
+      pw.Divider(color: border, thickness: 1, height: 9),
+      _totalsSection(taxable, nonTaxable, subtotal, vatRateLabel, tax, delivery, total),
+      pw.Divider(color: border, thickness: 1, height: 9),
+      pw.Text(amountToWords(total), style: pw.TextStyle(fontSize: 9, fontStyle: pw.FontStyle.italic)),
+      pw.Divider(color: border, thickness: 1, height: 9),
+      _dateAndOriginalSection(printedAt, copyLabel),
+      pw.Divider(color: border, thickness: 1, height: 9),
+      pw.SizedBox(height: 8),
+      pw.Row(children: [
+        pw.Expanded(child: _signatureColumn(preparedBy.isEmpty ? 'Prepared By' : preparedBy, 'Prepare By')),
+        pw.SizedBox(width: 24),
+        pw.Expanded(child: _signatureColumn('', signatureRightLabel)),
+      ]),
+      pw.Divider(color: border, thickness: 1, height: 9),
+    ],
+  );
 }
 
 /// Short No./Date fields render right-aligned (label left, value right, same
@@ -250,7 +338,7 @@ pw.Widget _totalsSection(
   ]);
 }
 
-pw.Widget _dateAndOriginalSection(DateTime printedAt) {
+pw.Widget _dateAndOriginalSection(DateTime printedAt, String copyLabel) {
   final nepaliDate = nepaliDateLabel(printedAt);
   return pw.Column(children: [
     pw.Align(
@@ -259,7 +347,7 @@ pw.Widget _dateAndOriginalSection(DateTime printedAt) {
     ),
     if (nepaliDate.isNotEmpty)
       pw.Align(alignment: pw.Alignment.centerLeft, child: pw.Text('Nepali Date : $nepaliDate', style: const pw.TextStyle(fontSize: 9))),
-    pw.Text('Original', style: const pw.TextStyle(fontSize: 9)),
+    pw.Text(copyLabel, style: const pw.TextStyle(fontSize: 9)),
   ]);
 }
 

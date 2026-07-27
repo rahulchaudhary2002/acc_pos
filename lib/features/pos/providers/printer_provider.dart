@@ -127,14 +127,30 @@ class PrinterProvider extends ChangeNotifier {
   }
 
   /// Prints the invoice on the saved printer. Throws [PrinterException].
-  Future<void> printReceipt(ThermalReceiptData data) async {
+  Future<void> printReceipt(ThermalReceiptData data) => printReceipts([data]);
+
+  /// Prints one or more receipts as a single physical print job — e.g. a
+  /// sales invoice's tax invoice + plain invoice copies, one after another on
+  /// the same continuous strip with a blank gap between them (easy to tear
+  /// apart by hand) instead of a cut, only cutting after the last one. This
+  /// is one Bluetooth connect + one write, not one per copy. Throws
+  /// [PrinterException].
+  Future<void> printReceipts(List<ThermalReceiptData> receipts) async {
     if (isPrinting) return;
     isPrinting = true;
     notifyListeners();
     try {
       await _connect();
       final generator = await _generator();
-      final bytes = buildThermalReceiptBytes(generator, data, charsPerLine: charsPerLine);
+      var bytes = <int>[];
+      for (var i = 0; i < receipts.length; i++) {
+        bytes += buildThermalReceiptBytes(
+          generator,
+          receipts[i],
+          charsPerLine: charsPerLine,
+          cutAfter: i == receipts.length - 1,
+        );
+      }
       if (!await PrintBluetoothThermal.writeBytes(bytes)) {
         throw const PrinterException(PrinterErrorCode.printFailed);
       }

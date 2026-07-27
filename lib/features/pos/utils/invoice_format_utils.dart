@@ -201,3 +201,16 @@ String _trimTrailingZeroRate(double rate) {
   final formatted = rate.toStringAsFixed(2);
   return formatted.endsWith('.00') ? formatted.substring(0, formatted.length - 3) : formatted;
 }
+
+/// The "Original"/"1st Copy"/"2nd Copy" label for a given print count,
+/// mirroring the web's `printCopyLabel` (`printTracking.js`): the 1st print
+/// reads "Original", every one after counts up as "Nth Copy" (copy number =
+/// print number - 1).
+String printCopyLabel(int count) {
+  if (count <= 0) return 'Original';
+  if (count == 1) return 'Original';
+  final copyNumber = count - 1;
+  final v = copyNumber % 100;
+  final suffix = (v >= 11 && v <= 13) ? 'th' : switch (copyNumber % 10) { 1 => 'st', 2 => 'nd', 3 => 'rd', _ => 'th' };
+  return '$copyNumber$suffix Copy';
+}

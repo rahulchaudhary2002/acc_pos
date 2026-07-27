@@ -521,6 +521,19 @@ class PosService {
     return response['data'] as Map<String, dynamic>;
   }
 
+  /// Records that a sales invoice was actually printed (not just previewed),
+  /// mirroring the web's `recordPrint("sales-invoice", id)` — best-effort, so
+  /// a failure here should never block or roll back the print itself. Call
+  /// this exactly once per print action, even when the action prints both
+  /// the tax invoice and plain invoice copies together.
+  Future<void> recordSalesInvoicePrint(int id) async {
+    try {
+      await _client.post('/admin/sales-invoices/$id/record-print');
+    } catch (_) {
+      // Ignore — printing already happened; not worth surfacing to the user.
+    }
+  }
+
   /// Full purchase bill by id — same rationale as [fetchSalesInvoiceDetail].
   Future<Map<String, dynamic>> fetchPurchaseBillDetail(int id) async {
     final response = await _client.get('/admin/purchase-bills/$id');

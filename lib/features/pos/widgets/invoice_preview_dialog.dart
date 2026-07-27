@@ -11,6 +11,7 @@ import '../models/outlet.dart';
 import '../models/sale_cart_item.dart';
 import '../models/transaction_result.dart';
 import '../providers/printer_provider.dart';
+import '../services/pos_service.dart';
 import '../utils/invoice_format_utils.dart';
 import '../utils/invoice_pdf.dart';
 import '../utils/thermal_receipt_builder.dart';
@@ -71,11 +72,33 @@ Future<void> showInvoicePreview(
           ))
       .toList();
 
+  // A sales invoice always prints both the tax invoice and the plain
+  // invoice copy together, as a single print action.
   final thermalData = ThermalReceiptData(
     companyName: company.name,
     companyAddress: company.address ?? outlet?.address,
     companyPhone: company.phone,
     companyVatNo: company.panVatNo,
+    title: 'TAX INVOICE',
+    metaRows: metaRows,
+    items: invoiceLines,
+    printedAt: now,
+    taxable: taxSummary.taxable,
+    nonTaxable: taxSummary.nonTaxable,
+    subtotal: subtotal,
+    vatRateLabel: taxSummary.vatRateLabel,
+    tax: tax,
+    delivery: deliveryCharge,
+    total: grandTotal,
+    preparedBy: preparedBy ?? '',
+    signatureRightLabel: 'Customer',
+  );
+  final invoiceCopyData = ThermalReceiptData(
+    companyName: company.name,
+    companyAddress: company.address ?? outlet?.address,
+    companyPhone: company.phone,
+    companyVatNo: company.panVatNo,
+    title: 'INVOICE',
     metaRows: metaRows,
     items: invoiceLines,
     printedAt: now,
@@ -90,7 +113,30 @@ Future<void> showInvoicePreview(
     signatureRightLabel: 'Customer',
   );
 
-  Future<Uint8List> buildPdf() => buildInvoicePdfBytes(
+  const pdfLabels = PosInvoiceLabels(
+    phone: _englishPhoneLabel,
+    vat: _englishVatLabel,
+    srHeader: 'Sr.',
+    hsCodeHeader: 'H.S. Code',
+    descriptionHeader: 'Description',
+    qtyHeader: 'Qty.',
+    rateHeader: 'Rate',
+    totalAmtHeader: 'Total Amt.',
+    printDateTime: 'Print Date/Time :',
+    nepaliDate: 'Nepali Date :',
+    original: 'Original',
+    taxable: 'Taxable :',
+    nonTaxable: 'Non Taxable :',
+    subTotal: 'Sub Total :',
+    discount: 'Discount :',
+    vatAmount: 'VAT Amount :',
+    vatAmountWithRate: _englishVatAmountWithRate,
+    netTotal: 'Net Total :',
+    preparedByFallback: 'Prepared By',
+    prepareBy: 'Prepare By',
+  );
+
+  Future<Uint8List> buildPdf() => buildInvoicePdfBytesForCopies(
         companyName: company.name,
         companyAddress: company.address ?? outlet?.address,
         companyPhone: company.phone,
@@ -107,28 +153,8 @@ Future<void> showInvoicePreview(
         total: grandTotal,
         preparedBy: preparedBy ?? '',
         signatureRightLabel: 'Customer',
-        labels: const PosInvoiceLabels(
-          phone: _englishPhoneLabel,
-          vat: _englishVatLabel,
-          srHeader: 'Sr.',
-          hsCodeHeader: 'H.S. Code',
-          descriptionHeader: 'Description',
-          qtyHeader: 'Qty.',
-          rateHeader: 'Rate',
-          totalAmtHeader: 'Total Amt.',
-          printDateTime: 'Print Date/Time :',
-          nepaliDate: 'Nepali Date :',
-          original: 'Original',
-          taxable: 'Taxable :',
-          nonTaxable: 'Non Taxable :',
-          subTotal: 'Sub Total :',
-          discount: 'Discount :',
-          vatAmount: 'VAT Amount :',
-          vatAmountWithRate: _englishVatAmountWithRate,
-          netTotal: 'Net Total :',
-          preparedByFallback: 'Prepared By',
-          prepareBy: 'Prepare By',
-        ),
+        labels: pdfLabels,
+        copies: const [('TAX INVOICE', 'Original'), ('INVOICE', 'Original')],
       );
 
   return showTaxInvoiceDialog(
@@ -154,9 +180,12 @@ Future<void> showInvoicePreview(
         ElevatedButton.icon(
           onPressed: () async {
             if (context.read<PrinterProvider>().hasSavedPrinter) {
-              await printBillOnThermalPrinter(context, data: thermalData);
+              await printBillOnThermalPrinter(context, data: thermalData, extraCopies: [invoiceCopyData]);
             } else {
               await Printing.layoutPdf(onLayout: (_) => buildPdf(), name: 'Invoice-${result.documentNo}');
+            }
+            if (context.mounted) {
+              await context.read<PosService>().recordSalesInvoicePrint(result.documentId);
             }
           },
           style: AppButtonStyles.filled(AppColors.info).copyWith(

@@ -12,6 +12,7 @@ class ThermalReceiptData {
   final String? companyPhone;
   final String? companyVatNo;
   final String title;
+  final String copyLabel;
   final List<List<MetaField>> metaRows;
   final List<InvoiceLineData> items;
   final DateTime printedAt;
@@ -31,6 +32,7 @@ class ThermalReceiptData {
     this.companyPhone,
     this.companyVatNo,
     this.title = 'TAX INVOICE',
+    this.copyLabel = 'Original',
     required this.metaRows,
     required this.items,
     required this.printedAt,
@@ -58,7 +60,12 @@ class ThermalReceiptData {
 /// printed at the wrong offset. Plain padded text lines render correctly on
 /// everything. Only the company name and title use double-size styling;
 /// numbers stay at normal size like the preview.
-List<int> buildThermalReceiptBytes(Generator generator, ThermalReceiptData data, {required int charsPerLine}) {
+List<int> buildThermalReceiptBytes(
+  Generator generator,
+  ThermalReceiptData data, {
+  required int charsPerLine,
+  bool cutAfter = true,
+}) {
   // Company name is the only double-size line — the title and everything
   // else print at normal size, matching the actual printed receipt (the
   // title is bold but NOT double-height like the company name).
@@ -152,14 +159,21 @@ List<int> buildThermalReceiptBytes(Generator generator, ThermalReceiptData data,
   bytes += generator.text('Print Date/Time : ${printDateTimeLabel(data.printedAt)}', maxCharsPerLine: charsPerLine);
   final nepaliDate = nepaliDateLabel(data.printedAt);
   if (nepaliDate.isNotEmpty) bytes += generator.text('Nepali Date : $nepaliDate', maxCharsPerLine: charsPerLine);
-  bytes += generator.text('Original', styles: center, maxCharsPerLine: charsPerLine);
+  bytes += generator.text(data.copyLabel, styles: center, maxCharsPerLine: charsPerLine);
   bytes += generator.hr(len: charsPerLine);
   if (data.preparedBy.isNotEmpty) bytes += lr(data.preparedBy, '');
   bytes += lr('-' * 12, '-' * 12);
   bytes += lr('Prepare By', data.signatureRightLabel, styles: bold);
   bytes += generator.hr(len: charsPerLine);
-  bytes += generator.feed(3);
-  bytes += generator.cut();
+  if (cutAfter) {
+    bytes += generator.feed(3);
+    bytes += generator.cut();
+  } else {
+    // Blank gap instead of a cut — used when this copy is followed by
+    // another one on the same continuous strip (e.g. tax invoice + invoice),
+    // so the two are easy to tear apart by hand.
+    bytes += generator.feed(6);
+  }
   return bytes;
 }
 
