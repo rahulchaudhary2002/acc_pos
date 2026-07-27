@@ -469,5 +469,70 @@
   "printerErrorPermissionDenied": "Bluetooth permission denied. Allow Bluetooth access for this app in settings.",
   "printerErrorNoPrinterSelected": "No printer selected. Choose a printer first.",
   "printerErrorConnectionFailed": "Could not connect to the printer. Make sure it is switched on and in range.",
-  "printerErrorPrintFailed": "Printing failed. Check the printer and try again."
+  "printerErrorPrintFailed": "Printing failed. Check the printer and try again.",
+
+  "reportsScreenLedgersCardTitle": "Ledgers & Reports",
+  "reportsScreenLedgersVendorLedger": "Vendor Ledger",
+  "reportsScreenLedgersCustomerLedger": "Customer Ledger",
+  "reportsScreenLedgersPurchaseReport": "Purchase Report",
+  "reportsScreenLedgersSalesReport": "Sales Report",
+  "reportsScreenLedgersStockReport": "Stock Report",
+  "reportsScreenLedgersVatReport": "VAT Report",
+
+  "partyLedgerScreenVendorTitle": "Vendor Ledger",
+  "partyLedgerScreenCustomerTitle": "Customer Ledger",
+  "partyLedgerScreenAllTime": "All time",
+  "partyLedgerScreenChangeRange": "Change",
+  "partyLedgerScreenSearchHint": "Search by name…",
+  "partyLedgerScreenEmptyMessage": "No parties found for this range.",
+  "partyLedgerScreenTotalDebit": "Total Debit",
+  "partyLedgerScreenTotalCredit": "Total Credit",
+  "partyLedgerScreenNetBalance": "Net Balance",
+
+  "salesReportScreenTitle": "Sales Report",
+  "salesReportScreenSearchHint": "Search invoice no. or customer…",
+  "salesReportScreenTotalLabel": "{count} invoices",
+  "@salesReportScreenTotalLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "salesReportScreenEmptyMessage": "No sales invoices found for this filter.",
+
+  "purchaseReportScreenTitle": "Purchase Report",
+  "purchaseReportScreenSearchHint": "Search bill no. or vendor…",
+  "purchaseReportScreenTotalLabel": "{count} bills",
+  "@purchaseReportScreenTotalLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseReportScreenEmptyMessage": "No purchase bills found for this filter.",
+
+  "stockReportScreenTitle": "Stock Report",
+  "stockReportScreenSearchHint": "Search product or SKU…",
+  "stockReportScreenWarehouseLabel": "Warehouse",
+  "stockReportScreenAllWarehouses": "All Warehouses",
+  "stockReportScreenShowZeroStock": "Show zero stock",
+  "stockReportScreenEmptyMessage": "No stock records found for this filter.",
+  "stockReportScreenTotalValueLabel": "{count} products",
+  "@stockReportScreenTotalValueLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "vatReportScreenTitle": "VAT Report",
+  "vatReportScreenEmptyMessage": "No VAT activity found for this range.",
+  "vatReportScreenInputTax": "Input Tax",
+  "vatReportScreenOutputTax": "Output Tax",
+  "vatReportScreenPayable": "Payable",
+  "vatReportScreenRefundable": "Refundable",
+  "vatReportScreenNetLabel": "Net"
 }

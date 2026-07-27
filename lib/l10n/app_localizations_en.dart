@@ -1030,4 +1030,129 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get printerErrorPrintFailed =>
       'Printing failed. Check the printer and try again.';
+
+  @override
+  String get reportsScreenLedgersCardTitle => 'Ledgers & Reports';
+
+  @override
+  String get reportsScreenLedgersVendorLedger => 'Vendor Ledger';
+
+  @override
+  String get reportsScreenLedgersCustomerLedger => 'Customer Ledger';
+
+  @override
+  String get reportsScreenLedgersPurchaseReport => 'Purchase Report';
+
+  @override
+  String get reportsScreenLedgersSalesReport => 'Sales Report';
+
+  @override
+  String get reportsScreenLedgersStockReport => 'Stock Report';
+
+  @override
+  String get reportsScreenLedgersVatReport => 'VAT Report';
+
+  @override
+  String get partyLedgerScreenVendorTitle => 'Vendor Ledger';
+
+  @override
+  String get partyLedgerScreenCustomerTitle => 'Customer Ledger';
+
+  @override
+  String get partyLedgerScreenAllTime => 'All time';
+
+  @override
+  String get partyLedgerScreenChangeRange => 'Change';
+
+  @override
+  String get partyLedgerScreenSearchHint => 'Search by name…';
+
+  @override
+  String get partyLedgerScreenEmptyMessage =>
+      'No parties found for this range.';
+
+  @override
+  String get partyLedgerScreenTotalDebit => 'Total Debit';
+
+  @override
+  String get partyLedgerScreenTotalCredit => 'Total Credit';
+
+  @override
+  String get partyLedgerScreenNetBalance => 'Net Balance';
+
+  @override
+  String get salesReportScreenTitle => 'Sales Report';
+
+  @override
+  String get salesReportScreenSearchHint => 'Search invoice no. or customer…';
+
+  @override
+  String salesReportScreenTotalLabel(int count) {
+    return '$count invoices';
+  }
+
+  @override
+  String get salesReportScreenEmptyMessage =>
+      'No sales invoices found for this filter.';
+
+  @override
+  String get purchaseReportScreenTitle => 'Purchase Report';
+
+  @override
+  String get purchaseReportScreenSearchHint => 'Search bill no. or vendor…';
+
+  @override
+  String purchaseReportScreenTotalLabel(int count) {
+    return '$count bills';
+  }
+
+  @override
+  String get purchaseReportScreenEmptyMessage =>
+      'No purchase bills found for this filter.';
+
+  @override
+  String get stockReportScreenTitle => 'Stock Report';
+
+  @override
+  String get stockReportScreenSearchHint => 'Search product or SKU…';
+
+  @override
+  String get stockReportScreenWarehouseLabel => 'Warehouse';
+
+  @override
+  String get stockReportScreenAllWarehouses => 'All Warehouses';
+
+  @override
+  String get stockReportScreenShowZeroStock => 'Show zero stock';
+
+  @override
+  String get stockReportScreenEmptyMessage =>
+      'No stock records found for this filter.';
+
+  @override
+  String stockReportScreenTotalValueLabel(int count) {
+    return '$count products';
+  }
+
+  @override
+  String get vatReportScreenTitle => 'VAT Report';
+
+  @override
+  String get vatReportScreenEmptyMessage =>
+      'No VAT activity found for this range.';
+
+  @override
+  String get vatReportScreenInputTax => 'Input Tax';
+
+  @override
+  String get vatReportScreenOutputTax => 'Output Tax';
+
+  @override
+  String get vatReportScreenPayable => 'Payable';
+
+  @override
+  String get vatReportScreenRefundable => 'Refundable';
+
+  @override
+  String get vatReportScreenNetLabel => 'Net';
 }

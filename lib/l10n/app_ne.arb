@@ -309,5 +309,70 @@
   "printerErrorPermissionDenied": "ब्लुटुथ अनुमति अस्वीकार गरियो। सेटिङमा गएर यो एपलाई ब्लुटुथ पहुँच दिनुहोस्।",
   "printerErrorNoPrinterSelected": "कुनै प्रिन्टर छानिएको छैन। पहिले प्रिन्टर छान्नुहोस्।",
   "printerErrorConnectionFailed": "प्रिन्टरसँग जडान हुन सकेन। प्रिन्टर खुला र नजिकै छ भनी सुनिश्चित गर्नुहोस्।",
-  "printerErrorPrintFailed": "प्रिन्ट असफल भयो। प्रिन्टर जाँचेर फेरि प्रयास गर्नुहोस्।"
+  "printerErrorPrintFailed": "प्रिन्ट असफल भयो। प्रिन्टर जाँचेर फेरि प्रयास गर्नुहोस्।",
+
+  "reportsScreenLedgersCardTitle": "लेजर तथा प्रतिवेदन",
+  "reportsScreenLedgersVendorLedger": "विक्रेता लेजर",
+  "reportsScreenLedgersCustomerLedger": "ग्राहक लेजर",
+  "reportsScreenLedgersPurchaseReport": "खरिद प्रतिवेदन",
+  "reportsScreenLedgersSalesReport": "बिक्री प्रतिवेदन",
+  "reportsScreenLedgersStockReport": "स्टक प्रतिवेदन",
+  "reportsScreenLedgersVatReport": "भ्याट प्रतिवेदन",
+
+  "partyLedgerScreenVendorTitle": "विक्रेता लेजर",
+  "partyLedgerScreenCustomerTitle": "ग्राहक लेजर",
+  "partyLedgerScreenAllTime": "सबै समय",
+  "partyLedgerScreenChangeRange": "परिवर्तन गर्नुहोस्",
+  "partyLedgerScreenSearchHint": "नामद्वारा खोज्नुहोस्…",
+  "partyLedgerScreenEmptyMessage": "यो अवधिको लागि कुनै पक्ष फेला परेन।",
+  "partyLedgerScreenTotalDebit": "कुल डेबिट",
+  "partyLedgerScreenTotalCredit": "कुल क्रेडिट",
+  "partyLedgerScreenNetBalance": "खुद मौज्दात",
+
+  "salesReportScreenTitle": "बिक्री प्रतिवेदन",
+  "salesReportScreenSearchHint": "बिजक नं. वा ग्राहक खोज्नुहोस्…",
+  "salesReportScreenTotalLabel": "{count} बिजक",
+  "@salesReportScreenTotalLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "salesReportScreenEmptyMessage": "यो फिल्टरका लागि कुनै बिक्री बिजक फेला परेन।",
+
+  "purchaseReportScreenTitle": "खरिद प्रतिवेदन",
+  "purchaseReportScreenSearchHint": "बिल नं. वा विक्रेता खोज्नुहोस्…",
+  "purchaseReportScreenTotalLabel": "{count} बिल",
+  "@purchaseReportScreenTotalLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseReportScreenEmptyMessage": "यो फिल्टरका लागि कुनै खरिद बिल फेला परेन।",
+
+  "stockReportScreenTitle": "स्टक प्रतिवेदन",
+  "stockReportScreenSearchHint": "उत्पादन वा SKU खोज्नुहोस्…",
+  "stockReportScreenWarehouseLabel": "गोदाम",
+  "stockReportScreenAllWarehouses": "सबै गोदामहरू",
+  "stockReportScreenShowZeroStock": "शून्य स्टक देखाउनुहोस्",
+  "stockReportScreenEmptyMessage": "यो फिल्टरका लागि कुनै स्टक रेकर्ड फेला परेन।",
+  "stockReportScreenTotalValueLabel": "{count} उत्पादनहरू",
+  "@stockReportScreenTotalValueLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "vatReportScreenTitle": "भ्याट प्रतिवेदन",
+  "vatReportScreenEmptyMessage": "यो अवधिको लागि कुनै भ्याट गतिविधि फेला परेन।",
+  "vatReportScreenInputTax": "इनपुट कर",
+  "vatReportScreenOutputTax": "आउटपुट कर",
+  "vatReportScreenPayable": "तिर्नुपर्ने",
+  "vatReportScreenRefundable": "फिर्ता योग्य",
+  "vatReportScreenNetLabel": "खुद"
 }

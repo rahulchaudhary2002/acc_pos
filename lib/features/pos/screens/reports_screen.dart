@@ -21,6 +21,11 @@ import '../widgets/pos_screen_header.dart';
 import '../widgets/recent_transactions_list.dart';
 import '../widgets/sales_trend_chart.dart';
 import '../widgets/top_products_list.dart';
+import 'party_ledger_screen.dart';
+import 'purchase_report_screen.dart';
+import 'sales_report_screen.dart';
+import 'stock_report_screen.dart';
+import 'vat_report_screen.dart';
 
 const _periodKeys = ['today', 'yesterday', 'last_7_days', 'last_30_days', 'this_month', 'last_month', 'lifetime', 'custom'];
 
@@ -426,6 +431,8 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (_moreError != null) ErrorBanner(message: _moreError!, onDismiss: () => setState(() => _moreError = null)),
+            _ledgersAndReportsCard(l10n),
+            const SizedBox(height: AppSpacing.card),
             if (_moreLoading && !_moreLoaded)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 40),
@@ -508,6 +515,47 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
               icon: const Icon(Icons.edit_calendar, size: 20, color: AppColors.info),
               tooltip: l10n.reportsScreenChangeDateRangeTooltip,
               onPressed: _pickCustomRange,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _ledgersAndReportsCard(AppLocalizations l10n) {
+    final tiles = [
+      (Icons.receipt_long, l10n.reportsScreenLedgersVendorLedger, () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PartyLedgerScreen(isCustomer: false)))),
+      (Icons.receipt_long, l10n.reportsScreenLedgersCustomerLedger, () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PartyLedgerScreen(isCustomer: true)))),
+      (Icons.shopping_bag, l10n.reportsScreenLedgersPurchaseReport, () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PurchaseReportScreen()))),
+      (Icons.shopping_cart, l10n.reportsScreenLedgersSalesReport, () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SalesReportScreen()))),
+      (Icons.inventory_2, l10n.reportsScreenLedgersStockReport, () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const StockReportScreen()))),
+      (Icons.percent, l10n.reportsScreenLedgersVatReport, () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VatReportScreen()))),
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.section),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(AppSpacing.card, AppSpacing.card, AppSpacing.card, AppSpacing.field),
+            child: Row(
+              children: [
+                const Icon(Icons.menu_book, size: 20, color: AppColors.textSecondary),
+                const SizedBox(width: AppSpacing.field),
+                Expanded(child: Text(l10n.reportsScreenLedgersCardTitle, style: AppTextStyles.cardHeader)),
+              ],
+            ),
+          ),
+          for (final (icon, label, onTap) in tiles)
+            ListTile(
+              leading: Icon(icon, color: AppColors.textSecondary),
+              title: Text(label, style: AppTextStyles.menuItem),
+              trailing: const Icon(Icons.chevron_right, color: AppColors.textFaint),
+              onTap: onTap,
             ),
         ],
       ),

@@ -1031,4 +1031,130 @@ class AppLocalizationsNe extends AppLocalizations {
   @override
   String get printerErrorPrintFailed =>
       'प्रिन्ट असफल भयो। प्रिन्टर जाँचेर फेरि प्रयास गर्नुहोस्।';
+
+  @override
+  String get reportsScreenLedgersCardTitle => 'लेजर तथा प्रतिवेदन';
+
+  @override
+  String get reportsScreenLedgersVendorLedger => 'विक्रेता लेजर';
+
+  @override
+  String get reportsScreenLedgersCustomerLedger => 'ग्राहक लेजर';
+
+  @override
+  String get reportsScreenLedgersPurchaseReport => 'खरिद प्रतिवेदन';
+
+  @override
+  String get reportsScreenLedgersSalesReport => 'बिक्री प्रतिवेदन';
+
+  @override
+  String get reportsScreenLedgersStockReport => 'स्टक प्रतिवेदन';
+
+  @override
+  String get reportsScreenLedgersVatReport => 'भ्याट प्रतिवेदन';
+
+  @override
+  String get partyLedgerScreenVendorTitle => 'विक्रेता लेजर';
+
+  @override
+  String get partyLedgerScreenCustomerTitle => 'ग्राहक लेजर';
+
+  @override
+  String get partyLedgerScreenAllTime => 'सबै समय';
+
+  @override
+  String get partyLedgerScreenChangeRange => 'परिवर्तन गर्नुहोस्';
+
+  @override
+  String get partyLedgerScreenSearchHint => 'नामद्वारा खोज्नुहोस्…';
+
+  @override
+  String get partyLedgerScreenEmptyMessage =>
+      'यो अवधिको लागि कुनै पक्ष फेला परेन।';
+
+  @override
+  String get partyLedgerScreenTotalDebit => 'कुल डेबिट';
+
+  @override
+  String get partyLedgerScreenTotalCredit => 'कुल क्रेडिट';
+
+  @override
+  String get partyLedgerScreenNetBalance => 'खुद मौज्दात';
+
+  @override
+  String get salesReportScreenTitle => 'बिक्री प्रतिवेदन';
+
+  @override
+  String get salesReportScreenSearchHint => 'बिजक नं. वा ग्राहक खोज्नुहोस्…';
+
+  @override
+  String salesReportScreenTotalLabel(int count) {
+    return '$count बिजक';
+  }
+
+  @override
+  String get salesReportScreenEmptyMessage =>
+      'यो फिल्टरका लागि कुनै बिक्री बिजक फेला परेन।';
+
+  @override
+  String get purchaseReportScreenTitle => 'खरिद प्रतिवेदन';
+
+  @override
+  String get purchaseReportScreenSearchHint =>
+      'बिल नं. वा विक्रेता खोज्नुहोस्…';
+
+  @override
+  String purchaseReportScreenTotalLabel(int count) {
+    return '$count बिल';
+  }
+
+  @override
+  String get purchaseReportScreenEmptyMessage =>
+      'यो फिल्टरका लागि कुनै खरिद बिल फेला परेन।';
+
+  @override
+  String get stockReportScreenTitle => 'स्टक प्रतिवेदन';
+
+  @override
+  String get stockReportScreenSearchHint => 'उत्पादन वा SKU खोज्नुहोस्…';
+
+  @override
+  String get stockReportScreenWarehouseLabel => 'गोदाम';
+
+  @override
+  String get stockReportScreenAllWarehouses => 'सबै गोदामहरू';
+
+  @override
+  String get stockReportScreenShowZeroStock => 'शून्य स्टक देखाउनुहोस्';
+
+  @override
+  String get stockReportScreenEmptyMessage =>
+      'यो फिल्टरका लागि कुनै स्टक रेकर्ड फेला परेन।';
+
+  @override
+  String stockReportScreenTotalValueLabel(int count) {
+    return '$count उत्पादनहरू';
+  }
+
+  @override
+  String get vatReportScreenTitle => 'भ्याट प्रतिवेदन';
+
+  @override
+  String get vatReportScreenEmptyMessage =>
+      'यो अवधिको लागि कुनै भ्याट गतिविधि फेला परेन।';
+
+  @override
+  String get vatReportScreenInputTax => 'इनपुट कर';
+
+  @override
+  String get vatReportScreenOutputTax => 'आउटपुट कर';
+
+  @override
+  String get vatReportScreenPayable => 'तिर्नुपर्ने';
+
+  @override
+  String get vatReportScreenRefundable => 'फिर्ता योग्य';
+
+  @override
+  String get vatReportScreenNetLabel => 'खुद';
 }

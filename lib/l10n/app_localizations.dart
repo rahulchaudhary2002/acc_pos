@@ -1965,6 +1965,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Printing failed. Check the printer and try again.'**
   String get printerErrorPrintFailed;
+
+  /// No description provided for @reportsScreenLedgersCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledgers & Reports'**
+  String get reportsScreenLedgersCardTitle;
+
+  /// No description provided for @reportsScreenLedgersVendorLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendor Ledger'**
+  String get reportsScreenLedgersVendorLedger;
+
+  /// No description provided for @reportsScreenLedgersCustomerLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer Ledger'**
+  String get reportsScreenLedgersCustomerLedger;
+
+  /// No description provided for @reportsScreenLedgersPurchaseReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase Report'**
+  String get reportsScreenLedgersPurchaseReport;
+
+  /// No description provided for @reportsScreenLedgersSalesReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales Report'**
+  String get reportsScreenLedgersSalesReport;
+
+  /// No description provided for @reportsScreenLedgersStockReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock Report'**
+  String get reportsScreenLedgersStockReport;
+
+  /// No description provided for @reportsScreenLedgersVatReport.
+  ///
+  /// In en, this message translates to:
+  /// **'VAT Report'**
+  String get reportsScreenLedgersVatReport;
+
+  /// No description provided for @partyLedgerScreenVendorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendor Ledger'**
+  String get partyLedgerScreenVendorTitle;
+
+  /// No description provided for @partyLedgerScreenCustomerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer Ledger'**
+  String get partyLedgerScreenCustomerTitle;
+
+  /// No description provided for @partyLedgerScreenAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get partyLedgerScreenAllTime;
+
+  /// No description provided for @partyLedgerScreenChangeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get partyLedgerScreenChangeRange;
+
+  /// No description provided for @partyLedgerScreenSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name…'**
+  String get partyLedgerScreenSearchHint;
+
+  /// No description provided for @partyLedgerScreenEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No parties found for this range.'**
+  String get partyLedgerScreenEmptyMessage;
+
+  /// No description provided for @partyLedgerScreenTotalDebit.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Debit'**
+  String get partyLedgerScreenTotalDebit;
+
+  /// No description provided for @partyLedgerScreenTotalCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Credit'**
+  String get partyLedgerScreenTotalCredit;
+
+  /// No description provided for @partyLedgerScreenNetBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Balance'**
+  String get partyLedgerScreenNetBalance;
+
+  /// No description provided for @salesReportScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales Report'**
+  String get salesReportScreenTitle;
+
+  /// No description provided for @salesReportScreenSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search invoice no. or customer…'**
+  String get salesReportScreenSearchHint;
+
+  /// No description provided for @salesReportScreenTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} invoices'**
+  String salesReportScreenTotalLabel(int count);
+
+  /// No description provided for @salesReportScreenEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No sales invoices found for this filter.'**
+  String get salesReportScreenEmptyMessage;
+
+  /// No description provided for @purchaseReportScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase Report'**
+  String get purchaseReportScreenTitle;
+
+  /// No description provided for @purchaseReportScreenSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search bill no. or vendor…'**
+  String get purchaseReportScreenSearchHint;
+
+  /// No description provided for @purchaseReportScreenTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} bills'**
+  String purchaseReportScreenTotalLabel(int count);
+
+  /// No description provided for @purchaseReportScreenEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No purchase bills found for this filter.'**
+  String get purchaseReportScreenEmptyMessage;
+
+  /// No description provided for @stockReportScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock Report'**
+  String get stockReportScreenTitle;
+
+  /// No description provided for @stockReportScreenSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search product or SKU…'**
+  String get stockReportScreenSearchHint;
+
+  /// No description provided for @stockReportScreenWarehouseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Warehouse'**
+  String get stockReportScreenWarehouseLabel;
+
+  /// No description provided for @stockReportScreenAllWarehouses.
+  ///
+  /// In en, this message translates to:
+  /// **'All Warehouses'**
+  String get stockReportScreenAllWarehouses;
+
+  /// No description provided for @stockReportScreenShowZeroStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Show zero stock'**
+  String get stockReportScreenShowZeroStock;
+
+  /// No description provided for @stockReportScreenEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No stock records found for this filter.'**
+  String get stockReportScreenEmptyMessage;
+
+  /// No description provided for @stockReportScreenTotalValueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} products'**
+  String stockReportScreenTotalValueLabel(int count);
+
+  /// No description provided for @vatReportScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'VAT Report'**
+  String get vatReportScreenTitle;
+
+  /// No description provided for @vatReportScreenEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No VAT activity found for this range.'**
+  String get vatReportScreenEmptyMessage;
+
+  /// No description provided for @vatReportScreenInputTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Input Tax'**
+  String get vatReportScreenInputTax;
+
+  /// No description provided for @vatReportScreenOutputTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Output Tax'**
+  String get vatReportScreenOutputTax;
+
+  /// No description provided for @vatReportScreenPayable.
+  ///
+  /// In en, this message translates to:
+  /// **'Payable'**
+  String get vatReportScreenPayable;
+
+  /// No description provided for @vatReportScreenRefundable.
+  ///
+  /// In en, this message translates to:
+  /// **'Refundable'**
+  String get vatReportScreenRefundable;
+
+  /// No description provided for @vatReportScreenNetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get vatReportScreenNetLabel;
 }
 
 class _AppLocalizationsDelegate

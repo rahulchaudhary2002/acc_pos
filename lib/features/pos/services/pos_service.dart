@@ -7,17 +7,20 @@ import '../models/inventory_location.dart';
 import '../models/json_utils.dart';
 import '../models/outlet.dart';
 import '../models/party.dart';
+import '../models/party_ledger_row.dart';
 import '../models/product.dart';
 import '../models/purchase_cart_item.dart';
 import '../models/report_metric.dart';
 import '../models/return_lookup_result.dart';
 import '../models/sale_cart_item.dart';
 import '../models/payment_mode_stat.dart';
+import '../models/stock_report_row.dart';
 import '../models/tax_code.dart';
 import '../models/top_product.dart';
 import '../models/transaction_result.dart';
 import '../models/transaction_summary.dart';
 import '../models/trend_point.dart';
+import '../models/vat_summary_row.dart';
 
 class PosConfig {
   final List<Company> companies;
@@ -749,5 +752,62 @@ class PosService {
       if (range != null) 'to_date': range.to,
     });
     return _listData(response).map(TransactionSummary.fromPurchaseJson).toList();
+  }
+
+  // ── Ledgers & reports ─────────────────────────────────────────────────
+
+  /// `GET /admin/reports/vendor-ledger` — one summary row per vendor for the
+  /// selected date range (opening balance, debit, credit, closing balance).
+  Future<List<PartyLedgerRow>> fetchVendorLedger({int? companyId, String? fromDate, String? toDate}) async {
+    final response = await _client.get('/admin/reports/vendor-ledger', query: {
+      if (companyId != null) 'company_id': companyId,
+      if (fromDate != null) 'from_date': fromDate,
+      if (toDate != null) 'to_date': toDate,
+    });
+    return _listData(response).map(PartyLedgerRow.fromJson).toList();
+  }
+
+  /// `GET /admin/reports/customer-ledger` — customer-side counterpart of
+  /// [fetchVendorLedger].
+  Future<List<PartyLedgerRow>> fetchCustomerLedger({int? companyId, String? fromDate, String? toDate}) async {
+    final response = await _client.get('/admin/reports/customer-ledger', query: {
+      if (companyId != null) 'company_id': companyId,
+      if (fromDate != null) 'from_date': fromDate,
+      if (toDate != null) 'to_date': toDate,
+    });
+    return _listData(response).map(PartyLedgerRow.fromJson).toList();
+  }
+
+  /// `GET /admin/reports/stock-balance` — current stock position per
+  /// product/outlet/location, same endpoint the web Stock Report page uses.
+  Future<List<StockReportRow>> fetchStockReport({
+    int? companyId,
+    int? outletId,
+    int? locationId,
+    String? search,
+    bool showZeroStock = false,
+  }) async {
+    final response = await _client.get('/admin/reports/stock-balance', query: {
+      if (companyId != null) 'company_id': companyId,
+      if (outletId != null) 'outlet_id': outletId,
+      if (locationId != null) 'location_id': locationId,
+      if (search != null && search.isNotEmpty) 'search': search,
+      // Laravel's `boolean` validation rule strictly accepts only
+      // true/false/0/1/'0'/'1' — NOT the literal strings "true"/"false" that
+      // Dio would otherwise serialize a Dart bool query param as.
+      'show_zero_stock': showZeroStock ? 1 : 0,
+    });
+    return _listData(response).map(StockReportRow.fromJson).toList();
+  }
+
+  /// `GET /admin/reports/vat-summary` — input/output VAT totals per tax code
+  /// for the selected date range.
+  Future<List<VatSummaryRow>> fetchVatSummary({int? companyId, String? fromDate, String? toDate}) async {
+    final response = await _client.get('/admin/reports/vat-summary', query: {
+      if (companyId != null) 'company_id': companyId,
+      if (fromDate != null) 'from_date': fromDate,
+      if (toDate != null) 'to_date': toDate,
+    });
+    return _listData(response).map(VatSummaryRow.fromJson).toList();
   }
 }
