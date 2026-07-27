@@ -10,6 +10,7 @@ import '../providers/pos_data_provider.dart';
 import '../providers/voice_announcer.dart';
 import 'buy_screen.dart';
 import 'others_screen.dart';
+import 'recent_bills_screen.dart';
 import 'reports_screen.dart';
 import 'sell_screen.dart';
 
@@ -27,7 +28,7 @@ class _PosHomeScreenState extends State<PosHomeScreen> {
   int _tabIndex = 0;
   bool _initialized = false;
 
-  static const _tabKeys = ['sell', 'buy', 'reports', 'others'];
+  static const _tabKeys = ['sell', 'buy', 'recent', 'reports', 'others'];
 
   @override
   void didChangeDependencies() {
@@ -112,8 +113,10 @@ class _PosHomeScreenState extends State<PosHomeScreen> {
       case 1:
         return const BuyScreen();
       case 2:
-        return const ReportsScreen();
+        return const RecentBillsScreen();
       case 3:
+        return const ReportsScreen();
+      case 4:
         return const OthersScreen();
       default:
         return const SellScreen();
@@ -179,6 +182,7 @@ class _BottomNav extends StatelessWidget {
     final tabs = [
       (Icons.shopping_cart, l10n.posHomeBottomNavSellLabel),
       (Icons.shopping_bag, l10n.posHomeBottomNavBuyLabel),
+      (Icons.receipt_long, l10n.posHomeBottomNavRecentLabel),
       (Icons.bar_chart, l10n.posHomeBottomNavReportsLabel),
       (Icons.settings, l10n.posHomeBottomNavOthersLabel),
     ];

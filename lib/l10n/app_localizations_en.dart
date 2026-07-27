@@ -21,6 +21,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get posHomeBottomNavBuyLabel => 'Buy';
 
   @override
+  String get posHomeBottomNavRecentLabel => 'Recent';
+
+  @override
   String get posHomeBottomNavReportsLabel => 'Reports';
 
   @override
@@ -114,10 +117,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sellScreenWalkInNoCustomerLabel => 'Walk-in / No customer';
 
   @override
-  String get sellScreenInvoiceNumberLabel => 'Enter Bill Number';
+  String get sellScreenInvoiceNumberLabel => 'Invoice Number';
 
   @override
-  String get sellScreenInvoiceNumberHint => 'e.g. XXXX-001';
+  String get sellScreenInvoiceNumberHint => 'Tap to select an invoice number';
+
+  @override
+  String get sellScreenReturnInvoiceSearchHint => 'Search invoice number...';
 
   @override
   String get sellScreenInvoiceLookupButton => 'Fetch';
@@ -146,7 +152,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sellScreenSelectProductsToReturnSubtitle =>
-      'Select products to return';
+      'Select an invoice number above to load its items.';
 
   @override
   String get sellScreenTotalReturnLabel => 'Total Return';
@@ -262,10 +268,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get buyScreenSupplierLabel => 'Supplier';
 
   @override
-  String get buyScreenReturnBillNumberLabel => 'Enter Bill Number';
+  String get buyScreenReturnBillNumberLabel => 'Bill Number';
 
   @override
-  String get buyScreenReturnBillNumberHint => 'e.g. PB-POS-...';
+  String get buyScreenReturnBillNumberHint => 'Tap to select a bill number';
+
+  @override
+  String get buyScreenReturnBillSearchHint => 'Search bill number...';
 
   @override
   String get buyScreenReturnBillLookupButton => 'Fetch';
@@ -291,6 +300,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get buyScreenNoItemsToReturnTitle => 'No items to return';
+
+  @override
+  String get buyScreenNoItemsToReturnSubtitle =>
+      'Select a bill number above to load its items.';
 
   @override
   String get buyScreenTotalAmountLabel => 'Total Amount';
@@ -417,6 +430,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get voicePromptTestButton => 'Test Voice Prompt';
+
+  @override
+  String get recentBillsScreenTitle => 'Recent Bills';
+
+  @override
+  String get recentBillsScreenSubtitle =>
+      'Recent purchase bills & sales invoices';
+
+  @override
+  String get recentBillsScreenPurchaseTab => 'Purchase Bills';
+
+  @override
+  String get recentBillsScreenSalesTab => 'Sales Invoices';
+
+  @override
+  String get recentBillsScreenEmptyPurchase => 'No purchase bills yet';
+
+  @override
+  String get recentBillsScreenEmptySales => 'No sales invoices yet';
+
+  @override
+  String get searchableSelectSheetSearchHint => 'Search...';
+
+  @override
+  String get searchableSelectSheetEmptyMessage => 'No matching options';
 
   @override
   String get reportsScreenTitle => 'Reports';

@@ -15,6 +15,7 @@ import '../models/company.dart';
 import '../models/party.dart';
 import '../models/product.dart';
 import '../models/purchase_cart_item.dart';
+import '../models/transaction_summary.dart';
 import '../providers/buy_cart_provider.dart';
 import '../providers/pos_config_provider.dart';
 import '../providers/pos_data_provider.dart';
@@ -27,6 +28,7 @@ import '../widgets/product_picker_dialog.dart';
 import '../widgets/purchase_cart_line_tile.dart';
 import '../widgets/purchase_invoice_preview_dialog.dart';
 import '../widgets/purchase_return_invoice_preview_dialog.dart';
+import '../widgets/searchable_select_sheet.dart';
 
 /// Buy tab: New Purchase plus an inline Purchase Return mode — mirrors
 /// `PosTerminal.jsx`'s `buyMode: "purchase" | "return"` toggle.
@@ -48,11 +50,12 @@ class _BuyScreenState extends State<BuyScreen> {
 
   final List<PurchaseCartItem> _returnItems = [];
   Party? _returnVendor;
-  final _returnBillNoController = TextEditingController();
+  TransactionSummary? _selectedReturnBill;
   int? _returnReferenceBillId;
   bool _returnLookupLoading = false;
   String? _returnLookupMessage;
-  Timer? _returnLookupDebounce;
+  List<TransactionSummary> _returnBillOptions = [];
+  bool _returnBillOptionsLoading = false;
 
   // Web `buyReturnTotals`: subtotal = Σ qty×rate, tax = Σ line tax,
   // total = subtotal + tax.
@@ -64,25 +67,44 @@ class _BuyScreenState extends State<BuyScreen> {
   void dispose() {
     _invoiceNumberController.dispose();
     _vendorNameController.dispose();
-    _returnBillNoController.dispose();
-    _returnLookupDebounce?.cancel();
     super.dispose();
   }
 
   void _announce(String key) => context.read<VoiceAnnouncer>().announceAction(key);
 
-  void _onReturnBillNoChanged(String value) {
-    _returnLookupDebounce?.cancel();
-    final billNo = value.trim();
-    if (billNo.isEmpty) {
-      setState(() {
-        _returnLookupLoading = false;
-        _returnLookupMessage = null;
-        _returnReferenceBillId = null;
-      });
-      return;
+  Future<void> _openReturnBillPicker() async {
+    final config = context.read<PosConfigProvider>();
+    if (_returnBillOptions.isEmpty && !_returnBillOptionsLoading) {
+      setState(() => _returnBillOptionsLoading = true);
+      try {
+        final service = context.read<PosService>();
+        final bills = await service.fetchPurchasesList(
+          companyId: config.selectedCompanyId,
+          outletId: config.selectedOutletId,
+        );
+        if (!mounted) return;
+        setState(() {
+          _returnBillOptions = bills;
+          _returnBillOptionsLoading = false;
+        });
+      } on ApiException {
+        if (!mounted) return;
+        setState(() => _returnBillOptionsLoading = false);
+      }
     }
-    _returnLookupDebounce = Timer(const Duration(milliseconds: 350), () => _lookupReturnBill(billNo));
+    if (!mounted || _returnBillOptions.isEmpty) return;
+
+    final selected = await showSearchableSelectSheet<TransactionSummary>(
+      context,
+      options: _returnBillOptions,
+      labelOf: (b) => b.documentNo,
+      subtitleOf: (b) => b.partyName ?? '',
+      searchHint: AppLocalizations.of(context)!.buyScreenReturnBillSearchHint,
+    );
+    if (selected == null) return;
+
+    setState(() => _selectedReturnBill = selected);
+    _lookupReturnBill(selected.documentNo);
   }
 
   Future<void> _lookupReturnBill(String billNo) async {
@@ -291,7 +313,7 @@ class _BuyScreenState extends State<BuyScreen> {
         _returnItems.clear();
         _returnVendor = null;
         _returnReferenceBillId = null;
-        _returnBillNoController.clear();
+        _selectedReturnBill = null;
         _returnLookupMessage = null;
       });
       unawaited(context.read<PosDataProvider>().loadProducts(
@@ -564,20 +586,25 @@ class _BuyScreenState extends State<BuyScreen> {
             const SizedBox(height: AppSpacing.item),
             Text(AppLocalizations.of(context)!.buyScreenReturnBillNumberLabel, style: AppTextStyles.label),
             const SizedBox(height: 4),
-            TextField(
-              controller: _returnBillNoController,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: AppColors.surface,
-                hintText: AppLocalizations.of(context)!.buyScreenReturnBillNumberHint,
-                suffixIcon: _returnLookupLoading
-                    ? const Padding(
-                        padding: EdgeInsets.all(12),
-                        child: SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2)),
-                      )
-                    : null,
+            InkWell(
+              onTap: _returnBillOptionsLoading ? null : _openReturnBillPicker,
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: AppColors.surface,
+                  suffixIcon: _returnLookupLoading || _returnBillOptionsLoading
+                      ? const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                        )
+                      : const Icon(Icons.search),
+                ),
+                child: Text(
+                  _selectedReturnBill?.documentNo ?? AppLocalizations.of(context)!.buyScreenReturnBillNumberHint,
+                  style: TextStyle(color: _selectedReturnBill == null ? AppColors.textFaint : null),
+                ),
               ),
-              onChanged: _onReturnBillNoChanged,
             ),
             if (_returnLookupMessage != null) ...[
               const SizedBox(height: 4),
@@ -628,20 +655,7 @@ class _BuyScreenState extends State<BuyScreen> {
                       ? EmptyState(
                           icon: Icons.assignment_return_outlined,
                           title: AppLocalizations.of(context)!.buyScreenNoItemsToReturnTitle,
-                          action: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.warningDark,
-                              shape: const StadiumBorder(),
-                              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-                            ),
-                            onPressed: () => showProductPicker(
-                              context,
-                              showPrice: false,
-                              showOutOfStockBadge: false,
-                              onSelected: (p) => setState(() => _returnItems.add(PurchaseCartItem(product: p))),
-                            ),
-                            child: Text(AppLocalizations.of(context)!.buyScreenAddProductsLabel),
-                          ),
+                          subtitle: AppLocalizations.of(context)!.buyScreenNoItemsToReturnSubtitle,
                         )
                       : Column(
                           children: List.generate(_returnItems.length, (index) {
@@ -660,21 +674,6 @@ class _BuyScreenState extends State<BuyScreen> {
                           }),
                         ),
                   if (_returnItems.isNotEmpty) const SizedBox(height: AppSpacing.card),
-                  if (_returnItems.isNotEmpty)
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(foregroundColor: AppColors.warningDark),
-                        onPressed: () => showProductPicker(
-                          context,
-                          showPrice: false,
-                          showOutOfStockBadge: false,
-                          onSelected: (p) => setState(() => _returnItems.add(PurchaseCartItem(product: p))),
-                        ),
-                        icon: const Icon(Icons.add),
-                        label: Text(AppLocalizations.of(context)!.buyScreenAddMoreProductsLabel),
-                      ),
-                    ),
                   const SizedBox(height: AppSpacing.card),
                   _row(AppLocalizations.of(context)!.buyScreenSubtotalLabel, 'NPR ${_returnSubtotal.toStringAsFixed(2)}'),
                   _row(AppLocalizations.of(context)!.buyScreenVatLabel, 'NPR ${_returnTaxTotal.toStringAsFixed(2)}'),
@@ -696,7 +695,7 @@ class _BuyScreenState extends State<BuyScreen> {
                         _returnItems.clear();
                         _returnVendor = null;
                         _returnReferenceBillId = null;
-                        _returnBillNoController.clear();
+                        _selectedReturnBill = null;
                         _returnLookupMessage = null;
                       }),
               style: AppButtonStyles.filled(AppColors.danger),

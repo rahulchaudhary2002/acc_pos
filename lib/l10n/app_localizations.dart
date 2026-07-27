@@ -122,6 +122,12 @@ abstract class AppLocalizations {
   /// **'Buy'**
   String get posHomeBottomNavBuyLabel;
 
+  /// No description provided for @posHomeBottomNavRecentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get posHomeBottomNavRecentLabel;
+
   /// No description provided for @posHomeBottomNavReportsLabel.
   ///
   /// In en, this message translates to:
@@ -293,14 +299,20 @@ abstract class AppLocalizations {
   /// No description provided for @sellScreenInvoiceNumberLabel.
   ///
   /// In en, this message translates to:
-  /// **'Enter Bill Number'**
+  /// **'Invoice Number'**
   String get sellScreenInvoiceNumberLabel;
 
   /// No description provided for @sellScreenInvoiceNumberHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. XXXX-001'**
+  /// **'Tap to select an invoice number'**
   String get sellScreenInvoiceNumberHint;
+
+  /// No description provided for @sellScreenReturnInvoiceSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search invoice number...'**
+  String get sellScreenReturnInvoiceSearchHint;
 
   /// No description provided for @sellScreenInvoiceLookupButton.
   ///
@@ -345,7 +357,7 @@ abstract class AppLocalizations {
   /// No description provided for @sellScreenSelectProductsToReturnSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Select products to return'**
+  /// **'Select an invoice number above to load its items.'**
   String get sellScreenSelectProductsToReturnSubtitle;
 
   /// No description provided for @sellScreenTotalReturnLabel.
@@ -567,14 +579,20 @@ abstract class AppLocalizations {
   /// No description provided for @buyScreenReturnBillNumberLabel.
   ///
   /// In en, this message translates to:
-  /// **'Enter Bill Number'**
+  /// **'Bill Number'**
   String get buyScreenReturnBillNumberLabel;
 
   /// No description provided for @buyScreenReturnBillNumberHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. PB-POS-...'**
+  /// **'Tap to select a bill number'**
   String get buyScreenReturnBillNumberHint;
+
+  /// No description provided for @buyScreenReturnBillSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search bill number...'**
+  String get buyScreenReturnBillSearchHint;
 
   /// No description provided for @buyScreenReturnBillLookupButton.
   ///
@@ -615,6 +633,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No items to return'**
   String get buyScreenNoItemsToReturnTitle;
+
+  /// No description provided for @buyScreenNoItemsToReturnSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a bill number above to load its items.'**
+  String get buyScreenNoItemsToReturnSubtitle;
 
   /// No description provided for @buyScreenTotalAmountLabel.
   ///
@@ -849,6 +873,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Test Voice Prompt'**
   String get voicePromptTestButton;
+
+  /// No description provided for @recentBillsScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Bills'**
+  String get recentBillsScreenTitle;
+
+  /// No description provided for @recentBillsScreenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent purchase bills & sales invoices'**
+  String get recentBillsScreenSubtitle;
+
+  /// No description provided for @recentBillsScreenPurchaseTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase Bills'**
+  String get recentBillsScreenPurchaseTab;
+
+  /// No description provided for @recentBillsScreenSalesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales Invoices'**
+  String get recentBillsScreenSalesTab;
+
+  /// No description provided for @recentBillsScreenEmptyPurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'No purchase bills yet'**
+  String get recentBillsScreenEmptyPurchase;
+
+  /// No description provided for @recentBillsScreenEmptySales.
+  ///
+  /// In en, this message translates to:
+  /// **'No sales invoices yet'**
+  String get recentBillsScreenEmptySales;
+
+  /// No description provided for @searchableSelectSheetSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search...'**
+  String get searchableSelectSheetSearchHint;
+
+  /// No description provided for @searchableSelectSheetEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching options'**
+  String get searchableSelectSheetEmptyMessage;
 
   /// No description provided for @reportsScreenTitle.
   ///

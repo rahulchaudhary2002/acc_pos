@@ -13,6 +13,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../models/company.dart';
 import '../models/product.dart';
 import '../models/sale_cart_item.dart';
+import '../models/transaction_summary.dart';
 import '../providers/cart_provider.dart';
 import '../providers/pos_config_provider.dart';
 import '../providers/pos_data_provider.dart';
@@ -27,6 +28,7 @@ import '../widgets/payment_type_section.dart';
 import '../widgets/pos_screen_header.dart';
 import '../widgets/product_picker_dialog.dart';
 import '../widgets/sales_return_invoice_preview_dialog.dart';
+import '../widgets/searchable_select_sheet.dart';
 import '../widgets/totals_block.dart';
 
 /// Sell tab: Cash/Customer sale plus an inline Sales Return mode — mirrors
@@ -52,11 +54,12 @@ class _SellScreenState extends State<SellScreen> {
 
   final List<SaleCartItem> _returnItems = [];
   int? _returnCustomerId;
-  final _returnInvoiceNoController = TextEditingController();
+  TransactionSummary? _selectedReturnInvoice;
   int? _returnReferenceInvoiceId;
   bool _returnLookupLoading = false;
   String? _returnLookupMessage;
-  Timer? _returnLookupDebounce;
+  List<TransactionSummary> _returnInvoiceOptions = [];
+  bool _returnInvoiceOptionsLoading = false;
 
   double get _returnSubtotal => _returnItems.fold(0, (sum, i) => sum + i.lineSubtotal);
   double get _returnTaxTotal => _returnItems.fold(0, (sum, i) => sum + i.taxAmount);
@@ -68,23 +71,42 @@ class _SellScreenState extends State<SellScreen> {
     _customerPhoneController.dispose();
     _customerVatController.dispose();
     _customerAddressController.dispose();
-    _returnInvoiceNoController.dispose();
-    _returnLookupDebounce?.cancel();
     super.dispose();
   }
 
-  void _onReturnInvoiceNoChanged(String value) {
-    _returnLookupDebounce?.cancel();
-    final invoiceNo = value.trim();
-    if (invoiceNo.isEmpty) {
-      setState(() {
-        _returnLookupLoading = false;
-        _returnLookupMessage = null;
-        _returnReferenceInvoiceId = null;
-      });
-      return;
+  Future<void> _openReturnInvoicePicker() async {
+    final config = context.read<PosConfigProvider>();
+    if (_returnInvoiceOptions.isEmpty && !_returnInvoiceOptionsLoading) {
+      setState(() => _returnInvoiceOptionsLoading = true);
+      try {
+        final service = context.read<PosService>();
+        final invoices = await service.fetchSalesList(
+          companyId: config.selectedCompanyId,
+          outletId: config.selectedOutletId,
+        );
+        if (!mounted) return;
+        setState(() {
+          _returnInvoiceOptions = invoices;
+          _returnInvoiceOptionsLoading = false;
+        });
+      } on ApiException {
+        if (!mounted) return;
+        setState(() => _returnInvoiceOptionsLoading = false);
+      }
     }
-    _returnLookupDebounce = Timer(const Duration(milliseconds: 350), () => _lookupReturnInvoice(invoiceNo));
+    if (!mounted || _returnInvoiceOptions.isEmpty) return;
+
+    final selected = await showSearchableSelectSheet<TransactionSummary>(
+      context,
+      options: _returnInvoiceOptions,
+      labelOf: (i) => i.documentNo,
+      subtitleOf: (i) => i.partyName ?? '',
+      searchHint: AppLocalizations.of(context)!.sellScreenReturnInvoiceSearchHint,
+    );
+    if (selected == null) return;
+
+    setState(() => _selectedReturnInvoice = selected);
+    _lookupReturnInvoice(selected.documentNo);
   }
 
   Future<void> _lookupReturnInvoice(String invoiceNo) async {
@@ -300,7 +322,7 @@ class _SellScreenState extends State<SellScreen> {
         _returnCustomerId = null;
         _selectedVendor = null;
         _returnReferenceInvoiceId = null;
-        _returnInvoiceNoController.clear();
+        _selectedReturnInvoice = null;
         _returnLookupMessage = null;
       });
       unawaited(posData.loadProducts(
@@ -602,20 +624,25 @@ class _SellScreenState extends State<SellScreen> {
             const SizedBox(height: AppSpacing.item),
             Text(AppLocalizations.of(context)!.sellScreenInvoiceNumberLabel, style: AppTextStyles.label),
             const SizedBox(height: 4),
-            TextField(
-              controller: _returnInvoiceNoController,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: AppColors.surface,
-                hintText: AppLocalizations.of(context)!.sellScreenInvoiceNumberHint,
-                suffixIcon: _returnLookupLoading
-                    ? const Padding(
-                        padding: EdgeInsets.all(12),
-                        child: SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2)),
-                      )
-                    : null,
+            InkWell(
+              onTap: _returnInvoiceOptionsLoading ? null : _openReturnInvoicePicker,
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: AppColors.surface,
+                  suffixIcon: _returnLookupLoading || _returnInvoiceOptionsLoading
+                      ? const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                        )
+                      : const Icon(Icons.search),
+                ),
+                child: Text(
+                  _selectedReturnInvoice?.documentNo ?? AppLocalizations.of(context)!.sellScreenInvoiceNumberHint,
+                  style: TextStyle(color: _selectedReturnInvoice == null ? AppColors.textFaint : null),
+                ),
               ),
-              onChanged: _onReturnInvoiceNoChanged,
             ),
             if (_returnLookupMessage != null) ...[
               const SizedBox(height: 4),
@@ -671,15 +698,6 @@ class _SellScreenState extends State<SellScreen> {
                           icon: Icons.assignment_return_outlined,
                           title: AppLocalizations.of(context)!.sellScreenNoItemsSelectedTitle,
                           subtitle: AppLocalizations.of(context)!.sellScreenSelectProductsToReturnSubtitle,
-                          action: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.danger,
-                              shape: const StadiumBorder(),
-                              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-                            ),
-                            onPressed: () => showProductPicker(context, onSelected: (p) => setState(() => _returnItems.add(SaleCartItem(product: p)))),
-                            child: Text(AppLocalizations.of(context)!.sellScreenAddProductsLabel),
-                          ),
                         )
                       : Column(
                           children: List.generate(_returnItems.length, (index) {
@@ -700,16 +718,6 @@ class _SellScreenState extends State<SellScreen> {
                           }),
                         ),
                   if (_returnItems.isNotEmpty) const SizedBox(height: AppSpacing.card),
-                  if (_returnItems.isNotEmpty)
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger),
-                        onPressed: () => showProductPicker(context, onSelected: (p) => setState(() => _returnItems.add(SaleCartItem(product: p)))),
-                        icon: const Icon(Icons.add),
-                        label: Text(AppLocalizations.of(context)!.sellScreenAddMoreProductsLabel),
-                      ),
-                    ),
                   const SizedBox(height: AppSpacing.card),
                   TotalsBlock(
                     subtotal: _returnSubtotal,
@@ -734,7 +742,7 @@ class _SellScreenState extends State<SellScreen> {
                         _returnItems.clear();
                         _returnCustomerId = null;
                         _returnReferenceInvoiceId = null;
-                        _returnInvoiceNoController.clear();
+                        _selectedReturnInvoice = null;
                         _returnLookupMessage = null;
                       }),
               style: AppButtonStyles.filled(AppColors.danger),

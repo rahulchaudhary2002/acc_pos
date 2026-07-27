@@ -13,7 +13,12 @@ class RecentTransactionsList extends StatelessWidget {
   final Color color;
   final String? emptyMessage;
 
-  const RecentTransactionsList({super.key, required this.items, this.color = AppColors.info, this.emptyMessage});
+  /// Caps how many rows render — the Reports "More" tab passes the default
+  /// of 10 for a quick preview; a dedicated list screen passes `null` to show
+  /// everything.
+  final int? limit;
+
+  const RecentTransactionsList({super.key, required this.items, this.color = AppColors.info, this.emptyMessage, this.limit = 10});
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +29,9 @@ class RecentTransactionsList extends StatelessWidget {
       );
     }
 
+    final visibleItems = limit == null ? items : items.take(limit!);
     return Column(
-      children: items.take(10).map((t) {
+      children: visibleItems.map((t) {
         return Container(
           margin: const EdgeInsets.only(bottom: AppSpacing.field),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.item, vertical: AppSpacing.field),

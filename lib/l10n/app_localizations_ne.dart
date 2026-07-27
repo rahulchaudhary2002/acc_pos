@@ -21,6 +21,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get posHomeBottomNavBuyLabel => 'खरिद';
 
   @override
+  String get posHomeBottomNavRecentLabel => 'हालैका';
+
+  @override
   String get posHomeBottomNavReportsLabel => 'रिपोर्ट';
 
   @override
@@ -114,10 +117,13 @@ class AppLocalizationsNe extends AppLocalizations {
   String get sellScreenWalkInNoCustomerLabel => 'वाक-इन / ग्राहक नभएको';
 
   @override
-  String get sellScreenInvoiceNumberLabel => 'बिल नम्बर लेख्नुहोस्';
+  String get sellScreenInvoiceNumberLabel => 'बीजक नम्बर';
 
   @override
-  String get sellScreenInvoiceNumberHint => 'जस्तै XXXX-001';
+  String get sellScreenInvoiceNumberHint => 'बीजक नम्बर छान्न ट्याप गर्नुहोस्';
+
+  @override
+  String get sellScreenReturnInvoiceSearchHint => 'बीजक नम्बर खोज्नुहोस्...';
 
   @override
   String get sellScreenInvoiceLookupButton => 'खोज्नुहोस्';
@@ -146,7 +152,7 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get sellScreenSelectProductsToReturnSubtitle =>
-      'फिर्ता गर्ने उत्पादन छान्नुहोस्';
+      'यसका वस्तुहरू लोड गर्न माथि बीजक नम्बर छान्नुहोस्।';
 
   @override
   String get sellScreenTotalReturnLabel => 'कुल फिर्ता';
@@ -263,10 +269,13 @@ class AppLocalizationsNe extends AppLocalizations {
   String get buyScreenSupplierLabel => 'आपूर्तिकर्ता';
 
   @override
-  String get buyScreenReturnBillNumberLabel => 'बिल नम्बर लेख्नुहोस्';
+  String get buyScreenReturnBillNumberLabel => 'बिल नम्बर';
 
   @override
-  String get buyScreenReturnBillNumberHint => 'जस्तै PB-POS-...';
+  String get buyScreenReturnBillNumberHint => 'बिल नम्बर छान्न ट्याप गर्नुहोस्';
+
+  @override
+  String get buyScreenReturnBillSearchHint => 'बिल नम्बर खोज्नुहोस्...';
 
   @override
   String get buyScreenReturnBillLookupButton => 'खोज्नुहोस्';
@@ -292,6 +301,10 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get buyScreenNoItemsToReturnTitle => 'फिर्ता गर्ने कुनै वस्तु छैन';
+
+  @override
+  String get buyScreenNoItemsToReturnSubtitle =>
+      'यसका वस्तुहरू लोड गर्न माथि बिल नम्बर छान्नुहोस्।';
 
   @override
   String get buyScreenTotalAmountLabel => 'कुल रकम';
@@ -419,6 +432,30 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get voicePromptTestButton => 'भ्वाइस प्रोम्प्ट परीक्षण गर्नुहोस्';
+
+  @override
+  String get recentBillsScreenTitle => 'हालैका बिलहरू';
+
+  @override
+  String get recentBillsScreenSubtitle => 'हालैका खरिद बिल र बिक्री बीजकहरू';
+
+  @override
+  String get recentBillsScreenPurchaseTab => 'खरिद बिलहरू';
+
+  @override
+  String get recentBillsScreenSalesTab => 'बिक्री बीजकहरू';
+
+  @override
+  String get recentBillsScreenEmptyPurchase => 'अहिलेसम्म कुनै खरिद बिल छैन';
+
+  @override
+  String get recentBillsScreenEmptySales => 'अहिलेसम्म कुनै बिक्री बीजक छैन';
+
+  @override
+  String get searchableSelectSheetSearchHint => 'खोज्नुहोस्...';
+
+  @override
+  String get searchableSelectSheetEmptyMessage => 'कुनै मिल्दो विकल्प छैन';
 
   @override
   String get reportsScreenTitle => 'प्रतिवेदनहरू';
