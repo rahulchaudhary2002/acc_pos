@@ -445,10 +445,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recentBillsScreenSalesTab => 'Sales Invoices';
 
   @override
-  String get recentBillsScreenEmptyPurchase => 'No purchase bills yet';
+  String get recentBillsScreenEmptyPurchase =>
+      'No purchase bills in the last 24 hours';
 
   @override
-  String get recentBillsScreenEmptySales => 'No sales invoices yet';
+  String get recentBillsScreenEmptySales =>
+      'No sales invoices in the last 24 hours';
 
   @override
   String get searchableSelectSheetSearchHint => 'Search...';

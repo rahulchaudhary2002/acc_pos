@@ -65,9 +65,11 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
         service.fetchSalesList(companyId: config.selectedCompanyId, outletId: config.selectedOutletId),
       ]);
       if (!mounted) return;
+      final cutoff = DateTime.now().subtract(const Duration(hours: 24));
+      bool withinLast24Hours(TransactionSummary t) => t.createdAt != null && !t.createdAt!.isBefore(cutoff);
       setState(() {
-        _purchases = results[0];
-        _sales = results[1];
+        _purchases = results[0].where(withinLast24Hours).toList();
+        _sales = results[1].where(withinLast24Hours).toList();
       });
     } on ApiException catch (e) {
       if (!mounted) return;

@@ -446,10 +446,12 @@ class AppLocalizationsNe extends AppLocalizations {
   String get recentBillsScreenSalesTab => 'बिक्री बीजकहरू';
 
   @override
-  String get recentBillsScreenEmptyPurchase => 'अहिलेसम्म कुनै खरिद बिल छैन';
+  String get recentBillsScreenEmptyPurchase =>
+      'गएको २४ घण्टामा कुनै खरिद बिल छैन';
 
   @override
-  String get recentBillsScreenEmptySales => 'अहिलेसम्म कुनै बिक्री बीजक छैन';
+  String get recentBillsScreenEmptySales =>
+      'गएको २४ घण्टामा कुनै बिक्री बीजक छैन';
 
   @override
   String get searchableSelectSheetSearchHint => 'खोज्नुहोस्...';

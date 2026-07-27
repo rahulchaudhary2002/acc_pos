@@ -901,13 +901,13 @@ abstract class AppLocalizations {
   /// No description provided for @recentBillsScreenEmptyPurchase.
   ///
   /// In en, this message translates to:
-  /// **'No purchase bills yet'**
+  /// **'No purchase bills in the last 24 hours'**
   String get recentBillsScreenEmptyPurchase;
 
   /// No description provided for @recentBillsScreenEmptySales.
   ///
   /// In en, this message translates to:
-  /// **'No sales invoices yet'**
+  /// **'No sales invoices in the last 24 hours'**
   String get recentBillsScreenEmptySales;
 
   /// No description provided for @searchableSelectSheetSearchHint.

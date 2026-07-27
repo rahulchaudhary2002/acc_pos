@@ -12,6 +12,11 @@ class TransactionSummary {
   /// Secondary label: `payment_mode` for sales, `vendor_invoice_no` for purchases.
   final String subtitle;
 
+  /// Server `created_at` timestamp (when the record was actually posted),
+  /// distinct from [date] (the invoice/bill date the user picked) — used by
+  /// the Recent Bills screen's rolling 24-hour cutoff.
+  final DateTime? createdAt;
+
   TransactionSummary({
     required this.id,
     required this.documentNo,
@@ -19,6 +24,7 @@ class TransactionSummary {
     this.partyName,
     required this.total,
     required this.subtitle,
+    this.createdAt,
   });
 
   factory TransactionSummary.fromSaleJson(Map<String, dynamic> json) {
@@ -30,6 +36,7 @@ class TransactionSummary {
       partyName: customer?['name'] as String?,
       total: asDoubleOrNull(json['grand_total']) ?? 0,
       subtitle: json['payment_mode'] as String? ?? '',
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? ''),
     );
   }
 
@@ -42,6 +49,7 @@ class TransactionSummary {
       partyName: vendor?['name'] as String?,
       total: asDoubleOrNull(json['grand_total']) ?? 0,
       subtitle: json['vendor_invoice_no'] as String? ?? '',
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? ''),
     );
   }
 }
