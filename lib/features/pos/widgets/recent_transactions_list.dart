@@ -76,32 +76,16 @@ class RecentTransactionsList extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          t.documentNo,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: isCancelled ? AppColors.textMuted : AppColors.textSecondary,
-                            decoration: isCancelled ? TextDecoration.lineThrough : null,
-                          ),
-                        ),
-                        if (isCancelled) ...[
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                            decoration: BoxDecoration(
-                              color: AppColors.danger,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context)!.recentBillsScreenCancelledBadge,
-                              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white),
-                            ),
-                          ),
-                        ],
-                      ],
+                    Text(
+                      t.documentNo,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: isCancelled ? AppColors.textMuted : AppColors.textSecondary,
+                        decoration: isCancelled ? TextDecoration.lineThrough : null,
+                      ),
                     ),
                     Text('${t.partyName ?? '-'} · ${t.date}', style: AppTextStyles.tiny),
                   ],

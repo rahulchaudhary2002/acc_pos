@@ -146,7 +146,6 @@
   "recentBillsScreenCancelReasonLabel": "रद्द गर्नुको कारण उल्लेख गर्नुहोस्:",
   "recentBillsScreenCancelReasonPlaceholder": "कृपया यहाँ कारण लेख्नुहोस्...",
   "recentBillsScreenCancelReasonRequired": "रद्द गर्नुको कारण अनिवार्य छ।",
-  "recentBillsScreenCancelledBadge": "रद्द",
   "searchableSelectSheetSearchHint": "खोज्नुहोस्...",
   "searchableSelectSheetEmptyMessage": "कुनै मिल्दो विकल्प छैन",
   "reportsScreenTitle": "प्रतिवेदनहरू",

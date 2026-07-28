@@ -187,51 +187,78 @@ pw.MultiPage _invoicePage({
   // "80mm 297mm" @page size the web app's browser print CSS already uses
   // for this printer.
   final pageFormat = PdfPageFormat(80 * PdfPageFormat.mm, 297 * PdfPageFormat.mm);
-  return pw.MultiPage(
-    pageTheme: pw.PageTheme(
-      pageFormat: pageFormat,
-      margin: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 10),
-      buildBackground: isCancelled
-          ? (context) => pw.Watermark.text(
-                'CANCELLED',
-                angle: -0.5,
-                style: pw.TextStyle(color: PdfColors.grey400, fontWeight: pw.FontWeight.bold, fontSize: 60),
-              )
-          : null,
-    ),
-    build: (context) => [
-      pw.Center(
-        child: pw.Column(children: [
-          // Printed exactly as stored — no forced upper-casing — matching
-          // the physical receipt showing "Head Office", not "HEAD OFFICE".
-          pw.Text(companyName, style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
-          if ((companyAddress ?? '').isNotEmpty) pw.Text(companyAddress!, style: const pw.TextStyle(fontSize: 9)),
-          pw.Text('VAT # : ${companyVatNo ?? ''}', style: const pw.TextStyle(fontSize: 9)),
-        ]),
-      ),
-      pw.SizedBox(height: 4),
-      pw.Center(
-        child: pw.Text(title, style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
-      ),
-      pw.Divider(color: border, thickness: 1, height: 9),
-      ..._metaFieldWidgets(metaRows, border),
-      pw.Divider(color: border, thickness: 1, height: 9),
-      _itemsTable(items, border),
-      pw.Divider(color: border, thickness: 1, height: 9),
-      _totalsSection(taxable, nonTaxable, subtotal, vatRateLabel, tax, delivery, total),
-      pw.Divider(color: border, thickness: 1, height: 9),
-      pw.Text(amountToWords(total), style: pw.TextStyle(fontSize: 9, fontStyle: pw.FontStyle.italic)),
-      pw.Divider(color: border, thickness: 1, height: 9),
-      _dateAndOriginalSection(printedAt, copyLabel),
-      pw.Divider(color: border, thickness: 1, height: 9),
-      pw.SizedBox(height: 8),
-      pw.Row(children: [
-        pw.Expanded(child: _signatureColumn(preparedBy.isEmpty ? 'Prepared By' : preparedBy, 'Prepare By')),
-        pw.SizedBox(width: 24),
-        pw.Expanded(child: _signatureColumn('', signatureRightLabel)),
+
+  final contentWidgets = <pw.Widget>[
+    pw.Center(
+      child: pw.Column(children: [
+        // Printed exactly as stored — no forced upper-casing — matching
+        // the physical receipt showing "Head Office", not "HEAD OFFICE".
+        pw.Text(companyName, style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
+        if ((companyAddress ?? '').isNotEmpty) pw.Text(companyAddress!, style: const pw.TextStyle(fontSize: 9)),
+        pw.Text('VAT # : ${companyVatNo ?? ''}', style: const pw.TextStyle(fontSize: 9)),
       ]),
-      pw.Divider(color: border, thickness: 1, height: 9),
-    ],
+    ),
+    pw.SizedBox(height: 4),
+    pw.Center(
+      child: pw.Text(title, style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
+    ),
+    pw.Divider(color: border, thickness: 1, height: 9),
+    ..._metaFieldWidgets(metaRows, border),
+    pw.Divider(color: border, thickness: 1, height: 9),
+    _itemsTable(items, border),
+    pw.Divider(color: border, thickness: 1, height: 9),
+    _totalsSection(taxable, nonTaxable, subtotal, vatRateLabel, tax, delivery, total),
+    pw.Divider(color: border, thickness: 1, height: 9),
+    pw.Text(amountToWords(total), style: pw.TextStyle(fontSize: 9, fontStyle: pw.FontStyle.italic)),
+    pw.Divider(color: border, thickness: 1, height: 9),
+    _dateAndOriginalSection(printedAt, copyLabel),
+    pw.Divider(color: border, thickness: 1, height: 9),
+    pw.SizedBox(height: 8),
+    pw.Row(children: [
+      pw.Expanded(child: _signatureColumn(preparedBy.isEmpty ? 'Prepared By' : preparedBy, 'Prepare By')),
+      pw.SizedBox(width: 24),
+      pw.Expanded(child: _signatureColumn('', signatureRightLabel)),
+    ]),
+    pw.Divider(color: border, thickness: 1, height: 9),
+  ];
+
+  return pw.MultiPage(
+    pageFormat: pageFormat,
+    margin: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+    // Cancelled receipts wrap all content in one Stack instead of returning
+    // the flat widget list directly — a `pageTheme.buildBackground` paints
+    // across the full 297mm page regardless of how short the content is,
+    // which left "CANCELLED" floating in the blank space below a short
+    // receipt instead of over it. A Stack sizes to its content (the Column
+    // here), so the centered, rotated overlay lands within the actual
+    // printed area. Trade-off: this content must fit on one page — fine for
+    // these short thermal receipts, but it forgoes automatic pagination.
+    build: (context) => isCancelled
+        ? [
+            pw.Stack(
+              children: [
+                pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.stretch, children: contentWidgets),
+                pw.Positioned.fill(
+                  child: pw.Center(
+                    // Positive here (unlike the -0.5 used for the on-screen
+                    // preview's plain Center/Transform.rotate) — inside a
+                    // Positioned.fill within a Stack, the pdf package's
+                    // rotation direction comes out flipped, so this is what
+                    // actually renders ascending bottom-left-to-top-right,
+                    // matching the web receipt's watermark.
+                    child: pw.Transform.rotate(
+                      angle: 0.5,
+                      child: pw.Text(
+                        'CANCELLED',
+                        style: pw.TextStyle(color: PdfColors.grey400, fontWeight: pw.FontWeight.bold, fontSize: 34),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ]
+        : contentWidgets,
   );
 }
 

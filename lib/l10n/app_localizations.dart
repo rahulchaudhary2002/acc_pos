@@ -982,12 +982,6 @@ abstract class AppLocalizations {
   /// **'A cancellation reason is required.'**
   String get recentBillsScreenCancelReasonRequired;
 
-  /// No description provided for @recentBillsScreenCancelledBadge.
-  ///
-  /// In en, this message translates to:
-  /// **'CANCELLED'**
-  String get recentBillsScreenCancelledBadge;
-
   /// No description provided for @searchableSelectSheetSearchHint.
   ///
   /// In en, this message translates to:

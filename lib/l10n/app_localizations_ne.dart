@@ -497,9 +497,6 @@ class AppLocalizationsNe extends AppLocalizations {
       'रद्द गर्नुको कारण अनिवार्य छ।';
 
   @override
-  String get recentBillsScreenCancelledBadge => 'रद्द';
-
-  @override
   String get searchableSelectSheetSearchHint => 'खोज्नुहोस्...';
 
   @override

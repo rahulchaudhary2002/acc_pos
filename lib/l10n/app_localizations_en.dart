@@ -496,9 +496,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'A cancellation reason is required.';
 
   @override
-  String get recentBillsScreenCancelledBadge => 'CANCELLED';
-
-  @override
   String get searchableSelectSheetSearchHint => 'Search...';
 
   @override

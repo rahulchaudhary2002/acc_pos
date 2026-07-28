@@ -127,15 +127,20 @@ class TaxInvoiceDocument extends StatelessWidget {
 
     return Stack(
       alignment: Alignment.center,
+      clipBehavior: Clip.none,
       children: [
         content,
         IgnorePointer(
           child: Transform.rotate(
             angle: -0.5,
+            // Sized to fit within the narrow receipt width once rotated —
+            // Stack clips overflowing children by default, and the previous
+            // 42px size's rotated diagonal footprint exceeded the receipt's
+            // width, clipping/garbling the corners of the text.
             child: Text(
               'CANCELLED',
               style: TextStyle(
-                fontSize: 42,
+                fontSize: 26,
                 fontWeight: FontWeight.w800,
                 color: AppColors.danger.withValues(alpha: 0.35),
                 letterSpacing: 2,

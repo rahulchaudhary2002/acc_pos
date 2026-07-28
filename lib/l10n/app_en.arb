@@ -192,7 +192,6 @@
   "recentBillsScreenCancelReasonLabel": "Please mention the reason for cancellation:",
   "recentBillsScreenCancelReasonPlaceholder": "Please write the reason here...",
   "recentBillsScreenCancelReasonRequired": "A cancellation reason is required.",
-  "recentBillsScreenCancelledBadge": "CANCELLED",
   "searchableSelectSheetSearchHint": "Search...",
   "searchableSelectSheetEmptyMessage": "No matching options",
   "reportsScreenTitle": "Reports",
