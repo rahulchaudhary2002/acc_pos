@@ -65,8 +65,16 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
     try {
       final service = context.read<PosService>();
       final results = await Future.wait([
-        service.fetchPurchasesList(companyId: config.selectedCompanyId, outletId: config.selectedOutletId),
-        service.fetchSalesList(companyId: config.selectedCompanyId, outletId: config.selectedOutletId),
+        service.fetchPurchasesList(
+          companyId: config.selectedCompanyId,
+          outletId: config.selectedOutletId,
+          statuses: const ['posted', 'cancelled'],
+        ),
+        service.fetchSalesList(
+          companyId: config.selectedCompanyId,
+          outletId: config.selectedOutletId,
+          statuses: const ['posted', 'cancelled'],
+        ),
       ]);
       if (!mounted) return;
       final cutoff = DateTime.now().subtract(const Duration(hours: 24));
@@ -134,25 +142,22 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
   /// (see [_load]), so every visible row is eligible when tapped.
   Future<void> _cancelPurchase(TransactionSummary item) async {
     final l10n = AppLocalizations.of(context)!;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.recentBillsScreenCancelPurchaseDialogTitle),
-        content: Text(l10n.recentBillsScreenCancelPurchaseDialogMessage),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: Text(l10n.recentBillsScreenKeepButton)),
-          TextButton(onPressed: () => Navigator.pop(dialogContext, true), child: Text(l10n.recentBillsScreenCancelConfirmButton)),
-        ],
-      ),
+    final reason = await _promptCancelReason(
+      title: l10n.recentBillsScreenCancelPurchaseDialogTitle,
+      message: l10n.recentBillsScreenCancelPurchaseDialogMessage,
     );
-    if (confirmed != true || !mounted) return;
+    if (reason == null || !mounted) return;
 
     setState(() => _cancellingId = item.id);
     try {
       final service = context.read<PosService>();
-      await service.cancelPurchaseBill(item.id);
+      final data = await service.cancelPurchaseBill(item.id, reason);
       if (!mounted) return;
-      setState(() => _purchases = _purchases.where((p) => p.id != item.id).toList());
+      setState(() {
+        _purchases = _purchases
+            .map((p) => p.id == item.id && data != null ? TransactionSummary.fromPurchaseJson(data) : p)
+            .toList();
+      });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.recentBillsScreenCancelPurchaseSuccess)));
       _refreshProductStock();
     } on ApiException catch (e) {
@@ -166,25 +171,22 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
   /// Sales-invoice counterpart of [_cancelPurchase].
   Future<void> _cancelSale(TransactionSummary item) async {
     final l10n = AppLocalizations.of(context)!;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.recentBillsScreenCancelSaleDialogTitle),
-        content: Text(l10n.recentBillsScreenCancelSaleDialogMessage),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: Text(l10n.recentBillsScreenKeepButton)),
-          TextButton(onPressed: () => Navigator.pop(dialogContext, true), child: Text(l10n.recentBillsScreenCancelConfirmButton)),
-        ],
-      ),
+    final reason = await _promptCancelReason(
+      title: l10n.recentBillsScreenCancelSaleDialogTitle,
+      message: l10n.recentBillsScreenCancelSaleDialogMessage,
     );
-    if (confirmed != true || !mounted) return;
+    if (reason == null || !mounted) return;
 
     setState(() => _cancellingId = item.id);
     try {
       final service = context.read<PosService>();
-      await service.cancelSalesInvoice(item.id);
+      final data = await service.cancelSalesInvoice(item.id, reason);
       if (!mounted) return;
-      setState(() => _sales = _sales.where((s) => s.id != item.id).toList());
+      setState(() {
+        _sales = _sales
+            .map((s) => s.id == item.id && data != null ? TransactionSummary.fromSaleJson(data) : s)
+            .toList();
+      });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.recentBillsScreenCancelSaleSuccess)));
       _refreshProductStock();
     } on ApiException catch (e) {
@@ -193,6 +195,61 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
     } finally {
       if (mounted) setState(() => _cancellingId = null);
     }
+  }
+
+  /// Shows the cancellation-reason dialog (bill preview title/message +
+  /// required reason textarea, mirroring the web admin's cancel modal) and
+  /// returns the trimmed reason, or null if the user backed out / left it
+  /// blank.
+  Future<String?> _promptCancelReason({required String title, required String message}) async {
+    final l10n = AppLocalizations.of(context)!;
+    final controller = TextEditingController();
+    String? error;
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          title: Text(title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(message),
+              const SizedBox(height: 12),
+              Text(l10n.recentBillsScreenCancelReasonLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 6),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                minLines: 2,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  hintText: l10n.recentBillsScreenCancelReasonPlaceholder,
+                  errorText: error,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(l10n.recentBillsScreenKeepButton)),
+            TextButton(
+              onPressed: () {
+                final trimmed = controller.text.trim();
+                if (trimmed.isEmpty) {
+                  setDialogState(() => error = l10n.recentBillsScreenCancelReasonRequired);
+                  return;
+                }
+                Navigator.pop(dialogContext, trimmed);
+              },
+              child: Text(l10n.recentBillsScreenCancelConfirmButton),
+            ),
+          ],
+        ),
+      ),
+    );
+    controller.dispose();
+    return reason;
   }
 
   @override

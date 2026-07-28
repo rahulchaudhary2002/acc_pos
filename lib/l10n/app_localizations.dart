@@ -964,6 +964,30 @@ abstract class AppLocalizations {
   /// **'Purchase bill cancelled.'**
   String get recentBillsScreenCancelPurchaseSuccess;
 
+  /// No description provided for @recentBillsScreenCancelReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Please mention the reason for cancellation:'**
+  String get recentBillsScreenCancelReasonLabel;
+
+  /// No description provided for @recentBillsScreenCancelReasonPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Please write the reason here...'**
+  String get recentBillsScreenCancelReasonPlaceholder;
+
+  /// No description provided for @recentBillsScreenCancelReasonRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A cancellation reason is required.'**
+  String get recentBillsScreenCancelReasonRequired;
+
+  /// No description provided for @recentBillsScreenCancelledBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'CANCELLED'**
+  String get recentBillsScreenCancelledBadge;
+
   /// No description provided for @searchableSelectSheetSearchHint.
   ///
   /// In en, this message translates to:

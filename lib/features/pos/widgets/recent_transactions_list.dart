@@ -61,13 +61,14 @@ class RecentTransactionsList extends StatelessWidget {
     final visibleItems = limit == null ? items : items.take(limit!);
     return Column(
       children: visibleItems.map((t) {
+        final isCancelled = t.status == 'cancelled';
         return Container(
           margin: const EdgeInsets.only(bottom: AppSpacing.field),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.item, vertical: AppSpacing.field),
           decoration: BoxDecoration(
-            color: AppColors.surfaceLight,
+            color: isCancelled ? AppColors.danger.withValues(alpha: 0.06) : AppColors.surfaceLight,
             borderRadius: BorderRadius.circular(AppRadius.input),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: isCancelled ? AppColors.danger.withValues(alpha: 0.3) : AppColors.border),
           ),
           child: Row(
             children: [
@@ -75,7 +76,33 @@ class RecentTransactionsList extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.documentNo, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                    Row(
+                      children: [
+                        Text(
+                          t.documentNo,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: isCancelled ? AppColors.textMuted : AppColors.textSecondary,
+                            decoration: isCancelled ? TextDecoration.lineThrough : null,
+                          ),
+                        ),
+                        if (isCancelled) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: AppColors.danger,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              AppLocalizations.of(context)!.recentBillsScreenCancelledBadge,
+                              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                     Text('${t.partyName ?? '-'} · ${t.date}', style: AppTextStyles.tiny),
                   ],
                 ),
@@ -87,7 +114,7 @@ class RecentTransactionsList extends StatelessWidget {
                   if (t.subtitle.isNotEmpty) Text(t.subtitle, style: AppTextStyles.tiny),
                 ],
               ),
-              if (onPrint != null || onCancel != null) const SizedBox(width: 4),
+              if (onPrint != null || (onCancel != null && !isCancelled)) const SizedBox(width: 4),
               if (onPrint != null)
                 printingId == t.id
                     ? const SizedBox(height: 32, width: 32, child: Padding(padding: EdgeInsets.all(6), child: CircularProgressIndicator(strokeWidth: 2)))
@@ -99,8 +126,8 @@ class RecentTransactionsList extends StatelessWidget {
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                       ),
-              if (onPrint != null && onCancel != null) const SizedBox(width: 2),
-              if (onCancel != null)
+              if (onPrint != null && onCancel != null && !isCancelled) const SizedBox(width: 2),
+              if (onCancel != null && !isCancelled)
                 cancellingId == t.id
                     ? const SizedBox(height: 32, width: 32, child: Padding(padding: EdgeInsets.all(6), child: CircularProgressIndicator(strokeWidth: 2)))
                     : IconButton(

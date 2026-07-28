@@ -52,6 +52,10 @@ class TaxInvoiceDocument extends StatelessWidget {
   final List<Widget> actions;
   final String title;
 
+  /// Shows a large diagonal "CANCELLED" watermark across the receipt when
+  /// true, mirroring the web admin's cancelled-invoice print.
+  final bool isCancelled;
+
   const TaxInvoiceDocument({
     super.key,
     required this.companyName,
@@ -72,11 +76,12 @@ class TaxInvoiceDocument extends StatelessWidget {
     required this.signatureRightLabel,
     required this.actions,
     this.title = 'TAX INVOICE',
+    this.isCancelled = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTextStyle.merge(
+    final content = DefaultTextStyle.merge(
       style: const TextStyle(fontFamily: 'Arial', color: AppColors.textPrimary),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -116,6 +121,29 @@ class TaxInvoiceDocument extends StatelessWidget {
           Wrap(spacing: AppSpacing.field, runSpacing: AppSpacing.field, alignment: WrapAlignment.center, children: actions),
         ],
       ),
+    );
+
+    if (!isCancelled) return content;
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        content,
+        IgnorePointer(
+          child: Transform.rotate(
+            angle: -0.5,
+            child: Text(
+              'CANCELLED',
+              style: TextStyle(
+                fontSize: 42,
+                fontWeight: FontWeight.w800,
+                color: AppColors.danger.withValues(alpha: 0.35),
+                letterSpacing: 2,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

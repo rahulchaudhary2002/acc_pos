@@ -82,6 +82,7 @@ Future<Uint8List> buildInvoicePdfBytes({
   String title = 'TAX INVOICE',
   String copyLabel = 'Original',
   String amountInWordsLocale = 'en',
+  bool isCancelled = false,
 }) async {
   final doc = pw.Document();
   doc.addPage(_invoicePage(
@@ -102,6 +103,7 @@ Future<Uint8List> buildInvoicePdfBytes({
     signatureRightLabel: signatureRightLabel,
     title: title,
     copyLabel: copyLabel,
+    isCancelled: isCancelled,
   ));
 
   return doc.save();
@@ -130,6 +132,7 @@ Future<Uint8List> buildInvoicePdfBytesForCopies({
   required String signatureRightLabel,
   required PosInvoiceLabels labels,
   required List<(String title, String copyLabel)> copies,
+  bool isCancelled = false,
 }) async {
   final doc = pw.Document();
   for (final (title, copyLabel) in copies) {
@@ -151,6 +154,7 @@ Future<Uint8List> buildInvoicePdfBytesForCopies({
       signatureRightLabel: signatureRightLabel,
       title: title,
       copyLabel: copyLabel,
+      isCancelled: isCancelled,
     ));
   }
 
@@ -175,15 +179,26 @@ pw.MultiPage _invoicePage({
   required String signatureRightLabel,
   required String title,
   required String copyLabel,
+  bool isCancelled = false,
 }) {
   final border = PdfColors.grey900;
+  // 80mm x 297mm thermal roll — matches the physical thermal printer this
+  // actually prints on (not an A5 sheet printer), and the same
+  // "80mm 297mm" @page size the web app's browser print CSS already uses
+  // for this printer.
+  final pageFormat = PdfPageFormat(80 * PdfPageFormat.mm, 297 * PdfPageFormat.mm);
   return pw.MultiPage(
-    // 80mm x 297mm thermal roll — matches the physical thermal printer
-    // this actually prints on (not an A5 sheet printer), and the same
-    // "80mm 297mm" @page size the web app's browser print CSS already
-    // uses for this printer.
-    pageFormat: PdfPageFormat(80 * PdfPageFormat.mm, 297 * PdfPageFormat.mm),
-    margin: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+    pageTheme: pw.PageTheme(
+      pageFormat: pageFormat,
+      margin: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+      buildBackground: isCancelled
+          ? (context) => pw.Watermark.text(
+                'CANCELLED',
+                angle: -0.5,
+                style: pw.TextStyle(color: PdfColors.grey400, fontWeight: pw.FontWeight.bold, fontSize: 60),
+              )
+          : null,
+    ),
     build: (context) => [
       pw.Center(
         child: pw.Column(children: [

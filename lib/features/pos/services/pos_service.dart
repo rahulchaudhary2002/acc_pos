@@ -545,14 +545,22 @@ class PosService {
 
   /// Cancels a posted sales invoice — mirrors the web admin's `DELETE
   /// /admin/sales-invoices/{id}`: reverses its stock movement and linked
-  /// journal vouchers server-side. The server only allows this within 24
-  /// hours of the invoice's `created_at` and throws [ApiException] with that
-  /// explanation otherwise (surface it to the user, don't swallow it).
-  Future<void> cancelSalesInvoice(int id) => _client.delete('/admin/sales-invoices/$id');
+  /// journal vouchers server-side, and keeps the row as status `cancelled`
+  /// (returned in `data`) rather than deleting it. The server only allows
+  /// this within 24 hours of the invoice's `created_at`, requires a
+  /// `cancel_reason`, and throws [ApiException] with that explanation
+  /// otherwise (surface it to the user, don't swallow it).
+  Future<Map<String, dynamic>?> cancelSalesInvoice(int id, String cancelReason) async {
+    final response = await _client.delete('/admin/sales-invoices/$id', data: {'cancel_reason': cancelReason});
+    return response['data'] as Map<String, dynamic>?;
+  }
 
   /// Purchase-bill counterpart of [cancelSalesInvoice] — same 24-hour
-  /// server-side window and stock/journal reversal.
-  Future<void> cancelPurchaseBill(int id) => _client.delete('/admin/purchase-bills/$id');
+  /// server-side window, required reason, and stock/journal reversal.
+  Future<Map<String, dynamic>?> cancelPurchaseBill(int id, String cancelReason) async {
+    final response = await _client.delete('/admin/purchase-bills/$id', data: {'cancel_reason': cancelReason});
+    return response['data'] as Map<String, dynamic>?;
+  }
 
   TransactionResult _posReturnResult(Map<String, dynamic> response, String fallbackMessage) {
     final data = response['data'] as Map<String, dynamic>;
@@ -724,11 +732,24 @@ class PosService {
 
   /// Posted invoices from `GET /admin/sales-invoices` — the same listing the
   /// web POS keeps loaded (`fetchSalesInvoices({status: 'posted'})`).
-  Future<List<TransactionSummary>> fetchSalesList({String? period, int? companyId, int? outletId, String? search, String? fromDate, String? toDate}) async {
+  ///
+  /// [statuses] defaults to just `posted` (used by reports/lookups, which
+  /// shouldn't include reversed sales); the Recent Bills screen passes
+  /// `['posted', 'cancelled']` so a cancelled invoice stays visible there
+  /// instead of disappearing once this list refetches.
+  Future<List<TransactionSummary>> fetchSalesList({
+    String? period,
+    int? companyId,
+    int? outletId,
+    String? search,
+    String? fromDate,
+    String? toDate,
+    List<String> statuses = const ['posted'],
+  }) async {
     final range = _rangeForPeriod(period, fromDate, toDate);
     final response = await _client.get('/admin/sales-invoices', query: {
       'per_page': 1000,
-      'status': 'posted',
+      'status': statuses.join(','),
       if (companyId != null) 'company_id': companyId,
       if (outletId != null) 'outlet_id': outletId,
       if (search != null && search.isNotEmpty) 'search': search,
@@ -740,11 +761,24 @@ class PosService {
 
   /// Posted bills from `GET /admin/purchase-bills` — the same listing the
   /// web POS keeps loaded (`fetchPurchaseBills`).
-  Future<List<TransactionSummary>> fetchPurchasesList({String? period, int? companyId, int? outletId, String? search, String? fromDate, String? toDate}) async {
+  ///
+  /// [statuses] defaults to just `posted` (used by reports/lookups, which
+  /// shouldn't include reversed purchases); the Recent Bills screen passes
+  /// `['posted', 'cancelled']` so a cancelled bill stays visible there
+  /// instead of disappearing once this list refetches.
+  Future<List<TransactionSummary>> fetchPurchasesList({
+    String? period,
+    int? companyId,
+    int? outletId,
+    String? search,
+    String? fromDate,
+    String? toDate,
+    List<String> statuses = const ['posted'],
+  }) async {
     final range = _rangeForPeriod(period, fromDate, toDate);
     final response = await _client.get('/admin/purchase-bills', query: {
       'per_page': 1000,
-      'status': 'posted',
+      'status': statuses.join(','),
       if (companyId != null) 'company_id': companyId,
       if (outletId != null) 'outlet_id': outletId,
       if (search != null && search.isNotEmpty) 'search': search,

@@ -17,6 +17,11 @@ class TransactionSummary {
   /// the Recent Bills screen's rolling 24-hour cutoff.
   final DateTime? createdAt;
 
+  /// Record status (`posted`, `cancelled`, ...) — cancelled rows stay in the
+  /// Recent Bills list (rather than being removed) so they remain visible
+  /// with a "cancelled" treatment, mirroring the web admin.
+  final String? status;
+
   TransactionSummary({
     required this.id,
     required this.documentNo,
@@ -25,6 +30,7 @@ class TransactionSummary {
     required this.total,
     required this.subtitle,
     this.createdAt,
+    this.status,
   });
 
   factory TransactionSummary.fromSaleJson(Map<String, dynamic> json) {
@@ -37,6 +43,7 @@ class TransactionSummary {
       total: asDoubleOrNull(json['grand_total']) ?? 0,
       subtitle: json['payment_mode'] as String? ?? '',
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? ''),
+      status: json['status'] as String?,
     );
   }
 
@@ -50,6 +57,7 @@ class TransactionSummary {
       total: asDoubleOrNull(json['grand_total']) ?? 0,
       subtitle: json['vendor_invoice_no'] as String? ?? '',
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? ''),
+      status: json['status'] as String?,
     );
   }
 }

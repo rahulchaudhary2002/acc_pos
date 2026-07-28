@@ -97,6 +97,7 @@ Future<void> showHistoricalSalesInvoicePreview(
     dualInvoiceCopies: true,
     salesInvoiceId: invoiceId,
     copyLabel: printCopyLabel(printCount + 1),
+    isCancelled: invoice['status'] == 'cancelled',
   );
 }
 
@@ -153,6 +154,7 @@ Future<void> showHistoricalPurchaseBillPreview(
     signatureRightLabel: 'Supplier',
     pdfName: 'Purchase-$documentNo',
     title: 'PURCHASE INVOICE',
+    isCancelled: bill['status'] == 'cancelled',
   );
 }
 
@@ -174,6 +176,7 @@ Future<void> _showHistoricalDialog(
   bool dualInvoiceCopies = false,
   int? salesInvoiceId,
   String copyLabel = 'Original',
+  bool isCancelled = false,
 }) {
   final resolvedTitle = title ?? 'TAX INVOICE';
   final preparedBy = 'Prepared By';
@@ -197,6 +200,7 @@ Future<void> _showHistoricalDialog(
     total: total,
     preparedBy: preparedBy,
     signatureRightLabel: signatureRightLabel,
+    isCancelled: isCancelled,
   );
   // A sales invoice always prints both the tax invoice and the plain
   // invoice copy together, as a single print action.
@@ -220,6 +224,7 @@ Future<void> _showHistoricalDialog(
           total: total,
           preparedBy: preparedBy,
           signatureRightLabel: signatureRightLabel,
+          isCancelled: isCancelled,
         )
       : null;
 
@@ -266,6 +271,7 @@ Future<void> _showHistoricalDialog(
           signatureRightLabel: signatureRightLabel,
           labels: pdfLabels,
           copies: [('TAX INVOICE', copyLabel), ('INVOICE', copyLabel)],
+          isCancelled: isCancelled,
         )
       : buildInvoicePdfBytes(
           companyName: company.name,
@@ -287,6 +293,7 @@ Future<void> _showHistoricalDialog(
           preparedBy: preparedBy,
           signatureRightLabel: signatureRightLabel,
           labels: pdfLabels,
+          isCancelled: isCancelled,
         );
 
   return showTaxInvoiceDialog(
@@ -309,6 +316,7 @@ Future<void> _showHistoricalDialog(
       total: total,
       preparedBy: preparedBy,
       signatureRightLabel: signatureRightLabel,
+      isCancelled: isCancelled,
       actions: [
         ElevatedButton.icon(
           onPressed: () async {

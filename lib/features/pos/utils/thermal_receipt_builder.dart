@@ -26,6 +26,10 @@ class ThermalReceiptData {
   final String preparedBy;
   final String signatureRightLabel;
 
+  /// ESC/POS can't render a rotated watermark like the PDF/screen copies,
+  /// so a cancelled bill instead gets a bold "CANCELLED" banner line.
+  final bool isCancelled;
+
   const ThermalReceiptData({
     required this.companyName,
     this.companyAddress,
@@ -45,6 +49,7 @@ class ThermalReceiptData {
     required this.total,
     required this.preparedBy,
     required this.signatureRightLabel,
+    this.isCancelled = false,
   });
 }
 
@@ -96,6 +101,13 @@ List<int> buildThermalReceiptBytes(
   bytes += generator.text('VAT # : ${data.companyVatNo ?? ''}', styles: center);
   bytes += generator.text(data.title, styles: titleStyle);
   bytes += generator.hr(len: charsPerLine);
+  if (data.isCancelled) {
+    bytes += generator.text(
+      '*** CANCELLED ***',
+      styles: const PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2, width: PosTextSize.size2),
+    );
+    bytes += generator.hr(len: charsPerLine);
+  }
 
   // Short No./Date fields render right-aligned (label left, value right,
   // same line) — matching the web receipt's 50/50 two-column table. Name

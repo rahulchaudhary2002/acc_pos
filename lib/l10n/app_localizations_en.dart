@@ -484,6 +484,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'Purchase bill cancelled.';
 
   @override
+  String get recentBillsScreenCancelReasonLabel =>
+      'Please mention the reason for cancellation:';
+
+  @override
+  String get recentBillsScreenCancelReasonPlaceholder =>
+      'Please write the reason here...';
+
+  @override
+  String get recentBillsScreenCancelReasonRequired =>
+      'A cancellation reason is required.';
+
+  @override
+  String get recentBillsScreenCancelledBadge => 'CANCELLED';
+
+  @override
   String get searchableSelectSheetSearchHint => 'Search...';
 
   @override

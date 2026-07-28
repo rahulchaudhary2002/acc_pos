@@ -485,6 +485,21 @@ class AppLocalizationsNe extends AppLocalizations {
   String get recentBillsScreenCancelPurchaseSuccess => 'खरिद बिल रद्द भयो।';
 
   @override
+  String get recentBillsScreenCancelReasonLabel =>
+      'रद्द गर्नुको कारण उल्लेख गर्नुहोस्:';
+
+  @override
+  String get recentBillsScreenCancelReasonPlaceholder =>
+      'कृपया यहाँ कारण लेख्नुहोस्...';
+
+  @override
+  String get recentBillsScreenCancelReasonRequired =>
+      'रद्द गर्नुको कारण अनिवार्य छ।';
+
+  @override
+  String get recentBillsScreenCancelledBadge => 'रद्द';
+
+  @override
   String get searchableSelectSheetSearchHint => 'खोज्नुहोस्...';
 
   @override
