@@ -60,4 +60,34 @@ class TransactionSummary {
       status: json['status'] as String?,
     );
   }
+
+  /// A history row from `GET /admin/sales-returns`.
+  factory TransactionSummary.fromSalesReturnJson(Map<String, dynamic> json) {
+    final customer = json['customer'] as Map<String, dynamic>?;
+    return TransactionSummary(
+      id: asInt(json['id']),
+      documentNo: json['return_no'] as String? ?? '',
+      date: json['return_date'] as String? ?? '',
+      partyName: customer?['name'] as String?,
+      total: asDoubleOrNull(json['grand_total']) ?? 0,
+      subtitle: '',
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? ''),
+      status: json['status'] as String?,
+    );
+  }
+
+  /// A history row from `GET /admin/purchase-returns`.
+  factory TransactionSummary.fromPurchaseReturnJson(Map<String, dynamic> json) {
+    final vendor = json['vendor'] as Map<String, dynamic>?;
+    return TransactionSummary(
+      id: asInt(json['id']),
+      documentNo: json['return_no'] as String? ?? '',
+      date: json['return_date'] as String? ?? '',
+      partyName: vendor?['name'] as String?,
+      total: asDoubleOrNull(json['grand_total']) ?? 0,
+      subtitle: '',
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? ''),
+      status: json['status'] as String?,
+    );
+  }
 }

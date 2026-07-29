@@ -82,11 +82,14 @@ class AppLocalizationsNe extends AppLocalizations {
   String get sellScreenVendorLabel => 'विक्रेता';
 
   @override
-  String get sellScreenSelectVendorHint => 'विक्रेता छान्नुहोस् (वैकल्पिक)';
+  String get sellScreenSelectVendorHint => 'विक्रेता छान्नुहोस्';
 
   @override
   String get sellScreenVendorFooterHint =>
       'यो बिक्री कुन विक्रेतासँग सम्बन्धित छ भनी रेकर्ड गर्दछ।';
+
+  @override
+  String get sellScreenSelectVendorError => 'कृपया विक्रेता छान्नुहोस्।';
 
   @override
   String get sellScreenCurrentSaleTitle => 'हालको बिक्री';
@@ -114,7 +117,7 @@ class AppLocalizationsNe extends AppLocalizations {
   String get sellScreenCustomerOptionalLabel => 'ग्राहक (वैकल्पिक)';
 
   @override
-  String get sellScreenWalkInNoCustomerLabel => 'वाक-इन / ग्राहक नभएको';
+  String get sellScreenWalkInNoCustomerLabel => 'ग्राहक नभएको';
 
   @override
   String get sellScreenInvoiceNumberLabel => 'बीजक नम्बर';
@@ -437,7 +440,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get recentBillsScreenTitle => 'हालैका बिलहरू';
 
   @override
-  String get recentBillsScreenSubtitle => 'हालैका खरिद बिल र बिक्री बीजकहरू';
+  String get recentBillsScreenSubtitle =>
+      'हालैका खरिद बिल, बिक्री बीजक र फिर्ताहरू';
 
   @override
   String get recentBillsScreenPurchaseTab => 'खरिद बिलहरू';
@@ -446,12 +450,26 @@ class AppLocalizationsNe extends AppLocalizations {
   String get recentBillsScreenSalesTab => 'बिक्री बीजकहरू';
 
   @override
+  String get recentBillsScreenPurchaseReturnTab => 'खरिद फिर्ताहरू';
+
+  @override
+  String get recentBillsScreenSalesReturnTab => 'बिक्री फिर्ताहरू';
+
+  @override
   String get recentBillsScreenEmptyPurchase =>
       'गएको २४ घण्टामा कुनै खरिद बिल छैन';
 
   @override
   String get recentBillsScreenEmptySales =>
       'गएको २४ घण्टामा कुनै बिक्री बीजक छैन';
+
+  @override
+  String get recentBillsScreenEmptyPurchaseReturn =>
+      'गएको २४ घण्टामा कुनै खरिद फिर्ता छैन';
+
+  @override
+  String get recentBillsScreenEmptySalesReturn =>
+      'गएको २४ घण्टामा कुनै बिक्री फिर्ता छैन';
 
   @override
   String get recentBillsScreenCancelTooltip => 'रद्द गर्नुहोस्';
@@ -473,7 +491,27 @@ class AppLocalizationsNe extends AppLocalizations {
       'यसले पोस्ट भएको खरिद बिल रद्द गर्नेछ र यसको स्टक चालचलन र सम्बन्धित लेजर प्रविष्टिहरू उल्टाउनेछ। सिर्जना भएको २४ घण्टाभित्र मात्र अनुमति छ।';
 
   @override
+  String get recentBillsScreenCancelPurchaseReturnDialogTitle =>
+      'खरिद फिर्ता रद्द गर्ने?';
+
+  @override
+  String get recentBillsScreenCancelPurchaseReturnDialogMessage =>
+      'यसले पोस्ट भएको खरिद फिर्ता रद्द गर्नेछ र यसको स्टक चालचलन र सम्बन्धित लेजर प्रविष्टिहरू उल्टाउनेछ। सिर्जना भएको २४ घण्टाभित्र मात्र अनुमति छ।';
+
+  @override
+  String get recentBillsScreenCancelSalesReturnDialogTitle =>
+      'बिक्री फिर्ता रद्द गर्ने?';
+
+  @override
+  String get recentBillsScreenCancelSalesReturnDialogMessage =>
+      'यसले पोस्ट भएको बिक्री फिर्ता रद्द गर्नेछ र यसको स्टक चालचलन र सम्बन्धित लेजर प्रविष्टिहरू उल्टाउनेछ। सिर्जना भएको २४ घण्टाभित्र मात्र अनुमति छ।';
+
+  @override
   String get recentBillsScreenCancelConfirmButton => 'बिल रद्द गर्नुहोस्';
+
+  @override
+  String get recentBillsScreenCancelReturnConfirmButton =>
+      'फिर्ता रद्द गर्नुहोस्';
 
   @override
   String get recentBillsScreenKeepButton => 'राख्नुहोस्';
@@ -483,6 +521,14 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get recentBillsScreenCancelPurchaseSuccess => 'खरिद बिल रद्द भयो।';
+
+  @override
+  String get recentBillsScreenCancelPurchaseReturnSuccess =>
+      'खरिद फिर्ता रद्द भयो।';
+
+  @override
+  String get recentBillsScreenCancelSalesReturnSuccess =>
+      'बिक्री फिर्ता रद्द भयो।';
 
   @override
   String get recentBillsScreenCancelReasonLabel =>

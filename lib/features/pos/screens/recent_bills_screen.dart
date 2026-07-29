@@ -32,13 +32,15 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
   String? _error;
   List<TransactionSummary> _purchases = [];
   List<TransactionSummary> _sales = [];
+  List<TransactionSummary> _purchaseReturns = [];
+  List<TransactionSummary> _salesReturns = [];
   int? _printingId;
   int? _cancellingId;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -75,6 +77,16 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
           outletId: config.selectedOutletId,
           statuses: const ['posted', 'cancelled'],
         ),
+        service.fetchPurchaseReturnsList(
+          companyId: config.selectedCompanyId,
+          outletId: config.selectedOutletId,
+          statuses: const ['posted', 'cancelled'],
+        ),
+        service.fetchSalesReturnsList(
+          companyId: config.selectedCompanyId,
+          outletId: config.selectedOutletId,
+          statuses: const ['posted', 'cancelled'],
+        ),
       ]);
       if (!mounted) return;
       final cutoff = DateTime.now().subtract(const Duration(hours: 24));
@@ -82,6 +94,8 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
       setState(() {
         _purchases = results[0].where(withinLast24Hours).toList();
         _sales = results[1].where(withinLast24Hours).toList();
+        _purchaseReturns = results[2].where(withinLast24Hours).toList();
+        _salesReturns = results[3].where(withinLast24Hours).toList();
       });
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -197,11 +211,71 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
     }
   }
 
+  /// Purchase-return counterpart of [_cancelPurchase].
+  Future<void> _cancelPurchaseReturn(TransactionSummary item) async {
+    final l10n = AppLocalizations.of(context)!;
+    final reason = await _promptCancelReason(
+      title: l10n.recentBillsScreenCancelPurchaseReturnDialogTitle,
+      message: l10n.recentBillsScreenCancelPurchaseReturnDialogMessage,
+      confirmButtonLabel: l10n.recentBillsScreenCancelReturnConfirmButton,
+    );
+    if (reason == null || !mounted) return;
+
+    setState(() => _cancellingId = item.id);
+    try {
+      final service = context.read<PosService>();
+      final data = await service.cancelPurchaseReturn(item.id, reason);
+      if (!mounted) return;
+      setState(() {
+        _purchaseReturns = _purchaseReturns
+            .map((p) => p.id == item.id && data != null ? TransactionSummary.fromPurchaseReturnJson(data) : p)
+            .toList();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.recentBillsScreenCancelPurchaseReturnSuccess)));
+      _refreshProductStock();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _cancellingId = null);
+    }
+  }
+
+  /// Sales-return counterpart of [_cancelSale].
+  Future<void> _cancelSalesReturn(TransactionSummary item) async {
+    final l10n = AppLocalizations.of(context)!;
+    final reason = await _promptCancelReason(
+      title: l10n.recentBillsScreenCancelSalesReturnDialogTitle,
+      message: l10n.recentBillsScreenCancelSalesReturnDialogMessage,
+      confirmButtonLabel: l10n.recentBillsScreenCancelReturnConfirmButton,
+    );
+    if (reason == null || !mounted) return;
+
+    setState(() => _cancellingId = item.id);
+    try {
+      final service = context.read<PosService>();
+      final data = await service.cancelSalesReturn(item.id, reason);
+      if (!mounted) return;
+      setState(() {
+        _salesReturns = _salesReturns
+            .map((s) => s.id == item.id && data != null ? TransactionSummary.fromSalesReturnJson(data) : s)
+            .toList();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.recentBillsScreenCancelSalesReturnSuccess)));
+      _refreshProductStock();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _cancellingId = null);
+    }
+  }
+
   /// Shows the cancellation-reason dialog (bill preview title/message +
   /// required reason textarea, mirroring the web admin's cancel modal) and
   /// returns the trimmed reason, or null if the user backed out / left it
   /// blank.
-  Future<String?> _promptCancelReason({required String title, required String message}) async {
+  Future<String?> _promptCancelReason({required String title, required String message, String? confirmButtonLabel}) async {
     final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController();
     String? error;
@@ -242,7 +316,7 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
                 }
                 Navigator.pop(dialogContext, trimmed);
               },
-              child: Text(l10n.recentBillsScreenCancelConfirmButton),
+              child: Text(confirmButtonLabel ?? l10n.recentBillsScreenCancelConfirmButton),
             ),
           ],
         ),
@@ -262,6 +336,7 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
           color: AppColors.surface,
           child: TabBar(
             controller: _tabController,
+            isScrollable: true,
             labelColor: AppColors.info,
             unselectedLabelColor: AppColors.textMuted,
             indicatorColor: AppColors.info,
@@ -269,6 +344,8 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
             tabs: [
               Tab(text: l10n.recentBillsScreenPurchaseTab),
               Tab(text: l10n.recentBillsScreenSalesTab),
+              Tab(text: l10n.recentBillsScreenPurchaseReturnTab),
+              Tab(text: l10n.recentBillsScreenSalesReturnTab),
             ],
           ),
         ),
@@ -278,6 +355,8 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
             children: [
               _list(items: _purchases, color: AppColors.warningDark, emptyMessage: l10n.recentBillsScreenEmptyPurchase, onPrint: _printPurchase, onCancel: _cancelPurchase),
               _list(items: _sales, color: AppColors.success, emptyMessage: l10n.recentBillsScreenEmptySales, onPrint: _printSale, onCancel: _cancelSale),
+              _list(items: _purchaseReturns, color: AppColors.warningDark, emptyMessage: l10n.recentBillsScreenEmptyPurchaseReturn, onCancel: _cancelPurchaseReturn),
+              _list(items: _salesReturns, color: AppColors.success, emptyMessage: l10n.recentBillsScreenEmptySalesReturn, onCancel: _cancelSalesReturn),
             ],
           ),
         ),
@@ -289,7 +368,7 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
     required List<TransactionSummary> items,
     required Color color,
     required String emptyMessage,
-    required void Function(TransactionSummary item) onPrint,
+    void Function(TransactionSummary item)? onPrint,
     required void Function(TransactionSummary item) onCancel,
   }) {
     return RefreshIndicator(

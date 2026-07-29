@@ -233,7 +233,7 @@ abstract class AppLocalizations {
   /// No description provided for @sellScreenSelectVendorHint.
   ///
   /// In en, this message translates to:
-  /// **'Select vendor (optional)'**
+  /// **'Select vendor'**
   String get sellScreenSelectVendorHint;
 
   /// No description provided for @sellScreenVendorFooterHint.
@@ -241,6 +241,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Records which vendor this sale is attributed to for reporting.'**
   String get sellScreenVendorFooterHint;
+
+  /// No description provided for @sellScreenSelectVendorError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a vendor.'**
+  String get sellScreenSelectVendorError;
 
   /// No description provided for @sellScreenCurrentSaleTitle.
   ///
@@ -293,7 +299,7 @@ abstract class AppLocalizations {
   /// No description provided for @sellScreenWalkInNoCustomerLabel.
   ///
   /// In en, this message translates to:
-  /// **'Walk-in / No customer'**
+  /// **'No customer'**
   String get sellScreenWalkInNoCustomerLabel;
 
   /// No description provided for @sellScreenInvoiceNumberLabel.
@@ -883,7 +889,7 @@ abstract class AppLocalizations {
   /// No description provided for @recentBillsScreenSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Recent purchase bills & sales invoices'**
+  /// **'Recent purchase bills, sales invoices & returns'**
   String get recentBillsScreenSubtitle;
 
   /// No description provided for @recentBillsScreenPurchaseTab.
@@ -898,6 +904,18 @@ abstract class AppLocalizations {
   /// **'Sales Invoices'**
   String get recentBillsScreenSalesTab;
 
+  /// No description provided for @recentBillsScreenPurchaseReturnTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase Returns'**
+  String get recentBillsScreenPurchaseReturnTab;
+
+  /// No description provided for @recentBillsScreenSalesReturnTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales Returns'**
+  String get recentBillsScreenSalesReturnTab;
+
   /// No description provided for @recentBillsScreenEmptyPurchase.
   ///
   /// In en, this message translates to:
@@ -909,6 +927,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No sales invoices in the last 24 hours'**
   String get recentBillsScreenEmptySales;
+
+  /// No description provided for @recentBillsScreenEmptyPurchaseReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'No purchase returns in the last 24 hours'**
+  String get recentBillsScreenEmptyPurchaseReturn;
+
+  /// No description provided for @recentBillsScreenEmptySalesReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'No sales returns in the last 24 hours'**
+  String get recentBillsScreenEmptySalesReturn;
 
   /// No description provided for @recentBillsScreenCancelTooltip.
   ///
@@ -940,11 +970,41 @@ abstract class AppLocalizations {
   /// **'This will cancel the posted purchase bill and reverse its stock movement and linked journal entries. Allowed only within 24 hours of creation.'**
   String get recentBillsScreenCancelPurchaseDialogMessage;
 
+  /// No description provided for @recentBillsScreenCancelPurchaseReturnDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel purchase return?'**
+  String get recentBillsScreenCancelPurchaseReturnDialogTitle;
+
+  /// No description provided for @recentBillsScreenCancelPurchaseReturnDialogMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will cancel the posted purchase return and reverse its stock movement and linked journal entries. Allowed only within 24 hours of creation.'**
+  String get recentBillsScreenCancelPurchaseReturnDialogMessage;
+
+  /// No description provided for @recentBillsScreenCancelSalesReturnDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel sales return?'**
+  String get recentBillsScreenCancelSalesReturnDialogTitle;
+
+  /// No description provided for @recentBillsScreenCancelSalesReturnDialogMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will cancel the posted sales return and reverse its stock movement and linked journal entries. Allowed only within 24 hours of creation.'**
+  String get recentBillsScreenCancelSalesReturnDialogMessage;
+
   /// No description provided for @recentBillsScreenCancelConfirmButton.
   ///
   /// In en, this message translates to:
   /// **'Cancel Bill'**
   String get recentBillsScreenCancelConfirmButton;
+
+  /// No description provided for @recentBillsScreenCancelReturnConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Return'**
+  String get recentBillsScreenCancelReturnConfirmButton;
 
   /// No description provided for @recentBillsScreenKeepButton.
   ///
@@ -963,6 +1023,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Purchase bill cancelled.'**
   String get recentBillsScreenCancelPurchaseSuccess;
+
+  /// No description provided for @recentBillsScreenCancelPurchaseReturnSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase return cancelled.'**
+  String get recentBillsScreenCancelPurchaseReturnSuccess;
+
+  /// No description provided for @recentBillsScreenCancelSalesReturnSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales return cancelled.'**
+  String get recentBillsScreenCancelSalesReturnSuccess;
 
   /// No description provided for @recentBillsScreenCancelReasonLabel.
   ///

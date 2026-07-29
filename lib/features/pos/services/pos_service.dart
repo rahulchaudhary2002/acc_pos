@@ -192,18 +192,6 @@ class PosService {
     return created.id;
   }
 
-  /// Exact-name vendor lookup on the same listing. Listing also materialises
-  /// head-office vendor clones for this company (PartyController@index),
-  /// which makes the created-vendor lookup in [buy] reliable.
-  Future<Party?> _findVendorByName({required int companyId, required String name}) async {
-    final parties = await _fetchParties(companyId: companyId);
-    final wanted = name.trim().toLowerCase();
-    for (final party in parties) {
-      if (party.name.trim().toLowerCase() == wanted) return party;
-    }
-    return null;
-  }
-
   // ── Documents ─────────────────────────────────────────────────────────
 
   /// Runs the web admin approve → post lifecycle on a stored draft. If either
@@ -299,39 +287,11 @@ class PosService {
     required int outletId,
     int? locationId,
     int? fiscalYearId,
-    int? vendorId,
-    String? supplierName,
+    required int vendorId,
     String? invoiceNumber,
     String? transactionDate,
     required List<PurchaseCartItem> items,
   }) async {
-    var resolvedVendorId = vendorId;
-    if (resolvedVendorId == null && supplierName != null && supplierName.isNotEmpty) {
-      final existing = await _findVendorByName(companyId: companyId, name: supplierName);
-      if (existing != null) {
-        resolvedVendorId = existing.id;
-      } else {
-        // fetchSuppliers() (mirroring web's vendorOptions) only surfaces
-        // is_distributor parties, so a vendor auto-created here must be
-        // flagged as one — otherwise it posts fine but silently never shows
-        // up in the vendor picker again, even after the post-purchase reload.
-        final created = await _createParty(
-          companyId: companyId,
-          type: 'vendor',
-          name: supplierName,
-          isDistributor: true,
-        );
-        // New vendors are re-homed to the head company and cloned per company
-        // (PartyController@store) — transactions may only reference this
-        // company's clone, so look the vendor up again after creating it.
-        final localClone = await _findVendorByName(companyId: companyId, name: supplierName);
-        resolvedVendorId = (localClone ?? created).id;
-      }
-    }
-    if (resolvedVendorId == null) {
-      throw ApiException(message: 'Supplier/vendor is required.');
-    }
-
     final date = transactionDate ?? _today();
     final hasInvoiceNo = invoiceNumber != null && invoiceNumber.isNotEmpty;
     final grnNo = hasInvoiceNo ? invoiceNumber : _makeDocumentNo('GRN-POS');
@@ -343,7 +303,7 @@ class PosService {
       'company_id': companyId,
       'outlet_id': outletId,
       'fiscal_year_id': ?fiscalYearId,
-      'vendor_id': resolvedVendorId,
+      'vendor_id': vendorId,
       'grn_no': grnNo,
       'grn_date': date,
       'subtotal': subtotal,
@@ -373,7 +333,7 @@ class PosService {
       'company_id': companyId,
       'outlet_id': outletId,
       'fiscal_year_id': ?fiscalYearId,
-      'vendor_id': resolvedVendorId,
+      'vendor_id': vendorId,
       'grn_id': grnId,
       'bill_no': billNo,
       if (hasInvoiceNo) 'vendor_invoice_no': invoiceNumber,
@@ -559,6 +519,20 @@ class PosService {
   /// server-side window, required reason, and stock/journal reversal.
   Future<Map<String, dynamic>?> cancelPurchaseBill(int id, String cancelReason) async {
     final response = await _client.delete('/admin/purchase-bills/$id', data: {'cancel_reason': cancelReason});
+    return response['data'] as Map<String, dynamic>?;
+  }
+
+  /// Sales-return counterpart of [cancelSalesInvoice] — mirrors the web
+  /// admin's `DELETE /admin/sales-returns/{id}`.
+  Future<Map<String, dynamic>?> cancelSalesReturn(int id, String cancelReason) async {
+    final response = await _client.delete('/admin/sales-returns/$id', data: {'cancel_reason': cancelReason});
+    return response['data'] as Map<String, dynamic>?;
+  }
+
+  /// Purchase-return counterpart of [cancelSalesInvoice] — mirrors the web
+  /// admin's `DELETE /admin/purchase-returns/{id}`.
+  Future<Map<String, dynamic>?> cancelPurchaseReturn(int id, String cancelReason) async {
+    final response = await _client.delete('/admin/purchase-returns/$id', data: {'cancel_reason': cancelReason});
     return response['data'] as Map<String, dynamic>?;
   }
 
@@ -786,6 +760,54 @@ class PosService {
       if (range != null) 'to_date': range.to,
     });
     return _listData(response).map(TransactionSummary.fromPurchaseJson).toList();
+  }
+
+  /// Posted returns from `GET /admin/sales-returns` — same rationale as
+  /// [fetchSalesList].
+  Future<List<TransactionSummary>> fetchSalesReturnsList({
+    String? period,
+    int? companyId,
+    int? outletId,
+    String? search,
+    String? fromDate,
+    String? toDate,
+    List<String> statuses = const ['posted'],
+  }) async {
+    final range = _rangeForPeriod(period, fromDate, toDate);
+    final response = await _client.get('/admin/sales-returns', query: {
+      'per_page': 1000,
+      'status': statuses.join(','),
+      if (companyId != null) 'company_id': companyId,
+      if (outletId != null) 'outlet_id': outletId,
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (range != null) 'from_date': range.from,
+      if (range != null) 'to_date': range.to,
+    });
+    return _listData(response).map(TransactionSummary.fromSalesReturnJson).toList();
+  }
+
+  /// Posted returns from `GET /admin/purchase-returns` — same rationale as
+  /// [fetchPurchasesList].
+  Future<List<TransactionSummary>> fetchPurchaseReturnsList({
+    String? period,
+    int? companyId,
+    int? outletId,
+    String? search,
+    String? fromDate,
+    String? toDate,
+    List<String> statuses = const ['posted'],
+  }) async {
+    final range = _rangeForPeriod(period, fromDate, toDate);
+    final response = await _client.get('/admin/purchase-returns', query: {
+      'per_page': 1000,
+      'status': statuses.join(','),
+      if (companyId != null) 'company_id': companyId,
+      if (outletId != null) 'outlet_id': outletId,
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (range != null) 'from_date': range.from,
+      if (range != null) 'to_date': range.to,
+    });
+    return _listData(response).map(TransactionSummary.fromPurchaseReturnJson).toList();
   }
 
   // ── Ledgers & reports ─────────────────────────────────────────────────

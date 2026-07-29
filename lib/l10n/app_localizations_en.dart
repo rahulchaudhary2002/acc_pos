@@ -82,11 +82,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sellScreenVendorLabel => 'Vendor';
 
   @override
-  String get sellScreenSelectVendorHint => 'Select vendor (optional)';
+  String get sellScreenSelectVendorHint => 'Select vendor';
 
   @override
   String get sellScreenVendorFooterHint =>
       'Records which vendor this sale is attributed to for reporting.';
+
+  @override
+  String get sellScreenSelectVendorError => 'Please select a vendor.';
 
   @override
   String get sellScreenCurrentSaleTitle => 'Current Sale';
@@ -114,7 +117,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sellScreenCustomerOptionalLabel => 'Customer (optional)';
 
   @override
-  String get sellScreenWalkInNoCustomerLabel => 'Walk-in / No customer';
+  String get sellScreenWalkInNoCustomerLabel => 'No customer';
 
   @override
   String get sellScreenInvoiceNumberLabel => 'Invoice Number';
@@ -436,7 +439,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recentBillsScreenSubtitle =>
-      'Recent purchase bills & sales invoices';
+      'Recent purchase bills, sales invoices & returns';
 
   @override
   String get recentBillsScreenPurchaseTab => 'Purchase Bills';
@@ -445,12 +448,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recentBillsScreenSalesTab => 'Sales Invoices';
 
   @override
+  String get recentBillsScreenPurchaseReturnTab => 'Purchase Returns';
+
+  @override
+  String get recentBillsScreenSalesReturnTab => 'Sales Returns';
+
+  @override
   String get recentBillsScreenEmptyPurchase =>
       'No purchase bills in the last 24 hours';
 
   @override
   String get recentBillsScreenEmptySales =>
       'No sales invoices in the last 24 hours';
+
+  @override
+  String get recentBillsScreenEmptyPurchaseReturn =>
+      'No purchase returns in the last 24 hours';
+
+  @override
+  String get recentBillsScreenEmptySalesReturn =>
+      'No sales returns in the last 24 hours';
 
   @override
   String get recentBillsScreenCancelTooltip => 'Cancel';
@@ -471,7 +488,26 @@ class AppLocalizationsEn extends AppLocalizations {
       'This will cancel the posted purchase bill and reverse its stock movement and linked journal entries. Allowed only within 24 hours of creation.';
 
   @override
+  String get recentBillsScreenCancelPurchaseReturnDialogTitle =>
+      'Cancel purchase return?';
+
+  @override
+  String get recentBillsScreenCancelPurchaseReturnDialogMessage =>
+      'This will cancel the posted purchase return and reverse its stock movement and linked journal entries. Allowed only within 24 hours of creation.';
+
+  @override
+  String get recentBillsScreenCancelSalesReturnDialogTitle =>
+      'Cancel sales return?';
+
+  @override
+  String get recentBillsScreenCancelSalesReturnDialogMessage =>
+      'This will cancel the posted sales return and reverse its stock movement and linked journal entries. Allowed only within 24 hours of creation.';
+
+  @override
   String get recentBillsScreenCancelConfirmButton => 'Cancel Bill';
+
+  @override
+  String get recentBillsScreenCancelReturnConfirmButton => 'Cancel Return';
 
   @override
   String get recentBillsScreenKeepButton => 'Keep';
@@ -482,6 +518,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get recentBillsScreenCancelPurchaseSuccess =>
       'Purchase bill cancelled.';
+
+  @override
+  String get recentBillsScreenCancelPurchaseReturnSuccess =>
+      'Purchase return cancelled.';
+
+  @override
+  String get recentBillsScreenCancelSalesReturnSuccess =>
+      'Sales return cancelled.';
 
   @override
   String get recentBillsScreenCancelReasonLabel =>

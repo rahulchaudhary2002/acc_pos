@@ -43,7 +43,6 @@ class _BuyScreenState extends State<BuyScreen> {
   String _mode = 'purchase'; // 'purchase' | 'return'
   Party? _selectedVendor;
   DateTime _purchaseDate = DateTime.now();
-  final _vendorNameController = TextEditingController();
   final _invoiceNumberController = TextEditingController();
   bool _isSubmitting = false;
   String? _errorMessage;
@@ -66,7 +65,6 @@ class _BuyScreenState extends State<BuyScreen> {
   @override
   void dispose() {
     _invoiceNumberController.dispose();
-    _vendorNameController.dispose();
     super.dispose();
   }
 
@@ -182,8 +180,7 @@ class _BuyScreenState extends State<BuyScreen> {
     final cart = context.read<BuyCartProvider>();
     final config = context.read<PosConfigProvider>();
     if (cart.isEmpty) return;
-    final vendorName = _vendorNameController.text.trim();
-    if (_selectedVendor == null && vendorName.isEmpty) {
+    if (_selectedVendor == null) {
       setState(() => _errorMessage = AppLocalizations.of(context)!.buyScreenSelectVendorError);
       return;
     }
@@ -200,8 +197,7 @@ class _BuyScreenState extends State<BuyScreen> {
         outletId: config.selectedOutletId!,
         locationId: config.selectedLocationId,
         fiscalYearId: config.selectedFiscalYearId,
-        vendorId: _selectedVendor?.id,
-        supplierName: _selectedVendor == null ? vendorName : null,
+        vendorId: _selectedVendor!.id,
         invoiceNumber: _invoiceNumberController.text.trim(),
         transactionDate: DateFormat('yyyy-MM-dd').format(_purchaseDate),
         items: cart.items,
@@ -211,18 +207,14 @@ class _BuyScreenState extends State<BuyScreen> {
       final matchingOutlets = config.outlets.where((o) => o.id == config.selectedOutletId);
       final outlet = matchingOutlets.isEmpty ? null : matchingOutlets.first;
       final itemsSnapshot = List.of(cart.items);
-      final vendorNameSnapshot = _selectedVendor?.name ?? vendorName;
-      final vendorVatSnapshot = _selectedVendor?.panVatNo;
+      final vendorNameSnapshot = _selectedVendor!.name;
+      final vendorVatSnapshot = _selectedVendor!.panVatNo;
       final vendorInvoiceNoSnapshot = _invoiceNumberController.text.trim();
       final billDateSnapshot = _purchaseDate;
       final preparedBy = context.read<AuthProvider>().user?.name;
       _clearForm(cart);
       _announce('purchaseCompleted');
-      // Mirrors PosTerminal.jsx: refetch products AND parties after a
-      // purchase. A typed-in supplier name creates that vendor server-side
-      // (PosService.buy()'s named-vendor path) without adding it to
-      // PosDataProvider.suppliers locally, so without this refetch the new
-      // vendor silently never appears in the supplier picker next time.
+      // Mirrors PosTerminal.jsx: refetch products AND parties after a purchase.
       final posData = context.read<PosDataProvider>();
       unawaited(posData.loadProducts(
             companyId: config.selectedCompanyId,
@@ -254,7 +246,6 @@ class _BuyScreenState extends State<BuyScreen> {
     setState(() {
       _selectedVendor = null;
       _purchaseDate = DateTime.now();
-      _vendorNameController.clear();
       _invoiceNumberController.clear();
     });
   }
@@ -436,16 +427,11 @@ class _BuyScreenState extends State<BuyScreen> {
               isExpanded: true,
               initialValue: _selectedVendor,
               decoration: InputDecoration(labelText: AppLocalizations.of(context)!.buyScreenVendorLabel),
-              items: data.suppliers
+              items: {for (final s in data.suppliers) s.id: s}
+                  .values
                   .map((s) => DropdownMenuItem(value: s, child: Text(s.name, overflow: TextOverflow.ellipsis)))
                   .toList(),
               onChanged: (v) => setState(() => _selectedVendor = v),
-            ),
-            const SizedBox(height: AppSpacing.item),
-            TextField(
-              controller: _vendorNameController,
-              enabled: _selectedVendor == null,
-              decoration: InputDecoration(labelText: AppLocalizations.of(context)!.buyScreenVendorNameLabel),
             ),
           ],
         ),
@@ -622,7 +608,8 @@ class _BuyScreenState extends State<BuyScreen> {
               isExpanded: true,
               initialValue: _returnVendor,
               decoration: const InputDecoration(filled: true, fillColor: AppColors.surface),
-              items: data.suppliers
+              items: {for (final s in data.suppliers) s.id: s}
+                  .values
                   .map((s) => DropdownMenuItem(value: s, child: Text(s.name, overflow: TextOverflow.ellipsis)))
                   .toList(),
               onChanged: (v) => setState(() => _returnVendor = v),

@@ -184,6 +184,10 @@ class _SellScreenState extends State<SellScreen> {
     final cart = context.read<CartProvider>();
     final config = context.read<PosConfigProvider>();
     if (cart.isEmpty) return;
+    if (_selectedVendor == null) {
+      setState(() => _errorMessage = AppLocalizations.of(context)!.sellScreenSelectVendorError);
+      return;
+    }
     final walkInName = _customerNameController.text.trim();
     if (cart.saleType == 'customer' && _selectedCustomer == null && walkInName.isEmpty) {
       setState(() => _errorMessage = AppLocalizations.of(context)!.sellScreenSelectCustomerOrNameError);
@@ -291,6 +295,10 @@ class _SellScreenState extends State<SellScreen> {
   Future<void> _submitReturn() async {
     if (_returnItems.isEmpty) return;
     final config = context.read<PosConfigProvider>();
+    if (_selectedVendor == null) {
+      setState(() => _errorMessage = AppLocalizations.of(context)!.sellScreenSelectVendorError);
+      return;
+    }
     setState(() {
       _isSubmitting = true;
       _errorMessage = null;
@@ -665,7 +673,9 @@ class _SellScreenState extends State<SellScreen> {
               ),
               items: [
                 DropdownMenuItem<int?>(value: null, child: Text(AppLocalizations.of(context)!.sellScreenWalkInNoCustomerLabel)),
-                ...data.customers.map((c) => DropdownMenuItem<int?>(value: c.id, child: Text(c.name, overflow: TextOverflow.ellipsis))),
+                ...data.customers
+                    .where((c) => (c.type ?? '').toLowerCase() != 'walk-in')
+                    .map((c) => DropdownMenuItem<int?>(value: c.id, child: Text(c.name, overflow: TextOverflow.ellipsis))),
               ],
               onChanged: (value) => setState(() => _returnCustomerId = value),
             ),
@@ -813,7 +823,9 @@ class _CustomerInfoSection extends StatelessWidget {
             decoration: InputDecoration(labelText: AppLocalizations.of(context)!.sellScreenExistingCustomerLabel),
             items: [
               DropdownMenuItem<Party?>(value: null, child: Text(AppLocalizations.of(context)!.sellScreenSelectCustomerLabel)),
-              ...customers.map((c) => DropdownMenuItem<Party?>(value: c, child: Text(c.name, overflow: TextOverflow.ellipsis))),
+              ...customers
+                  .where((c) => (c.type ?? '').toLowerCase() != 'walk-in')
+                  .map((c) => DropdownMenuItem<Party?>(value: c, child: Text(c.name, overflow: TextOverflow.ellipsis))),
             ],
             onChanged: onCustomerSelected,
           ),
