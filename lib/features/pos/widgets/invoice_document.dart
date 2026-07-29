@@ -51,6 +51,7 @@ class TaxInvoiceDocument extends StatelessWidget {
   final String signatureRightLabel;
   final List<Widget> actions;
   final String title;
+  final String copyLabel;
 
   /// Shows a large diagonal "CANCELLED" watermark across the receipt when
   /// true, mirroring the web admin's cancelled-invoice print.
@@ -76,6 +77,7 @@ class TaxInvoiceDocument extends StatelessWidget {
     required this.signatureRightLabel,
     required this.actions,
     this.title = 'TAX INVOICE',
+    this.copyLabel = 'Original',
     this.isCancelled = false,
   });
 
@@ -98,6 +100,7 @@ class TaxInvoiceDocument extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.field),
           Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          Text(copyLabel, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
           _divider(),
           ..._metaFieldWidgets(),
           _divider(),
@@ -305,7 +308,6 @@ class TaxInvoiceDocument extends StatelessWidget {
       children: [
         Align(alignment: Alignment.centerLeft, child: _plainRow('Print Date/Time :', printDateTimeLabel(printedAt))),
         if (nepaliDate.isNotEmpty) Align(alignment: Alignment.centerLeft, child: _plainRow('Nepali Date :', nepaliDate)),
-        const Text('Original', style: TextStyle(fontSize: 12)),
       ],
     );
   }
@@ -334,7 +336,7 @@ class TaxInvoiceDocument extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Expanded(child: _signatureColumn(preparedBy.isEmpty ? 'Prepared By' : preparedBy, 'Prepare By')),
+        Expanded(child: _signatureColumn(preparedBy.isEmpty ? 'Prepared By' : preparedBy, 'Prepared By')),
         const SizedBox(width: AppSpacing.section),
         Expanded(child: _signatureColumn('', signatureRightLabel)),
       ],

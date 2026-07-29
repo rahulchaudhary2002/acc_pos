@@ -202,6 +202,9 @@ pw.MultiPage _invoicePage({
     pw.Center(
       child: pw.Text(title, style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
     ),
+    pw.Center(
+      child: pw.Text(copyLabel, style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold)),
+    ),
     pw.Divider(color: border, thickness: 1, height: 9),
     ..._metaFieldWidgets(metaRows, border),
     pw.Divider(color: border, thickness: 1, height: 9),
@@ -211,11 +214,11 @@ pw.MultiPage _invoicePage({
     pw.Divider(color: border, thickness: 1, height: 9),
     pw.Text(amountToWords(total), style: pw.TextStyle(fontSize: 9, fontStyle: pw.FontStyle.italic)),
     pw.Divider(color: border, thickness: 1, height: 9),
-    _dateAndOriginalSection(printedAt, copyLabel),
+    _dateAndOriginalSection(printedAt),
     pw.Divider(color: border, thickness: 1, height: 9),
     pw.SizedBox(height: 8),
     pw.Row(children: [
-      pw.Expanded(child: _signatureColumn(preparedBy.isEmpty ? 'Prepared By' : preparedBy, 'Prepare By')),
+      pw.Expanded(child: _signatureColumn(preparedBy.isEmpty ? 'Prepared By' : preparedBy, 'Prepared By')),
       pw.SizedBox(width: 24),
       pw.Expanded(child: _signatureColumn('', signatureRightLabel)),
     ]),
@@ -380,7 +383,7 @@ pw.Widget _totalsSection(
   ]);
 }
 
-pw.Widget _dateAndOriginalSection(DateTime printedAt, String copyLabel) {
+pw.Widget _dateAndOriginalSection(DateTime printedAt) {
   final nepaliDate = nepaliDateLabel(printedAt);
   return pw.Column(children: [
     pw.Align(
@@ -389,7 +392,6 @@ pw.Widget _dateAndOriginalSection(DateTime printedAt, String copyLabel) {
     ),
     if (nepaliDate.isNotEmpty)
       pw.Align(alignment: pw.Alignment.centerLeft, child: pw.Text('Nepali Date : $nepaliDate', style: const pw.TextStyle(fontSize: 9))),
-    pw.Text(copyLabel, style: const pw.TextStyle(fontSize: 9)),
   ]);
 }
 

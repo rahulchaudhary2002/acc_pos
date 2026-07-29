@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../models/company.dart';
 import '../models/json_utils.dart';
 import '../models/outlet.dart';
@@ -95,8 +96,10 @@ Future<void> showHistoricalSalesInvoicePreview(
     // A sales invoice always prints both the tax invoice and the plain
     // invoice copy together, as a single print action.
     dualInvoiceCopies: true,
-    salesInvoiceId: invoiceId,
+    recordPrintId: invoiceId,
+    recordPrint: invoiceId == null ? null : (id) => context.read<PosService>().recordSalesInvoicePrint(id),
     copyLabel: printCopyLabel(printCount + 1),
+    preparedBy: (invoice['created_by'] as Map<String, dynamic>?)?['name'] as String? ?? '',
     isCancelled: invoice['status'] == 'cancelled',
   );
 }
@@ -154,7 +157,139 @@ Future<void> showHistoricalPurchaseBillPreview(
     signatureRightLabel: 'Supplier',
     pdfName: 'Purchase-$documentNo',
     title: 'PURCHASE INVOICE',
+    preparedBy: (bill['created_by'] as Map<String, dynamic>?)?['name'] as String? ?? '',
     isCancelled: bill['status'] == 'cancelled',
+  );
+}
+
+/// Re-prints a previously posted sales return from its full
+/// `GET /admin/sales-returns/{id}` JSON — Recent Bills' Sales Return tab
+/// counterpart of [showHistoricalSalesInvoicePreview].
+Future<void> showHistoricalSalesReturnPreview(
+  BuildContext context, {
+  required Map<String, dynamic> salesReturn,
+}) {
+  final outletJson = salesReturn['outlet'] as Map<String, dynamic>?;
+  final companyJson = outletJson?['company'] as Map<String, dynamic>?;
+  final customerJson = salesReturn['customer'] as Map<String, dynamic>?;
+
+  final company = companyJson != null
+      ? Company.fromJson(companyJson)
+      : Company(id: 0, name: 'LPG Vendor');
+  final outlet = outletJson != null ? Outlet.fromJson(outletJson) : null;
+
+  final lines = _linesFrom(salesReturn);
+  final subtotal = asDoubleOrNull(salesReturn['subtotal']) ?? _sumLineSubtotal(lines);
+  final tax = asDoubleOrNull(salesReturn['tax_total']) ?? 0;
+  final total = asDoubleOrNull(salesReturn['grand_total']) ?? (subtotal + tax);
+  final printedOn = DateTime.now();
+  final counterNo = outlet?.code ?? outlet?.id.toString() ?? '';
+  final taxSummary = computeTaxSummary(lines.map((l) => (l.taxRate, l.total)));
+  final reason = salesReturn['reason'] as String?;
+
+  final metaRows = [
+    [
+      ('Return No', (salesReturn['return_no'] as String?) ?? '-'),
+      ('Return Date', _formatDate(salesReturn['return_date'] as String?)),
+    ],
+    [('Counter No.', counterNo), null],
+    [('Customer Name', (customerJson?['name'] as String?) ?? 'Walk-in Customer'), null],
+    if ((reason ?? '').isNotEmpty) [('Reason', reason!), null],
+  ];
+
+  final documentNo = (salesReturn['return_no'] as String?) ?? '-';
+  final returnId = asIntOrNull(salesReturn['id']);
+  final printCount = asIntOrNull(salesReturn['print_count']) ?? 0;
+
+  return _showHistoricalDialog(
+    context,
+    company: company,
+    outlet: outlet,
+    metaRows: metaRows,
+    lines: lines,
+    printedOn: printedOn,
+    taxSummary: taxSummary,
+    subtotal: subtotal,
+    tax: tax,
+    delivery: 0,
+    total: total,
+    signatureRightLabel: 'Customer',
+    pdfName: 'SalesReturn-$documentNo',
+    title: 'SALES RETURN',
+    copyLabel: printCopyLabel(printCount + 1),
+    // Returns/notes stamp whoever is printing right now, not the original
+    // creator — matching the backend's ReceiptDocumentFactory's convention
+    // for returns (Auth::user(), not a createdBy relation) and the web
+    // POS's own historical-return reprint.
+    preparedBy: context.read<AuthProvider>().user?.name ?? '',
+    recordPrintId: returnId,
+    recordPrint: returnId == null ? null : (id) => context.read<PosService>().recordSalesReturnPrint(id),
+    isCancelled: salesReturn['status'] == 'cancelled',
+  );
+}
+
+/// Purchase-return counterpart of [showHistoricalSalesReturnPreview] —
+/// vendor fields instead of customer, "Supplier" on the signature line.
+Future<void> showHistoricalPurchaseReturnPreview(
+  BuildContext context, {
+  required Map<String, dynamic> purchaseReturn,
+}) {
+  final outletJson = purchaseReturn['outlet'] as Map<String, dynamic>?;
+  final companyJson = outletJson?['company'] as Map<String, dynamic>?;
+  final vendorJson = purchaseReturn['vendor'] as Map<String, dynamic>?;
+
+  final company = companyJson != null
+      ? Company.fromJson(companyJson)
+      : Company(id: 0, name: 'LPG Vendor');
+  final outlet = outletJson != null ? Outlet.fromJson(outletJson) : null;
+
+  final lines = _linesFrom(purchaseReturn);
+  final subtotal = asDoubleOrNull(purchaseReturn['subtotal']) ?? _sumLineSubtotal(lines);
+  final tax = asDoubleOrNull(purchaseReturn['tax_total']) ?? 0;
+  final total = asDoubleOrNull(purchaseReturn['grand_total']) ?? (subtotal + tax);
+  final printedOn = DateTime.now();
+  final counterNo = outlet?.code ?? outlet?.id.toString() ?? '';
+  final taxSummary = computeTaxSummary(lines.map((l) => (l.taxRate, l.total)));
+  final reason = purchaseReturn['reason'] as String?;
+
+  var vendorPan = (vendorJson?['pan_vat_no'] as String?) ?? (vendorJson?['vat_reg_number'] as String?) ?? '';
+  if (vendorPan == 'N/A' || vendorPan == '-') vendorPan = '';
+
+  final metaRows = [
+    [
+      ('Return No', (purchaseReturn['return_no'] as String?) ?? '-'),
+      ('Return Date', _formatDate(purchaseReturn['return_date'] as String?)),
+    ],
+    [('Counter No.', counterNo), null],
+    [('Vendor Name', (vendorJson?['name'] as String?) ?? 'Vendor'), null],
+    [('Vendor Pan', vendorPan), null],
+    if ((reason ?? '').isNotEmpty) [('Reason', reason!), null],
+  ];
+
+  final documentNo = (purchaseReturn['return_no'] as String?) ?? '-';
+  final returnId = asIntOrNull(purchaseReturn['id']);
+  final printCount = asIntOrNull(purchaseReturn['print_count']) ?? 0;
+
+  return _showHistoricalDialog(
+    context,
+    company: company,
+    outlet: outlet,
+    metaRows: metaRows,
+    lines: lines,
+    printedOn: printedOn,
+    taxSummary: taxSummary,
+    subtotal: subtotal,
+    tax: tax,
+    delivery: 0,
+    total: total,
+    signatureRightLabel: 'Supplier',
+    pdfName: 'PurchaseReturn-$documentNo',
+    title: 'PURCHASE RETURN',
+    copyLabel: printCopyLabel(printCount + 1),
+    preparedBy: context.read<AuthProvider>().user?.name ?? '',
+    recordPrintId: returnId,
+    recordPrint: returnId == null ? null : (id) => context.read<PosService>().recordPurchaseReturnPrint(id),
+    isCancelled: purchaseReturn['status'] == 'cancelled',
   );
 }
 
@@ -174,12 +309,13 @@ Future<void> _showHistoricalDialog(
   required String pdfName,
   required String? title,
   bool dualInvoiceCopies = false,
-  int? salesInvoiceId,
+  int? recordPrintId,
+  Future<void> Function(int id)? recordPrint,
   String copyLabel = 'Original',
+  String preparedBy = '',
   bool isCancelled = false,
 }) {
   final resolvedTitle = title ?? 'TAX INVOICE';
-  final preparedBy = 'Prepared By';
 
   final thermalData = ThermalReceiptData(
     companyName: company.name,
@@ -304,6 +440,7 @@ Future<void> _showHistoricalDialog(
       companyPhone: company.phone,
       companyVatNo: company.panVatNo,
       title: resolvedTitle,
+      copyLabel: copyLabel,
       metaRows: metaRows,
       items: lines,
       printedAt: printedOn,
@@ -329,8 +466,8 @@ Future<void> _showHistoricalDialog(
             } else {
               await Printing.layoutPdf(onLayout: (_) => buildPdf(), name: pdfName);
             }
-            if (salesInvoiceId != null && context.mounted) {
-              await context.read<PosService>().recordSalesInvoicePrint(salesInvoiceId);
+            if (recordPrintId != null && recordPrint != null && context.mounted) {
+              await recordPrint(recordPrintId);
             }
           },
           style: AppButtonStyles.filled(AppColors.info).copyWith(

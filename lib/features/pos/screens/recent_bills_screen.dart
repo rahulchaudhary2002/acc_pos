@@ -149,6 +149,36 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
     }
   }
 
+  Future<void> _printPurchaseReturn(TransactionSummary item) async {
+    setState(() => _printingId = item.id);
+    try {
+      final service = context.read<PosService>();
+      final purchaseReturn = await service.fetchPurchaseReturnDetail(item.id);
+      if (!mounted) return;
+      await showHistoricalPurchaseReturnPreview(context, purchaseReturn: purchaseReturn);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _printingId = null);
+    }
+  }
+
+  Future<void> _printSalesReturn(TransactionSummary item) async {
+    setState(() => _printingId = item.id);
+    try {
+      final service = context.read<PosService>();
+      final salesReturn = await service.fetchSalesReturnDetail(item.id);
+      if (!mounted) return;
+      await showHistoricalSalesReturnPreview(context, salesReturn: salesReturn);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _printingId = null);
+    }
+  }
+
   /// Cancels a posted purchase bill/sales invoice — reverses its stock
   /// movement and linked journal vouchers server-side, mirroring the web
   /// admin's "Cancel" action. The server only allows this within 24 hours of
@@ -275,55 +305,15 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
   /// required reason textarea, mirroring the web admin's cancel modal) and
   /// returns the trimmed reason, or null if the user backed out / left it
   /// blank.
-  Future<String?> _promptCancelReason({required String title, required String message, String? confirmButtonLabel}) async {
-    final l10n = AppLocalizations.of(context)!;
-    final controller = TextEditingController();
-    String? error;
-    final reason = await showDialog<String>(
+  Future<String?> _promptCancelReason({required String title, required String message, String? confirmButtonLabel}) {
+    return showDialog<String>(
       context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (dialogContext, setDialogState) => AlertDialog(
-          title: Text(title),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(message),
-              const SizedBox(height: 12),
-              Text(l10n.recentBillsScreenCancelReasonLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 6),
-              TextField(
-                controller: controller,
-                autofocus: true,
-                minLines: 2,
-                maxLines: 4,
-                decoration: InputDecoration(
-                  hintText: l10n.recentBillsScreenCancelReasonPlaceholder,
-                  errorText: error,
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(l10n.recentBillsScreenKeepButton)),
-            TextButton(
-              onPressed: () {
-                final trimmed = controller.text.trim();
-                if (trimmed.isEmpty) {
-                  setDialogState(() => error = l10n.recentBillsScreenCancelReasonRequired);
-                  return;
-                }
-                Navigator.pop(dialogContext, trimmed);
-              },
-              child: Text(confirmButtonLabel ?? l10n.recentBillsScreenCancelConfirmButton),
-            ),
-          ],
-        ),
+      builder: (dialogContext) => _CancelReasonDialog(
+        title: title,
+        message: message,
+        confirmButtonLabel: confirmButtonLabel,
       ),
     );
-    controller.dispose();
-    return reason;
   }
 
   @override
@@ -355,8 +345,20 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
             children: [
               _list(items: _purchases, color: AppColors.warningDark, emptyMessage: l10n.recentBillsScreenEmptyPurchase, onPrint: _printPurchase, onCancel: _cancelPurchase),
               _list(items: _sales, color: AppColors.success, emptyMessage: l10n.recentBillsScreenEmptySales, onPrint: _printSale, onCancel: _cancelSale),
-              _list(items: _purchaseReturns, color: AppColors.warningDark, emptyMessage: l10n.recentBillsScreenEmptyPurchaseReturn, onCancel: _cancelPurchaseReturn),
-              _list(items: _salesReturns, color: AppColors.success, emptyMessage: l10n.recentBillsScreenEmptySalesReturn, onCancel: _cancelSalesReturn),
+              _list(
+                items: _purchaseReturns,
+                color: AppColors.warningDark,
+                emptyMessage: l10n.recentBillsScreenEmptyPurchaseReturn,
+                onPrint: _printPurchaseReturn,
+                onCancel: _cancelPurchaseReturn,
+              ),
+              _list(
+                items: _salesReturns,
+                color: AppColors.success,
+                emptyMessage: l10n.recentBillsScreenEmptySalesReturn,
+                onPrint: _printSalesReturn,
+                onCancel: _cancelSalesReturn,
+              ),
             ],
           ),
         ),
@@ -399,6 +401,77 @@ class _RecentBillsScreenState extends State<RecentBillsScreen> with SingleTicker
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Cancellation-reason dialog content, as its own `StatefulWidget` rather
+/// than a `StatefulBuilder` inside the `showDialog` builder — `StatefulBuilder`
+/// nested directly in a dialog route has been a known trigger for a
+/// `_dependents.isEmpty` framework assertion when `Navigator.pop` fires
+/// (its rebuild scope doesn't cleanly separate from the route transition),
+/// so this dedicated widget sidesteps that class of crash entirely.
+class _CancelReasonDialog extends StatefulWidget {
+  final String title;
+  final String message;
+  final String? confirmButtonLabel;
+
+  const _CancelReasonDialog({required this.title, required this.message, this.confirmButtonLabel});
+
+  @override
+  State<_CancelReasonDialog> createState() => _CancelReasonDialogState();
+}
+
+class _CancelReasonDialogState extends State<_CancelReasonDialog> {
+  final _controller = TextEditingController();
+  String? _error;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return AlertDialog(
+      title: Text(widget.title),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(widget.message),
+          const SizedBox(height: 12),
+          Text(l10n.recentBillsScreenCancelReasonLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: _controller,
+            autofocus: true,
+            minLines: 2,
+            maxLines: 4,
+            decoration: InputDecoration(
+              hintText: l10n.recentBillsScreenCancelReasonPlaceholder,
+              errorText: _error,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.recentBillsScreenKeepButton)),
+        TextButton(
+          onPressed: () {
+            final trimmed = _controller.text.trim();
+            if (trimmed.isEmpty) {
+              setState(() => _error = l10n.recentBillsScreenCancelReasonRequired);
+              return;
+            }
+            Navigator.pop(context, trimmed);
+          },
+          child: Text(widget.confirmButtonLabel ?? l10n.recentBillsScreenCancelConfirmButton),
+        ),
+      ],
     );
   }
 }

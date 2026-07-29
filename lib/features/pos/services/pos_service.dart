@@ -540,6 +540,38 @@ class PosService {
     return response['data'] as Map<String, dynamic>?;
   }
 
+  /// Full sales return by id — same rationale as [fetchSalesInvoiceDetail],
+  /// for re-printing a Recent Bills return row.
+  Future<Map<String, dynamic>> fetchSalesReturnDetail(int id) async {
+    final response = await _client.get('/admin/sales-returns/$id');
+    return response['data'] as Map<String, dynamic>;
+  }
+
+  /// Full purchase return by id — same rationale as [fetchPurchaseBillDetail].
+  Future<Map<String, dynamic>> fetchPurchaseReturnDetail(int id) async {
+    final response = await _client.get('/admin/purchase-returns/$id');
+    return response['data'] as Map<String, dynamic>;
+  }
+
+  /// Records that a sales return was actually printed — mirrors
+  /// [recordSalesInvoicePrint]'s best-effort, never-block-the-print rationale.
+  Future<void> recordSalesReturnPrint(int id) async {
+    try {
+      await _client.post('/admin/sales-returns/$id/record-print');
+    } catch (_) {
+      // Ignore — printing already happened; not worth surfacing to the user.
+    }
+  }
+
+  /// Purchase-return counterpart of [recordSalesReturnPrint].
+  Future<void> recordPurchaseReturnPrint(int id) async {
+    try {
+      await _client.post('/admin/purchase-returns/$id/record-print');
+    } catch (_) {
+      // Ignore — printing already happened; not worth surfacing to the user.
+    }
+  }
+
   TransactionResult _posReturnResult(Map<String, dynamic> response, String fallbackMessage) {
     final data = response['data'] as Map<String, dynamic>;
     return TransactionResult(

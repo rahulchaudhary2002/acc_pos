@@ -149,12 +149,20 @@ class _SellScreenState extends State<SellScreen> {
         nextItems.add(SaleCartItem(product: product, qty: line.qty, rate: line.rate));
       }
 
+      // Only accept the invoice's customer id if it's actually present in the
+      // return-customer dropdown's options (same filter as that dropdown
+      // applies) — otherwise DropdownButtonFormField asserts when its value
+      // doesn't match any DropdownMenuItem (e.g. the customer belongs to a
+      // different company/outlet scope, was deleted, or is walk-in typed).
+      final matchesDropdownOption = result.partyId != null &&
+          posData.customers.any((c) => c.id == result.partyId && (c.type ?? '').toLowerCase() != 'walk-in');
+
       setState(() {
         _returnItems
           ..clear()
           ..addAll(nextItems);
         _returnReferenceInvoiceId = result.documentId;
-        if (result.partyId != null) _returnCustomerId = result.partyId;
+        if (matchesDropdownOption) _returnCustomerId = result.partyId;
         _returnLookupLoading = false;
         _returnLookupMessage = l10n.sellScreenInvoiceLookupFound(
           nextItems.length,
