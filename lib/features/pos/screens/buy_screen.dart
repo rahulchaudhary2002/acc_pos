@@ -49,6 +49,7 @@ class _BuyScreenState extends State<BuyScreen> {
 
   final List<PurchaseCartItem> _returnItems = [];
   Party? _returnVendor;
+  final _returnReasonController = TextEditingController();
   TransactionSummary? _selectedReturnBill;
   int? _returnReferenceBillId;
   bool _returnLookupLoading = false;
@@ -65,6 +66,7 @@ class _BuyScreenState extends State<BuyScreen> {
   @override
   void dispose() {
     _invoiceNumberController.dispose();
+    _returnReasonController.dispose();
     super.dispose();
   }
 
@@ -281,6 +283,7 @@ class _BuyScreenState extends State<BuyScreen> {
         locationId: config.selectedLocationId,
         vendorId: _returnVendor!.id,
         referenceBillId: _returnReferenceBillId,
+        reason: _returnReasonController.text.trim().isEmpty ? null : _returnReasonController.text.trim(),
         items: _returnItems,
       );
       if (!mounted) return;
@@ -306,6 +309,7 @@ class _BuyScreenState extends State<BuyScreen> {
         _returnReferenceBillId = null;
         _selectedReturnBill = null;
         _returnLookupMessage = null;
+        _returnReasonController.clear();
       });
       unawaited(context.read<PosDataProvider>().loadProducts(
             companyId: config.selectedCompanyId,
@@ -613,6 +617,18 @@ class _BuyScreenState extends State<BuyScreen> {
                   .map((s) => DropdownMenuItem(value: s, child: Text(s.name, overflow: TextOverflow.ellipsis)))
                   .toList(),
               onChanged: (v) => setState(() => _returnVendor = v),
+            ),
+            const SizedBox(height: AppSpacing.item),
+            Text(AppLocalizations.of(context)!.buyScreenReturnReasonLabel, style: AppTextStyles.label),
+            const SizedBox(height: 4),
+            TextField(
+              controller: _returnReasonController,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.surface,
+                hintText: AppLocalizations.of(context)!.buyScreenReturnReasonHint,
+              ),
+              maxLines: 2,
             ),
           ],
         ),

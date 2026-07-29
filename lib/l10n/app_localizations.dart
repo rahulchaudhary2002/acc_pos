@@ -302,6 +302,18 @@ abstract class AppLocalizations {
   /// **'No customer'**
   String get sellScreenWalkInNoCustomerLabel;
 
+  /// No description provided for @sellScreenReturnReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get sellScreenReturnReasonLabel;
+
+  /// No description provided for @sellScreenReturnReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Sales Cancellation'**
+  String get sellScreenReturnReasonHint;
+
   /// No description provided for @sellScreenInvoiceNumberLabel.
   ///
   /// In en, this message translates to:
@@ -581,6 +593,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Supplier'**
   String get buyScreenSupplierLabel;
+
+  /// No description provided for @buyScreenReturnReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get buyScreenReturnReasonLabel;
+
+  /// No description provided for @buyScreenReturnReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Goods Defective'**
+  String get buyScreenReturnReasonHint;
 
   /// No description provided for @buyScreenReturnBillNumberLabel.
   ///

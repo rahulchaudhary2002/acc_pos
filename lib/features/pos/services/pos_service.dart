@@ -368,6 +368,7 @@ class PosService {
     int? customerId,
     int? vendorId,
     int? referenceInvoiceId,
+    String? reason,
     required List<SaleCartItem> items,
   }) async {
     final response = await _client.post('/pos/sell-return', data: {
@@ -378,6 +379,7 @@ class PosService {
       'vendor_id': vendorId,
       'reference_invoice_id': referenceInvoiceId,
       'return_date': _today(),
+      'reason': reason,
       'items': items.map((e) => e.toPosReturnJson()).toList(),
     });
     return _posReturnResult(response, 'Sales return completed successfully.');
@@ -391,6 +393,7 @@ class PosService {
     int? locationId,
     required int vendorId,
     int? referenceBillId,
+    String? reason,
     required List<PurchaseCartItem> items,
   }) async {
     final response = await _client.post('/pos/purchase-return', data: {
@@ -400,6 +403,7 @@ class PosService {
       'vendor_id': vendorId,
       'reference_bill_id': referenceBillId,
       'return_date': _today(),
+      'reason': reason,
       'items': items.map((e) => e.toPosReturnJson()).toList(),
     });
     return _posReturnResult(response, 'Purchase return completed successfully.');

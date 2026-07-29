@@ -54,6 +54,7 @@ class _SellScreenState extends State<SellScreen> {
 
   final List<SaleCartItem> _returnItems = [];
   int? _returnCustomerId;
+  final _returnReasonController = TextEditingController();
   TransactionSummary? _selectedReturnInvoice;
   int? _returnReferenceInvoiceId;
   bool _returnLookupLoading = false;
@@ -71,6 +72,7 @@ class _SellScreenState extends State<SellScreen> {
     _customerPhoneController.dispose();
     _customerVatController.dispose();
     _customerAddressController.dispose();
+    _returnReasonController.dispose();
     super.dispose();
   }
 
@@ -312,6 +314,7 @@ class _SellScreenState extends State<SellScreen> {
         customerId: _returnCustomerId,
         vendorId: _selectedVendor?.id,
         referenceInvoiceId: _returnReferenceInvoiceId,
+        reason: _returnReasonController.text.trim().isEmpty ? null : _returnReasonController.text.trim(),
         items: _returnItems,
       );
       if (!mounted) return;
@@ -332,6 +335,7 @@ class _SellScreenState extends State<SellScreen> {
         _returnReferenceInvoiceId = null;
         _selectedReturnInvoice = null;
         _returnLookupMessage = null;
+        _returnReasonController.clear();
       });
       unawaited(posData.loadProducts(
             companyId: config.selectedCompanyId,
@@ -678,6 +682,18 @@ class _SellScreenState extends State<SellScreen> {
                     .map((c) => DropdownMenuItem<int?>(value: c.id, child: Text(c.name, overflow: TextOverflow.ellipsis))),
               ],
               onChanged: (value) => setState(() => _returnCustomerId = value),
+            ),
+            const SizedBox(height: AppSpacing.item),
+            Text(AppLocalizations.of(context)!.sellScreenReturnReasonLabel, style: AppTextStyles.label),
+            const SizedBox(height: 4),
+            TextField(
+              controller: _returnReasonController,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.surface,
+                hintText: AppLocalizations.of(context)!.sellScreenReturnReasonHint,
+              ),
+              maxLines: 2,
             ),
           ],
         ),

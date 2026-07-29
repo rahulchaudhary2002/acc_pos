@@ -120,6 +120,12 @@ class AppLocalizationsNe extends AppLocalizations {
   String get sellScreenWalkInNoCustomerLabel => 'ग्राहक नभएको';
 
   @override
+  String get sellScreenReturnReasonLabel => 'कारण';
+
+  @override
+  String get sellScreenReturnReasonHint => 'जस्तै: बिक्री रद्द';
+
+  @override
   String get sellScreenInvoiceNumberLabel => 'बीजक नम्बर';
 
   @override
@@ -270,6 +276,12 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get buyScreenSupplierLabel => 'आपूर्तिकर्ता';
+
+  @override
+  String get buyScreenReturnReasonLabel => 'कारण';
+
+  @override
+  String get buyScreenReturnReasonHint => 'जस्तै: बिग्रेको सामान';
 
   @override
   String get buyScreenReturnBillNumberLabel => 'बिल नम्बर';
