@@ -1103,6 +1103,23 @@ class AppLocalizationsNe extends AppLocalizations {
       'प्रिन्ट असफल भयो। प्रिन्टर जाँचेर फेरि प्रयास गर्नुहोस्।';
 
   @override
+  String get printMethodSheetTitle => 'बिल प्रिन्ट गर्नुहोस्';
+
+  @override
+  String get printMethodBluetoothOption => 'ब्लुटुथ प्रिन्टर';
+
+  @override
+  String get printMethodBluetoothHint =>
+      'पेयर गरिएको थर्मल प्रिन्टरमा सिधै प्रिन्ट गर्नुहोस्';
+
+  @override
+  String get printMethodNormalOption => 'सामान्य प्रिन्ट';
+
+  @override
+  String get printMethodNormalHint =>
+      'PDF / सिस्टम प्रिन्ट संवादमार्फत प्रिन्ट गर्नुहोस्';
+
+  @override
   String get reportsScreenLedgersCardTitle => 'लेजर तथा प्रतिवेदन';
 
   @override

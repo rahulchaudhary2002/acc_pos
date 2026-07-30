@@ -2080,6 +2080,36 @@ abstract class AppLocalizations {
   /// **'Printing failed. Check the printer and try again.'**
   String get printerErrorPrintFailed;
 
+  /// No description provided for @printMethodSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Print Bill'**
+  String get printMethodSheetTitle;
+
+  /// No description provided for @printMethodBluetoothOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth Printer'**
+  String get printMethodBluetoothOption;
+
+  /// No description provided for @printMethodBluetoothHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Print directly to a paired thermal printer'**
+  String get printMethodBluetoothHint;
+
+  /// No description provided for @printMethodNormalOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal Print'**
+  String get printMethodNormalOption;
+
+  /// No description provided for @printMethodNormalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Print via PDF / system print dialog'**
+  String get printMethodNormalHint;
+
   /// No description provided for @reportsScreenLedgersCardTitle.
   ///
   /// In en, this message translates to:

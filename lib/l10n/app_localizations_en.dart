@@ -1100,6 +1100,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Printing failed. Check the printer and try again.';
 
   @override
+  String get printMethodSheetTitle => 'Print Bill';
+
+  @override
+  String get printMethodBluetoothOption => 'Bluetooth Printer';
+
+  @override
+  String get printMethodBluetoothHint =>
+      'Print directly to a paired thermal printer';
+
+  @override
+  String get printMethodNormalOption => 'Normal Print';
+
+  @override
+  String get printMethodNormalHint => 'Print via PDF / system print dialog';
+
+  @override
   String get reportsScreenLedgersCardTitle => 'Ledgers & Reports';
 
   @override

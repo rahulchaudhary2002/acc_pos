@@ -329,6 +329,11 @@
   "printerErrorNoPrinterSelected": "कुनै प्रिन्टर छानिएको छैन। पहिले प्रिन्टर छान्नुहोस्।",
   "printerErrorConnectionFailed": "प्रिन्टरसँग जडान हुन सकेन। प्रिन्टर खुला र नजिकै छ भनी सुनिश्चित गर्नुहोस्।",
   "printerErrorPrintFailed": "प्रिन्ट असफल भयो। प्रिन्टर जाँचेर फेरि प्रयास गर्नुहोस्।",
+  "printMethodSheetTitle": "बिल प्रिन्ट गर्नुहोस्",
+  "printMethodBluetoothOption": "ब्लुटुथ प्रिन्टर",
+  "printMethodBluetoothHint": "पेयर गरिएको थर्मल प्रिन्टरमा सिधै प्रिन्ट गर्नुहोस्",
+  "printMethodNormalOption": "सामान्य प्रिन्ट",
+  "printMethodNormalHint": "PDF / सिस्टम प्रिन्ट संवादमार्फत प्रिन्ट गर्नुहोस्",
 
   "reportsScreenLedgersCardTitle": "लेजर तथा प्रतिवेदन",
   "reportsScreenLedgersVendorLedger": "विक्रेता लेजर",

@@ -23,6 +23,98 @@ Future<PrinterDevice?> showPrinterPickerSheet(BuildContext context) {
   );
 }
 
+/// Bottom sheet shown on every "Print" tap, letting the cashier choose
+/// between the saved Bluetooth thermal printer and the normal PDF/system
+/// print dialog for that one bill, instead of silently deciding based on
+/// whether a printer happens to be configured.
+Future<void> showPrintMethodSheet(
+  BuildContext context, {
+  required Future<void> Function() onThermalPrint,
+  required Future<void> Function() onPdfPrint,
+}) {
+  final l10n = AppLocalizations.of(context)!;
+  return showModalBottomSheet(
+    context: context,
+    backgroundColor: AppColors.surface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.section)),
+    ),
+    builder: (sheetContext) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.card),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.printMethodSheetTitle, style: AppTextStyles.cardHeader, textAlign: TextAlign.center),
+            const SizedBox(height: AppSpacing.card),
+            _PrintMethodTile(
+              icon: Icons.bluetooth,
+              label: l10n.printMethodBluetoothOption,
+              hint: l10n.printMethodBluetoothHint,
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                onThermalPrint();
+              },
+            ),
+            const SizedBox(height: AppSpacing.field),
+            _PrintMethodTile(
+              icon: Icons.picture_as_pdf_outlined,
+              label: l10n.printMethodNormalOption,
+              hint: l10n.printMethodNormalHint,
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                onPdfPrint();
+              },
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+class _PrintMethodTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String hint;
+  final VoidCallback onTap;
+
+  const _PrintMethodTile({required this.icon, required this.label, required this.hint, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppRadius.control),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.item),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceLight,
+          borderRadius: BorderRadius.circular(AppRadius.control),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.info),
+            const SizedBox(width: AppSpacing.item),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                  Text(hint, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.textMuted),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 String printerErrorMessage(AppLocalizations l10n, PrinterErrorCode code) {
   switch (code) {
     case PrinterErrorCode.bluetoothOff:

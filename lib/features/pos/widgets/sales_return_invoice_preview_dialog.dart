@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
-import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
@@ -10,7 +9,6 @@ import '../models/company.dart';
 import '../models/outlet.dart';
 import '../models/sale_cart_item.dart';
 import '../models/transaction_result.dart';
-import '../providers/printer_provider.dart';
 import '../utils/invoice_format_utils.dart';
 import '../utils/invoice_pdf.dart';
 import '../utils/thermal_receipt_builder.dart';
@@ -136,13 +134,11 @@ Future<void> showSalesReturnInvoicePreview(
       signatureRightLabel: 'Customer',
       actions: [
         ElevatedButton.icon(
-          onPressed: () async {
-            if (context.read<PrinterProvider>().hasSavedPrinter) {
-              await printBillOnThermalPrinter(context, data: thermalData);
-            } else {
-              await Printing.layoutPdf(onLayout: (_) => buildPdf(), name: 'SalesReturn-${result.documentNo}');
-            }
-          },
+          onPressed: () => showPrintMethodSheet(
+            context,
+            onThermalPrint: () => printBillOnThermalPrinter(context, data: thermalData),
+            onPdfPrint: () => Printing.layoutPdf(onLayout: (_) => buildPdf(), name: 'SalesReturn-${result.documentNo}'),
+          ),
           style: AppButtonStyles.filled(AppColors.info).copyWith(
             padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
           ),

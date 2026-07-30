@@ -489,6 +489,11 @@
   "printerErrorNoPrinterSelected": "No printer selected. Choose a printer first.",
   "printerErrorConnectionFailed": "Could not connect to the printer. Make sure it is switched on and in range.",
   "printerErrorPrintFailed": "Printing failed. Check the printer and try again.",
+  "printMethodSheetTitle": "Print Bill",
+  "printMethodBluetoothOption": "Bluetooth Printer",
+  "printMethodBluetoothHint": "Print directly to a paired thermal printer",
+  "printMethodNormalOption": "Normal Print",
+  "printMethodNormalHint": "Print via PDF / system print dialog",
 
   "reportsScreenLedgersCardTitle": "Ledgers & Reports",
   "reportsScreenLedgersVendorLedger": "Vendor Ledger",

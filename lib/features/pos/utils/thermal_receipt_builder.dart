@@ -100,6 +100,7 @@ List<int> buildThermalReceiptBytes(
   if ((data.companyAddress ?? '').isNotEmpty) bytes += generator.text(data.companyAddress!, styles: center);
   bytes += generator.text('VAT # : ${data.companyVatNo ?? ''}', styles: center);
   bytes += generator.text(data.title, styles: titleStyle);
+  bytes += generator.text(data.copyLabel, styles: const PosStyles(align: PosAlign.center, bold: true));
   bytes += generator.hr(len: charsPerLine);
   if (data.isCancelled) {
     bytes += generator.text(
@@ -171,7 +172,6 @@ List<int> buildThermalReceiptBytes(
   bytes += generator.text('Print Date/Time : ${printDateTimeLabel(data.printedAt)}', maxCharsPerLine: charsPerLine);
   final nepaliDate = nepaliDateLabel(data.printedAt);
   if (nepaliDate.isNotEmpty) bytes += generator.text('Nepali Date : $nepaliDate', maxCharsPerLine: charsPerLine);
-  bytes += generator.text(data.copyLabel, styles: center, maxCharsPerLine: charsPerLine);
   bytes += generator.hr(len: charsPerLine);
   if (data.preparedBy.isNotEmpty) bytes += lr(data.preparedBy, '');
   bytes += lr('-' * 12, '-' * 12);

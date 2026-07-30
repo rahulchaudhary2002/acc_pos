@@ -10,7 +10,6 @@ import '../../auth/providers/auth_provider.dart';
 import '../models/company.dart';
 import '../models/json_utils.dart';
 import '../models/outlet.dart';
-import '../providers/printer_provider.dart';
 import '../services/pos_service.dart';
 import '../utils/invoice_format_utils.dart';
 import '../utils/invoice_pdf.dart';
@@ -456,20 +455,25 @@ Future<void> _showHistoricalDialog(
       isCancelled: isCancelled,
       actions: [
         ElevatedButton.icon(
-          onPressed: () async {
-            if (context.read<PrinterProvider>().hasSavedPrinter) {
+          onPressed: () => showPrintMethodSheet(
+            context,
+            onThermalPrint: () async {
               await printBillOnThermalPrinter(
                 context,
                 data: thermalData,
                 extraCopies: invoiceCopyData != null ? [invoiceCopyData] : const [],
               );
-            } else {
+              if (recordPrintId != null && recordPrint != null && context.mounted) {
+                await recordPrint(recordPrintId);
+              }
+            },
+            onPdfPrint: () async {
               await Printing.layoutPdf(onLayout: (_) => buildPdf(), name: pdfName);
-            }
-            if (recordPrintId != null && recordPrint != null && context.mounted) {
-              await recordPrint(recordPrintId);
-            }
-          },
+              if (recordPrintId != null && recordPrint != null && context.mounted) {
+                await recordPrint(recordPrintId);
+              }
+            },
+          ),
           style: AppButtonStyles.filled(AppColors.info).copyWith(
             padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
           ),

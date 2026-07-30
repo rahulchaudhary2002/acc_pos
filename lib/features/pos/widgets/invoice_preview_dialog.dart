@@ -10,7 +10,6 @@ import '../models/company.dart';
 import '../models/outlet.dart';
 import '../models/sale_cart_item.dart';
 import '../models/transaction_result.dart';
-import '../providers/printer_provider.dart';
 import '../services/pos_service.dart';
 import '../utils/invoice_format_utils.dart';
 import '../utils/invoice_pdf.dart';
@@ -178,16 +177,21 @@ Future<void> showInvoicePreview(
       signatureRightLabel: 'Customer',
       actions: [
         ElevatedButton.icon(
-          onPressed: () async {
-            if (context.read<PrinterProvider>().hasSavedPrinter) {
+          onPressed: () => showPrintMethodSheet(
+            context,
+            onThermalPrint: () async {
               await printBillOnThermalPrinter(context, data: thermalData, extraCopies: [invoiceCopyData]);
-            } else {
+              if (context.mounted) {
+                await context.read<PosService>().recordSalesInvoicePrint(result.documentId);
+              }
+            },
+            onPdfPrint: () async {
               await Printing.layoutPdf(onLayout: (_) => buildPdf(), name: 'Invoice-${result.documentNo}');
-            }
-            if (context.mounted) {
-              await context.read<PosService>().recordSalesInvoicePrint(result.documentId);
-            }
-          },
+              if (context.mounted) {
+                await context.read<PosService>().recordSalesInvoicePrint(result.documentId);
+              }
+            },
+          ),
           style: AppButtonStyles.filled(AppColors.info).copyWith(
             padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
           ),
