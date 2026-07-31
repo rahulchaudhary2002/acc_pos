@@ -197,10 +197,10 @@ class PosService {
   /// Runs the web admin approve → post lifecycle on a stored draft. If either
   /// step fails the document still exists server-side as a draft, so say so
   /// instead of surfacing a generic error.
-  Future<void> _approveAndPost(String resource, int id, String documentLabel) async {
+  Future<Map<String, dynamic>> _approveAndPost(String resource, int id, String documentLabel) async {
     try {
       await _client.post('/admin/$resource/$id/approve');
-      await _client.post('/admin/$resource/$id/post');
+      return await _client.post('/admin/$resource/$id/post');
     } on ApiException catch (e) {
       throw ApiException(
         message: '$documentLabel was saved as a draft but could not be posted: ${e.message}',
@@ -265,7 +265,7 @@ class PosService {
     final invoice = response['data'] as Map<String, dynamic>;
     final invoiceId = asInt(invoice['id']);
     final invoiceNo = invoice['invoice_no'] as String? ?? 'INV-$invoiceId';
-    await _approveAndPost('sales-invoices', invoiceId, 'Invoice $invoiceNo');
+    final postResponse = await _approveAndPost('sales-invoices', invoiceId, 'Invoice $invoiceNo');
 
     return TransactionResult(
       documentNo: invoiceNo,
@@ -276,6 +276,7 @@ class PosService {
       delivery: asDoubleOrNull(invoice['delivery_charge']),
       status: 'posted',
       message: 'Sale completed successfully.',
+      cbmsStatus: postResponse['cbms_status'] as String?,
     );
   }
 
@@ -582,6 +583,7 @@ class PosService {
       taxTotal: asDoubleOrNull(data['tax_total']),
       status: data['status'] as String? ?? 'posted',
       message: response['message'] as String? ?? fallbackMessage,
+      cbmsStatus: response['cbms_status'] as String?,
     );
   }
 

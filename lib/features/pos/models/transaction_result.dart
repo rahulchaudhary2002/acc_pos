@@ -11,6 +11,7 @@ class TransactionResult {
   final String? billNo;
   final String status;
   final String message;
+  final String? cbmsStatus;
 
   TransactionResult({
     required this.documentNo,
@@ -22,5 +23,6 @@ class TransactionResult {
     this.billNo,
     required this.status,
     required this.message,
+    this.cbmsStatus,
   });
 }

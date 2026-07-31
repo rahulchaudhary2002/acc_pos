@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_banner.dart';
+import '../../../core/widgets/status_badge.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../models/company.dart';
@@ -182,6 +183,27 @@ class _SellScreenState extends State<SellScreen> {
 
   void _announce(String key) => context.read<VoiceAnnouncer>().announceAction(key);
 
+  /// Message + a small "Reported to IRD" style badge, shown only for
+  /// companies with CBMS reporting enabled ([Company.cbmsEnabled]).
+  Widget _cbmsStatusRow(String message, String cbmsStatus) {
+    final (String label, StatusBadgeTone tone) = switch (cbmsStatus) {
+      'queued' => ('Queued for IRD', StatusBadgeTone.warning),
+      'synced_to_ird' => ('Reported to IRD', StatusBadgeTone.success),
+      'failed_api_rejected' => ('IRD sync failed', StatusBadgeTone.danger),
+      'pending_offline' => ('IRD sync pending', StatusBadgeTone.warning),
+      _ => (cbmsStatus, StatusBadgeTone.neutral),
+    };
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(child: Text(message)),
+        const SizedBox(width: 8),
+        StatusBadge(label: label, tone: tone),
+      ],
+    );
+  }
+
   void _resetCustomerForm() {
     _selectedCustomer = null;
     _customerNameController.clear();
@@ -267,6 +289,11 @@ class _SellScreenState extends State<SellScreen> {
         _selectedVendor = null;
       });
       _announce('saleCompleted');
+      if (company.cbmsEnabled && result.cbmsStatus != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: _cbmsStatusRow('Sale ${result.documentNo}', result.cbmsStatus!)),
+        );
+      }
       // Mirrors PosTerminal.jsx: refetch products AND parties after a sale.
       // A cash/customer sale with a typed-in name creates that customer
       // server-side (PosService.sell()'s walk-in/named-customer path)
@@ -333,8 +360,13 @@ class _SellScreenState extends State<SellScreen> {
       final returnCustomer = posData.customers.where((c) => c.id == _returnCustomerId);
       final itemsSnapshot = List.of(_returnItems);
       final preparedBy = context.read<AuthProvider>().user?.name;
+      final returnMessage = AppLocalizations.of(context)!.sellScreenReturnCompletedMessage(result.documentNo, result.total.toStringAsFixed(2));
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.sellScreenReturnCompletedMessage(result.documentNo, result.total.toStringAsFixed(2)))),
+        SnackBar(
+          content: company.cbmsEnabled && result.cbmsStatus != null
+              ? _cbmsStatusRow(returnMessage, result.cbmsStatus!)
+              : Text(returnMessage),
+        ),
       );
       setState(() {
         _returnItems.clear();

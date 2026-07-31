@@ -6,8 +6,16 @@ class Company {
   final String? address;
   final String? phone;
   final String? panVatNo;
+  final bool cbmsEnabled;
 
-  Company({required this.id, required this.name, this.address, this.phone, this.panVatNo});
+  Company({
+    required this.id,
+    required this.name,
+    this.address,
+    this.phone,
+    this.panVatNo,
+    this.cbmsEnabled = false,
+  });
 
   factory Company.fromJson(Map<String, dynamic> json) {
     return Company(
@@ -16,6 +24,7 @@ class Company {
       address: json['address'] as String?,
       phone: json['phone'] as String?,
       panVatNo: json['pan_vat_no'] as String?,
+      cbmsEnabled: json['cbms_enabled'] == true || json['cbms_enabled'] == 1,
     );
   }
 }
