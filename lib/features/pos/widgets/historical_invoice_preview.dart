@@ -97,7 +97,7 @@ Future<void> showHistoricalSalesInvoicePreview(
     dualInvoiceCopies: true,
     recordPrintId: invoiceId,
     recordPrint: invoiceId == null ? null : (id) => context.read<PosService>().recordSalesInvoicePrint(id),
-    copyLabel: printCopyLabel(printCount + 1),
+    initialPrintCount: printCount,
     preparedBy: (invoice['created_by'] as Map<String, dynamic>?)?['name'] as String? ?? '',
     isCancelled: invoice['status'] == 'cancelled',
   );
@@ -140,6 +140,8 @@ Future<void> showHistoricalPurchaseBillPreview(
   ];
 
   final documentNo = (bill['bill_no'] as String?) ?? '-';
+  final billId = asIntOrNull(bill['id']);
+  final printCount = asIntOrNull(bill['print_count']) ?? 0;
 
   return _showHistoricalDialog(
     context,
@@ -157,6 +159,9 @@ Future<void> showHistoricalPurchaseBillPreview(
     pdfName: 'Purchase-$documentNo',
     title: 'PURCHASE INVOICE',
     preparedBy: (bill['created_by'] as Map<String, dynamic>?)?['name'] as String? ?? '',
+    recordPrintId: billId,
+    recordPrint: billId == null ? null : (id) => context.read<PosService>().recordPurchaseBillPrint(id),
+    initialPrintCount: printCount,
     isCancelled: bill['status'] == 'cancelled',
   );
 }
@@ -215,7 +220,7 @@ Future<void> showHistoricalSalesReturnPreview(
     signatureRightLabel: 'Customer',
     pdfName: 'SalesReturn-$documentNo',
     title: 'SALES RETURN',
-    copyLabel: printCopyLabel(printCount + 1),
+    initialPrintCount: printCount,
     // Returns/notes stamp whoever is printing right now, not the original
     // creator — matching the backend's ReceiptDocumentFactory's convention
     // for returns (Auth::user(), not a createdBy relation) and the web
@@ -284,7 +289,7 @@ Future<void> showHistoricalPurchaseReturnPreview(
     signatureRightLabel: 'Supplier',
     pdfName: 'PurchaseReturn-$documentNo',
     title: 'PURCHASE RETURN',
-    copyLabel: printCopyLabel(printCount + 1),
+    initialPrintCount: printCount,
     preparedBy: context.read<AuthProvider>().user?.name ?? '',
     recordPrintId: returnId,
     recordPrint: returnId == null ? null : (id) => context.read<PosService>().recordPurchaseReturnPrint(id),
@@ -310,58 +315,11 @@ Future<void> _showHistoricalDialog(
   bool dualInvoiceCopies = false,
   int? recordPrintId,
   Future<void> Function(int id)? recordPrint,
-  String copyLabel = 'Original',
+  int initialPrintCount = 0,
   String preparedBy = '',
   bool isCancelled = false,
 }) {
   final resolvedTitle = title ?? 'TAX INVOICE';
-
-  final thermalData = ThermalReceiptData(
-    companyName: company.name,
-    companyAddress: company.address ?? outlet?.address,
-    companyPhone: company.phone,
-    companyVatNo: company.panVatNo,
-    title: resolvedTitle,
-    copyLabel: copyLabel,
-    metaRows: metaRows,
-    items: lines,
-    printedAt: printedOn,
-    taxable: taxSummary.taxable,
-    nonTaxable: taxSummary.nonTaxable,
-    subtotal: subtotal,
-    vatRateLabel: taxSummary.vatRateLabel,
-    tax: tax,
-    delivery: delivery,
-    total: total,
-    preparedBy: preparedBy,
-    signatureRightLabel: signatureRightLabel,
-    isCancelled: isCancelled,
-  );
-  // A sales invoice always prints both the tax invoice and the plain
-  // invoice copy together, as a single print action.
-  final invoiceCopyData = dualInvoiceCopies
-      ? ThermalReceiptData(
-          companyName: company.name,
-          companyAddress: company.address ?? outlet?.address,
-          companyPhone: company.phone,
-          companyVatNo: company.panVatNo,
-          title: 'INVOICE',
-          copyLabel: copyLabel,
-          metaRows: metaRows,
-          items: lines,
-          printedAt: printedOn,
-          taxable: taxSummary.taxable,
-          nonTaxable: taxSummary.nonTaxable,
-          subtotal: subtotal,
-          vatRateLabel: taxSummary.vatRateLabel,
-          tax: tax,
-          delivery: delivery,
-          total: total,
-          preparedBy: preparedBy,
-          signatureRightLabel: signatureRightLabel,
-          isCancelled: isCancelled,
-        )
-      : null;
 
   const pdfLabels = PosInvoiceLabels(
     phone: _englishPhoneLabel,
@@ -374,7 +332,7 @@ Future<void> _showHistoricalDialog(
     totalAmtHeader: 'Total Amt.',
     printDateTime: 'Print Date/Time :',
     nepaliDate: 'Nepali Date :',
-    original: 'Original',
+    original: '',
     taxable: 'Taxable :',
     nonTaxable: 'Non Taxable :',
     subTotal: 'Sub Total :',
@@ -386,29 +344,18 @@ Future<void> _showHistoricalDialog(
     prepareBy: 'Prepare By',
   );
 
-  Future<Uint8List> buildPdf() => dualInvoiceCopies
-      ? buildInvoicePdfBytesForCopies(
-          companyName: company.name,
-          companyAddress: company.address ?? outlet?.address,
-          companyPhone: company.phone,
-          companyVatNo: company.panVatNo,
-          metaRows: metaRows,
-          items: lines,
-          printedAt: printedOn,
-          taxable: taxSummary.taxable,
-          nonTaxable: taxSummary.nonTaxable,
-          subtotal: subtotal,
-          vatRateLabel: taxSummary.vatRateLabel,
-          tax: tax,
-          delivery: delivery,
-          total: total,
-          preparedBy: preparedBy,
-          signatureRightLabel: signatureRightLabel,
-          labels: pdfLabels,
-          copies: [('TAX INVOICE', copyLabel), ('INVOICE', copyLabel)],
-          isCancelled: isCancelled,
-        )
-      : buildInvoicePdfBytes(
+  // Kept mutable so the copy label (Original -> copy-1(original) ->
+  // copy-2(original) -> ...) advances on every print made while this same
+  // dialog stays open, not just across separate dialog opens.
+  var printCount = initialPrintCount;
+
+  return showTaxInvoiceDialog(
+    context,
+    document: StatefulBuilder(
+      builder: (context, setState) {
+        final copyLabel = printCopyLabel(printCount + 1);
+
+        final thermalData = ThermalReceiptData(
           companyName: company.name,
           companyAddress: company.address ?? outlet?.address,
           companyPhone: company.phone,
@@ -427,67 +374,147 @@ Future<void> _showHistoricalDialog(
           total: total,
           preparedBy: preparedBy,
           signatureRightLabel: signatureRightLabel,
-          labels: pdfLabels,
           isCancelled: isCancelled,
         );
+        // A sales invoice always prints both the tax invoice and the plain
+        // invoice copy together, as a single print action.
+        final invoiceCopyData = dualInvoiceCopies
+            ? ThermalReceiptData(
+                companyName: company.name,
+                companyAddress: company.address ?? outlet?.address,
+                companyPhone: company.phone,
+                companyVatNo: company.panVatNo,
+                title: 'INVOICE',
+                copyLabel: copyLabel,
+                metaRows: metaRows,
+                items: lines,
+                printedAt: printedOn,
+                taxable: taxSummary.taxable,
+                nonTaxable: taxSummary.nonTaxable,
+                subtotal: subtotal,
+                vatRateLabel: taxSummary.vatRateLabel,
+                tax: tax,
+                delivery: delivery,
+                total: total,
+                preparedBy: preparedBy,
+                signatureRightLabel: signatureRightLabel,
+                isCancelled: isCancelled,
+              )
+            : null;
 
-  return showTaxInvoiceDialog(
-    context,
-    document: TaxInvoiceDocument(
-      companyName: company.name,
-      companyAddress: company.address ?? outlet?.address,
-      companyPhone: company.phone,
-      companyVatNo: company.panVatNo,
-      title: resolvedTitle,
-      copyLabel: copyLabel,
-      metaRows: metaRows,
-      items: lines,
-      printedAt: printedOn,
-      taxable: taxSummary.taxable,
-      nonTaxable: taxSummary.nonTaxable,
-      subtotal: subtotal,
-      vatRateLabel: taxSummary.vatRateLabel,
-      tax: tax,
-      delivery: delivery,
-      total: total,
-      preparedBy: preparedBy,
-      signatureRightLabel: signatureRightLabel,
-      isCancelled: isCancelled,
-      actions: [
-        ElevatedButton.icon(
-          onPressed: () => showPrintMethodSheet(
-            context,
-            onThermalPrint: () async {
-              await printBillOnThermalPrinter(
-                context,
-                data: thermalData,
-                extraCopies: invoiceCopyData != null ? [invoiceCopyData] : const [],
+        Future<Uint8List> buildPdf() => dualInvoiceCopies
+            ? buildInvoicePdfBytesForCopies(
+                companyName: company.name,
+                companyAddress: company.address ?? outlet?.address,
+                companyPhone: company.phone,
+                companyVatNo: company.panVatNo,
+                metaRows: metaRows,
+                items: lines,
+                printedAt: printedOn,
+                taxable: taxSummary.taxable,
+                nonTaxable: taxSummary.nonTaxable,
+                subtotal: subtotal,
+                vatRateLabel: taxSummary.vatRateLabel,
+                tax: tax,
+                delivery: delivery,
+                total: total,
+                preparedBy: preparedBy,
+                signatureRightLabel: signatureRightLabel,
+                labels: pdfLabels,
+                copies: [('TAX INVOICE', copyLabel), ('INVOICE', copyLabel)],
+                isCancelled: isCancelled,
+              )
+            : buildInvoicePdfBytes(
+                companyName: company.name,
+                companyAddress: company.address ?? outlet?.address,
+                companyPhone: company.phone,
+                companyVatNo: company.panVatNo,
+                title: resolvedTitle,
+                copyLabel: copyLabel,
+                metaRows: metaRows,
+                items: lines,
+                printedAt: printedOn,
+                taxable: taxSummary.taxable,
+                nonTaxable: taxSummary.nonTaxable,
+                subtotal: subtotal,
+                vatRateLabel: taxSummary.vatRateLabel,
+                tax: tax,
+                delivery: delivery,
+                total: total,
+                preparedBy: preparedBy,
+                signatureRightLabel: signatureRightLabel,
+                labels: pdfLabels,
+                isCancelled: isCancelled,
               );
-              if (recordPrintId != null && recordPrint != null && context.mounted) {
-                await recordPrint(recordPrintId);
-              }
-            },
-            onPdfPrint: () async {
-              await Printing.layoutPdf(onLayout: (_) => buildPdf(), name: pdfName);
-              if (recordPrintId != null && recordPrint != null && context.mounted) {
-                await recordPrint(recordPrintId);
-              }
-            },
-          ),
-          style: AppButtonStyles.filled(AppColors.info).copyWith(
-            padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
-          ),
-          icon: const Icon(Icons.print, size: 18),
-          label: const Text('Print'),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.of(context).pop(),
-          style: AppButtonStyles.filled(AppColors.textFaint).copyWith(
-            padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
-          ),
-          child: const Text('Close'),
-        ),
-      ],
+
+        Future<void> markPrinted() async {
+          if (recordPrintId != null && recordPrint != null && context.mounted) {
+            await recordPrint(recordPrintId);
+            setState(() => printCount++);
+          }
+        }
+
+        return TaxInvoiceDocument(
+          companyName: company.name,
+          companyAddress: company.address ?? outlet?.address,
+          companyPhone: company.phone,
+          companyVatNo: company.panVatNo,
+          title: resolvedTitle,
+          copyLabel: copyLabel,
+          metaRows: metaRows,
+          items: lines,
+          printedAt: printedOn,
+          taxable: taxSummary.taxable,
+          nonTaxable: taxSummary.nonTaxable,
+          subtotal: subtotal,
+          vatRateLabel: taxSummary.vatRateLabel,
+          tax: tax,
+          delivery: delivery,
+          total: total,
+          preparedBy: preparedBy,
+          signatureRightLabel: signatureRightLabel,
+          isCancelled: isCancelled,
+          actions: [
+            ElevatedButton.icon(
+              onPressed: () => showPrintMethodSheet(
+                context,
+                onThermalPrint: () async {
+                  await printBillOnThermalPrinter(
+                    context,
+                    data: thermalData,
+                    extraCopies: invoiceCopyData != null ? [invoiceCopyData] : const [],
+                  );
+                  await markPrinted();
+                },
+                onPdfPrint: () async {
+                  await Printing.layoutPdf(onLayout: (_) => buildPdf(), name: pdfName);
+                  await markPrinted();
+                },
+              ),
+              style: AppButtonStyles.filled(AppColors.info).copyWith(
+                padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
+              ),
+              icon: const Icon(Icons.print, size: 18),
+              label: const Text('Print'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () async => Printing.sharePdf(bytes: await buildPdf(), filename: '$pdfName.pdf'),
+              style: AppButtonStyles.filled(AppColors.info).copyWith(
+                padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
+              ),
+              icon: const Icon(Icons.share, size: 18),
+              label: const Text('Share'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: AppButtonStyles.filled(AppColors.textFaint).copyWith(
+                padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
+              ),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
     ),
   );
 }

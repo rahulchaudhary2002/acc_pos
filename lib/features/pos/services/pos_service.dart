@@ -508,6 +508,15 @@ class PosService {
     return response['data'] as Map<String, dynamic>;
   }
 
+  /// Purchase-bill counterpart of [recordSalesInvoicePrint].
+  Future<void> recordPurchaseBillPrint(int id) async {
+    try {
+      await _client.post('/admin/purchase-bills/$id/record-print');
+    } catch (_) {
+      // Ignore — printing already happened; not worth surfacing to the user.
+    }
+  }
+
   /// Cancels a posted sales invoice — mirrors the web admin's `DELETE
   /// /admin/sales-invoices/{id}`: reverses its stock movement and linked
   /// journal vouchers server-side, and keeps the row as status `cancelled`

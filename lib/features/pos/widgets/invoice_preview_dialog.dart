@@ -71,47 +71,6 @@ Future<void> showInvoicePreview(
           ))
       .toList();
 
-  // A sales invoice always prints both the tax invoice and the plain
-  // invoice copy together, as a single print action.
-  final thermalData = ThermalReceiptData(
-    companyName: company.name,
-    companyAddress: company.address ?? outlet?.address,
-    companyPhone: company.phone,
-    companyVatNo: company.panVatNo,
-    title: 'TAX INVOICE',
-    metaRows: metaRows,
-    items: invoiceLines,
-    printedAt: now,
-    taxable: taxSummary.taxable,
-    nonTaxable: taxSummary.nonTaxable,
-    subtotal: subtotal,
-    vatRateLabel: taxSummary.vatRateLabel,
-    tax: tax,
-    delivery: deliveryCharge,
-    total: grandTotal,
-    preparedBy: preparedBy ?? '',
-    signatureRightLabel: 'Customer',
-  );
-  final invoiceCopyData = ThermalReceiptData(
-    companyName: company.name,
-    companyAddress: company.address ?? outlet?.address,
-    companyPhone: company.phone,
-    companyVatNo: company.panVatNo,
-    title: 'INVOICE',
-    metaRows: metaRows,
-    items: invoiceLines,
-    printedAt: now,
-    taxable: taxSummary.taxable,
-    nonTaxable: taxSummary.nonTaxable,
-    subtotal: subtotal,
-    vatRateLabel: taxSummary.vatRateLabel,
-    tax: tax,
-    delivery: deliveryCharge,
-    total: grandTotal,
-    preparedBy: preparedBy ?? '',
-    signatureRightLabel: 'Customer',
-  );
-
   const pdfLabels = PosInvoiceLabels(
     phone: _englishPhoneLabel,
     vat: _englishVatLabel,
@@ -123,7 +82,7 @@ Future<void> showInvoicePreview(
     totalAmtHeader: 'Total Amt.',
     printDateTime: 'Print Date/Time :',
     nepaliDate: 'Nepali Date :',
-    original: 'Original',
+    original: '',
     taxable: 'Taxable :',
     nonTaxable: 'Non Taxable :',
     subTotal: 'Sub Total :',
@@ -135,77 +94,144 @@ Future<void> showInvoicePreview(
     prepareBy: 'Prepare By',
   );
 
-  Future<Uint8List> buildPdf() => buildInvoicePdfBytesForCopies(
-        companyName: company.name,
-        companyAddress: company.address ?? outlet?.address,
-        companyPhone: company.phone,
-        companyVatNo: company.panVatNo,
-        metaRows: metaRows,
-        items: invoiceLines,
-        printedAt: now,
-        taxable: taxSummary.taxable,
-        nonTaxable: taxSummary.nonTaxable,
-        subtotal: subtotal,
-        vatRateLabel: taxSummary.vatRateLabel,
-        tax: tax,
-        delivery: deliveryCharge,
-        total: grandTotal,
-        preparedBy: preparedBy ?? '',
-        signatureRightLabel: 'Customer',
-        labels: pdfLabels,
-        copies: const [('TAX INVOICE', 'Original'), ('INVOICE', 'Original')],
-      );
+  // Kept mutable so the copy label (blank -> copy-1(original) ->
+  // copy-2(original) -> ...) advances on every print made while this same
+  // just-completed-sale dialog stays open, not just across separate opens.
+  var printCount = 0;
 
   return showTaxInvoiceDialog(
     context,
-    document: TaxInvoiceDocument(
-      companyName: company.name,
-      companyAddress: company.address ?? outlet?.address,
-      companyPhone: company.phone,
-      companyVatNo: company.panVatNo,
-      metaRows: metaRows,
-      items: invoiceLines,
-      printedAt: now,
-      taxable: taxSummary.taxable,
-      nonTaxable: taxSummary.nonTaxable,
-      subtotal: subtotal,
-      vatRateLabel: taxSummary.vatRateLabel,
-      tax: tax,
-      delivery: deliveryCharge,
-      total: grandTotal,
-      preparedBy: preparedBy ?? '',
-      signatureRightLabel: 'Customer',
-      actions: [
-        ElevatedButton.icon(
-          onPressed: () => showPrintMethodSheet(
-            context,
-            onThermalPrint: () async {
-              await printBillOnThermalPrinter(context, data: thermalData, extraCopies: [invoiceCopyData]);
-              if (context.mounted) {
-                await context.read<PosService>().recordSalesInvoicePrint(result.documentId);
-              }
-            },
-            onPdfPrint: () async {
-              await Printing.layoutPdf(onLayout: (_) => buildPdf(), name: 'Invoice-${result.documentNo}');
-              if (context.mounted) {
-                await context.read<PosService>().recordSalesInvoicePrint(result.documentId);
-              }
-            },
-          ),
-          style: AppButtonStyles.filled(AppColors.info).copyWith(
-            padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
-          ),
-          icon: const Icon(Icons.print, size: 18),
-          label: const Text('Print'),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.of(context).pop(),
-          style: AppButtonStyles.filled(AppColors.textFaint).copyWith(
-            padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
-          ),
-          child: const Text('Close'),
-        ),
-      ],
+    document: StatefulBuilder(
+      builder: (context, setState) {
+        final copyLabel = printCopyLabel(printCount + 1);
+
+        // A sales invoice always prints both the tax invoice and the plain
+        // invoice copy together, as a single print action.
+        final thermalData = ThermalReceiptData(
+          companyName: company.name,
+          companyAddress: company.address ?? outlet?.address,
+          companyPhone: company.phone,
+          companyVatNo: company.panVatNo,
+          title: 'TAX INVOICE',
+          copyLabel: copyLabel,
+          metaRows: metaRows,
+          items: invoiceLines,
+          printedAt: now,
+          taxable: taxSummary.taxable,
+          nonTaxable: taxSummary.nonTaxable,
+          subtotal: subtotal,
+          vatRateLabel: taxSummary.vatRateLabel,
+          tax: tax,
+          delivery: deliveryCharge,
+          total: grandTotal,
+          preparedBy: preparedBy ?? '',
+          signatureRightLabel: 'Customer',
+        );
+        final invoiceCopyData = ThermalReceiptData(
+          companyName: company.name,
+          companyAddress: company.address ?? outlet?.address,
+          companyPhone: company.phone,
+          companyVatNo: company.panVatNo,
+          title: 'INVOICE',
+          copyLabel: copyLabel,
+          metaRows: metaRows,
+          items: invoiceLines,
+          printedAt: now,
+          taxable: taxSummary.taxable,
+          nonTaxable: taxSummary.nonTaxable,
+          subtotal: subtotal,
+          vatRateLabel: taxSummary.vatRateLabel,
+          tax: tax,
+          delivery: deliveryCharge,
+          total: grandTotal,
+          preparedBy: preparedBy ?? '',
+          signatureRightLabel: 'Customer',
+        );
+
+        Future<Uint8List> buildPdf() => buildInvoicePdfBytesForCopies(
+              companyName: company.name,
+              companyAddress: company.address ?? outlet?.address,
+              companyPhone: company.phone,
+              companyVatNo: company.panVatNo,
+              metaRows: metaRows,
+              items: invoiceLines,
+              printedAt: now,
+              taxable: taxSummary.taxable,
+              nonTaxable: taxSummary.nonTaxable,
+              subtotal: subtotal,
+              vatRateLabel: taxSummary.vatRateLabel,
+              tax: tax,
+              delivery: deliveryCharge,
+              total: grandTotal,
+              preparedBy: preparedBy ?? '',
+              signatureRightLabel: 'Customer',
+              labels: pdfLabels,
+              copies: [('TAX INVOICE', copyLabel), ('INVOICE', copyLabel)],
+            );
+
+        Future<void> markPrinted() async {
+          if (context.mounted) {
+            await context.read<PosService>().recordSalesInvoicePrint(result.documentId);
+            setState(() => printCount++);
+          }
+        }
+
+        return TaxInvoiceDocument(
+          companyName: company.name,
+          companyAddress: company.address ?? outlet?.address,
+          companyPhone: company.phone,
+          companyVatNo: company.panVatNo,
+          copyLabel: copyLabel,
+          metaRows: metaRows,
+          items: invoiceLines,
+          printedAt: now,
+          taxable: taxSummary.taxable,
+          nonTaxable: taxSummary.nonTaxable,
+          subtotal: subtotal,
+          vatRateLabel: taxSummary.vatRateLabel,
+          tax: tax,
+          delivery: deliveryCharge,
+          total: grandTotal,
+          preparedBy: preparedBy ?? '',
+          signatureRightLabel: 'Customer',
+          actions: [
+            ElevatedButton.icon(
+              onPressed: () => showPrintMethodSheet(
+                context,
+                onThermalPrint: () async {
+                  await printBillOnThermalPrinter(context, data: thermalData, extraCopies: [invoiceCopyData]);
+                  await markPrinted();
+                },
+                onPdfPrint: () async {
+                  await Printing.layoutPdf(onLayout: (_) => buildPdf(), name: 'Invoice-${result.documentNo}');
+                  await markPrinted();
+                },
+              ),
+              style: AppButtonStyles.filled(AppColors.info).copyWith(
+                padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
+              ),
+              icon: const Icon(Icons.print, size: 18),
+              label: const Text('Print'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () async =>
+                  Printing.sharePdf(bytes: await buildPdf(), filename: 'Invoice-${result.documentNo}.pdf'),
+              style: AppButtonStyles.filled(AppColors.info).copyWith(
+                padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
+              ),
+              icon: const Icon(Icons.share, size: 18),
+              label: const Text('Share'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: AppButtonStyles.filled(AppColors.textFaint).copyWith(
+                padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 20)),
+              ),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
     ),
   );
 }

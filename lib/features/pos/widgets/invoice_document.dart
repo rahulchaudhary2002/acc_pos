@@ -77,7 +77,7 @@ class TaxInvoiceDocument extends StatelessWidget {
     required this.signatureRightLabel,
     required this.actions,
     this.title = 'TAX INVOICE',
-    this.copyLabel = 'Original',
+    this.copyLabel = '',
     this.isCancelled = false,
   });
 

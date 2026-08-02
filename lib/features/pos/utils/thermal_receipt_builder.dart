@@ -36,7 +36,7 @@ class ThermalReceiptData {
     this.companyPhone,
     this.companyVatNo,
     this.title = 'TAX INVOICE',
-    this.copyLabel = 'Original',
+    this.copyLabel = '',
     required this.metaRows,
     required this.items,
     required this.printedAt,

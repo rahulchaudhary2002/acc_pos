@@ -80,7 +80,7 @@ Future<Uint8List> buildInvoicePdfBytes({
   required String signatureRightLabel,
   required PosInvoiceLabels labels,
   String title = 'TAX INVOICE',
-  String copyLabel = 'Original',
+  String copyLabel = '',
   String amountInWordsLocale = 'en',
   bool isCancelled = false,
 }) async {
