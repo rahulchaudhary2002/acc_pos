@@ -3,9 +3,6 @@ import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import '../widgets/invoice_document.dart';
 import 'invoice_format_utils.dart';
 
-/// Everything the thermal receipt needs — the same data the A5 preview/Share
-/// PDF is built from (see `invoice_pdf.dart`), just laid out for a narrow
-/// roll instead of a full page.
 class ThermalReceiptData {
   final String companyName;
   final String? companyAddress;
@@ -52,28 +49,12 @@ class ThermalReceiptData {
     this.isCancelled = false,
   });
 }
-
-/// Builds an ESC/POS ticket for [data], mirroring the on-screen bill's
-/// structure: company header, title, meta lines, items, right-aligned
-/// totals, amount-in-words, dates, and the signature labels.
-///
-/// [charsPerLine] is the printer's character width (32 on 58mm paper, 48 on
-/// 80mm). Every two-sided line is composed by manual space-padding to that
-/// width instead of `Generator.row()` — `row()` positions columns with the
-/// ESC `$` absolute-position command, which many budget Bluetooth printers
-/// ignore or misplace, leaving dividers stopping mid-paper and totals
-/// printed at the wrong offset. Plain padded text lines render correctly on
-/// everything. Only the company name and title use double-size styling;
-/// numbers stay at normal size like the preview.
 List<int> buildThermalReceiptBytes(
   Generator generator,
   ThermalReceiptData data, {
   required int charsPerLine,
   bool cutAfter = true,
 }) {
-  // Company name is the only double-size line — the title and everything
-  // else print at normal size, matching the actual printed receipt (the
-  // title is bold but NOT double-height like the company name).
   const companyStyle = PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2, width: PosTextSize.size2);
   const titleStyle = PosStyles(align: PosAlign.center, bold: true);
   const center = PosStyles(align: PosAlign.center);
@@ -81,8 +62,6 @@ List<int> buildThermalReceiptBytes(
 
   var bytes = generator.reset();
 
-  // Two-sided line: left text, right text pushed to the paper edge. Wraps the
-  // right side onto its own right-aligned line when both don't fit.
   List<int> lr(String left, String right, {PosStyles styles = const PosStyles()}) {
     var out = <int>[];
     if (left.length + right.length + 1 > charsPerLine) {
@@ -94,8 +73,6 @@ List<int> buildThermalReceiptBytes(
     return out;
   }
 
-  // Company name is printed exactly as stored (no forced upper-casing) —
-  // matches the physical receipt showing "Head Office", not "HEAD OFFICE".
   bytes += generator.text(data.companyName, styles: companyStyle);
   if ((data.companyAddress ?? '').isNotEmpty) bytes += generator.text(data.companyAddress!, styles: center);
   bytes += generator.text('VAT # : ${data.companyVatNo ?? ''}', styles: center);
@@ -110,13 +87,6 @@ List<int> buildThermalReceiptBytes(
     bytes += generator.hr(len: charsPerLine);
   }
 
-  // Short No./Date fields render right-aligned (label left, value right,
-  // same line) — matching the web receipt's 50/50 two-column table. Name
-  // fields print as their own two-line block (label, then value on the next
-  // line) and Pan fields glue the value straight onto the label with no
-  // space — both matching the web receipt's colspan="2" rows exactly. The
-  // first Name/Pan-style field triggers the divider that separates the two
-  // groups on the real receipt.
   var printedGroupDivider = false;
   for (final row in data.metaRows) {
     for (final field in row) {
@@ -140,10 +110,6 @@ List<int> buildThermalReceiptBytes(
     }
   }
 
-  // Sn/H.S. Code/Description/Qty/Rate/Amount as real fixed-width columns,
-  // wrapping the description onto extra lines under its own column when it's
-  // too long for a single row — matching the receipt's "LPG 50 KG" then
-  // "(Customer Price)" on the next line.
   final cols = _ItemColumns(charsPerLine);
   bytes += generator.hr(len: charsPerLine);
   bytes += generator.text(cols.header(), styles: bold, maxCharsPerLine: charsPerLine);
@@ -181,16 +147,11 @@ List<int> buildThermalReceiptBytes(
     bytes += generator.feed(3);
     bytes += generator.cut();
   } else {
-    // Blank gap instead of a cut — used when this copy is followed by
-    // another one on the same continuous strip (e.g. tax invoice + invoice),
-    // so the two are easy to tear apart by hand.
     bytes += generator.feed(6);
   }
   return bytes;
 }
 
-/// e.g. "13 %" (web's `vatRateLabel`) -> "VAT 13% :", matching the physical
-/// receipt's "VAT 13% :" line exactly (no "Amount", no parentheses).
 String _vatLine(String vatRateLabel) {
   final rate = vatRateLabel.replaceAll(RegExp(r'[^0-9.]'), '');
   return 'VAT ${rate.isEmpty ? '13' : rate}% :';
@@ -198,9 +159,6 @@ String _vatLine(String vatRateLabel) {
 
 String _qty(double qty) => qty.round().toString();
 
-/// e.g. 300000 -> "3,00,000.00" — the web receipt formats with
-/// `Intl.NumberFormat("en-IN")`, which groups the last 3 digits then pairs
-/// of 2 (lakh/crore style), not the western 3-3-3 grouping.
 String _money(double amount) {
   final fixed = amount.toStringAsFixed(2);
   final negative = fixed.startsWith('-');
@@ -226,18 +184,6 @@ String _money(double amount) {
   return '${negative ? '-' : ''}$grouped$decimals';
 }
 
-/// Fixed-width Sn/H.S. Code/Description/Qty/Rate/Amount columns for the item
-/// table. One space is reserved between each of the 6 columns (5 gaps) so a
-/// column that exactly fills its width (e.g. a 4-digit HS code, or "Amount"
-/// in a 6-char column) never runs into the next one (previously produced
-/// "RateAmount", "887.12887.12").
-///
-/// Sn/Qty get just enough room for realistic values (2 digits — most POS
-/// lines are single digit) instead of the PDF's proportional share, which
-/// left them mostly blank; the reclaimed width goes to Description, the
-/// column that actually needs it. Rate/Amount get more room on 80mm paper,
-/// where grouped totals ("3,000.00") are more likely and there's space to
-/// spare.
 class _ItemColumns {
   static const _gap = ' ';
   static const _gapCount = 5;
@@ -251,14 +197,14 @@ class _ItemColumns {
 
   _ItemColumns(int charsPerLine)
       : sn = 2,
-        hsCode = charsPerLine >= 40 ? 4 : 3,
-        qty = 2,
+        hsCode = charsPerLine >= 40 ? 7 : 3,
+        qty = charsPerLine >= 40 ? 3 : 2,
         rate = charsPerLine >= 40 ? 8 : 6,
         amount = charsPerLine >= 40 ? 8 : 6,
         description = (charsPerLine - _gapCount) -
             2 -
-            (charsPerLine >= 40 ? 4 : 3) -
-            2 -
+            (charsPerLine >= 40 ? 7 : 3) -
+            (charsPerLine >= 40 ? 3 : 2) -
             (charsPerLine >= 40 ? 8 : 6) -
             (charsPerLine >= 40 ? 8 : 6);
 
@@ -274,10 +220,6 @@ class _ItemColumns {
         _right('Amount', amount),
       ].join(_gap);
 
-  /// First line carries Sn/H.S. Code/Qty/Rate/Amount; the description wraps
-  /// onto blank-column continuation lines when it doesn't fit (e.g.
-  /// "LPG 50 KG" then "(Customer Price)" on its own line, indented under
-  /// Description).
   List<String> itemLines(
     String snValue,
     String hsCodeValue,

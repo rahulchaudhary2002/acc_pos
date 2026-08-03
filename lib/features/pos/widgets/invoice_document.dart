@@ -4,8 +4,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../utils/invoice_format_utils.dart';
 
-/// One line item on the printed invoice — Sr./H.S. Code/Description/Qty/
-/// Rate/Total Amt., matching the web receipt's table columns.
 class InvoiceLineData {
   final String hsCode;
   final String description;
@@ -24,14 +22,8 @@ class InvoiceLineData {
   });
 }
 
-/// A label/value pair for the meta grid (`null` renders a blank cell so a
-/// row can have just one field, mirroring gaps in the web's 3-col grid).
 typedef MetaField = (String label, String value)?;
 
-/// Shared "TAX INVOICE" layout — company header, meta grid, line-items
-/// table, VAT summary, amount-in-words, and a signature block — used by
-/// both the post-sale and post-purchase preview dialogs so the two stay
-/// pixel-identical, matching the shared markup in `PosTerminal.jsx`.
 class TaxInvoiceDocument extends StatelessWidget {
   final String companyName;
   final String? companyAddress;
@@ -53,8 +45,6 @@ class TaxInvoiceDocument extends StatelessWidget {
   final String title;
   final String copyLabel;
 
-  /// Shows a large diagonal "CANCELLED" watermark across the receipt when
-  /// true, mirroring the web admin's cancelled-invoice print.
   final bool isCancelled;
 
   const TaxInvoiceDocument({
@@ -90,8 +80,6 @@ class TaxInvoiceDocument extends StatelessWidget {
         children: [
           Column(
             children: [
-              // Printed exactly as stored — no forced upper-casing — matching
-              // the physical receipt showing "Head Office", not "HEAD OFFICE".
               Text(companyName, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
               if ((companyAddress ?? '').isNotEmpty)
                 Text(companyAddress!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
@@ -132,14 +120,9 @@ class TaxInvoiceDocument extends StatelessWidget {
       alignment: Alignment.center,
       clipBehavior: Clip.none,
       children: [
-        content,
         IgnorePointer(
           child: Transform.rotate(
             angle: -0.5,
-            // Sized to fit within the narrow receipt width once rotated —
-            // Stack clips overflowing children by default, and the previous
-            // 42px size's rotated diagonal footprint exceeded the receipt's
-            // width, clipping/garbling the corners of the text.
             child: Text(
               'CANCELLED',
               style: TextStyle(
@@ -151,19 +134,13 @@ class TaxInvoiceDocument extends StatelessWidget {
             ),
           ),
         ),
+        content,
       ],
     );
   }
 
   Widget _divider() => const Divider(height: 17, thickness: 1, color: AppColors.textPrimary);
 
-  /// Short No./Date fields render right-aligned (label left, value right,
-  /// same line) — matching the physical receipt's 50/50 two-column rows.
-  /// Name fields print as their own two-line block (label, then value on
-  /// the next line) and Pan fields glue the value straight onto the label
-  /// with no space — both matching the receipt's colspan="2" rows exactly.
-  /// The first Name/Pan/Payment/Ref field triggers the divider that
-  /// separates the two groups on the real receipt.
   List<Widget> _metaFieldWidgets() {
     const style = TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary);
     const normal = TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textPrimary);
@@ -207,9 +184,6 @@ class TaxInvoiceDocument extends StatelessWidget {
   }
 
   Widget _itemsTable() {
-    // No TableBorder here — the surrounding `_divider()` calls in build()
-    // already draw the line above/below the table; adding the table's own
-    // top/bottom border on top of those doubled up the rule.
     return Table(
       columnWidths: const {
         0: FlexColumnWidth(0.8),
@@ -267,16 +241,11 @@ class TaxInvoiceDocument extends StatelessWidget {
     );
   }
 
-  /// e.g. "13 %" (`vatRateLabel`) -> "VAT 13% :", matching the physical
-  /// receipt's "VAT 13% :" line exactly (no "Amount", no parentheses).
   static String _vatLine(String vatRateLabel) {
     final rate = vatRateLabel.replaceAll(RegExp(r'[^0-9.]'), '');
     return 'VAT ${rate.isEmpty ? '13' : rate}% :';
   }
 
-  /// e.g. 300000 -> "3,00,000.00" — the web receipt formats with
-  /// `Intl.NumberFormat("en-IN")`, which groups the last 3 digits then
-  /// pairs of 2 (lakh/crore style), not the western 3-3-3 grouping.
   static String _money(double amount) {
     final fixed = amount.toStringAsFixed(2);
     final negative = fixed.startsWith('-');
@@ -375,9 +344,6 @@ class _InvoiceCell extends StatelessWidget {
   }
 }
 
-/// Shared dialog chrome — a sharp-cornered white card on a dark scrim,
-/// matching the web modal's flat bordered card exactly (no rounded corners
-/// or elevation shadow, which `Dialog`'s Material default would otherwise add).
 Future<void> showTaxInvoiceDialog(BuildContext context, {required Widget document}) {
   return showDialog(
     context: context,
