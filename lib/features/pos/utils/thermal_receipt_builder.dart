@@ -76,8 +76,8 @@ List<int> buildThermalReceiptBytes(
   bytes += generator.text(data.companyName, styles: companyStyle);
   if ((data.companyAddress ?? '').isNotEmpty) bytes += generator.text(data.companyAddress!, styles: center);
   bytes += generator.text('VAT # : ${data.companyVatNo ?? ''}', styles: center);
-  bytes += generator.text(data.title, styles: titleStyle);
-  bytes += generator.text(data.copyLabel, styles: const PosStyles(align: PosAlign.center, bold: true));
+  if (data.title.isNotEmpty) bytes += generator.text(data.title, styles: titleStyle);
+  if (data.copyLabel.isNotEmpty) bytes += generator.text(data.copyLabel, styles: const PosStyles(align: PosAlign.center, bold: true));
   bytes += generator.hr(len: charsPerLine);
   if (data.isCancelled) {
     bytes += generator.text(

@@ -344,8 +344,8 @@ Future<void> _showHistoricalDialog(
     prepareBy: 'Prepare By',
   );
 
-  // Kept mutable so the copy label (Original -> copy-1(original) ->
-  // copy-2(original) -> ...) advances on every print made while this same
+  // Kept mutable so the copy label (Original -> Copy of Original (1) ->
+  // Copy of Original (2) -> ...) advances on every print made while this same
   // dialog stays open, not just across separate dialog opens.
   var printCount = initialPrintCount;
 
@@ -354,13 +354,19 @@ Future<void> _showHistoricalDialog(
     document: StatefulBuilder(
       builder: (context, setState) {
         final copyLabel = printCopyLabel(printCount + 1);
+        // Only the very first print (never printed before) hands over both
+        // the tax invoice and the plain invoice copy together. Every reprint
+        // after that is a single page with no title, just the copy label.
+        final isFirstPrint = printCount == 0;
+        final showDualCopies = dualInvoiceCopies && isFirstPrint;
+        final effectiveTitle = dualInvoiceCopies ? (isFirstPrint ? resolvedTitle : '') : resolvedTitle;
 
         final thermalData = ThermalReceiptData(
           companyName: company.name,
           companyAddress: company.address ?? outlet?.address,
           companyPhone: company.phone,
           companyVatNo: company.panVatNo,
-          title: resolvedTitle,
+          title: effectiveTitle,
           copyLabel: copyLabel,
           metaRows: metaRows,
           items: lines,
@@ -376,9 +382,9 @@ Future<void> _showHistoricalDialog(
           signatureRightLabel: signatureRightLabel,
           isCancelled: isCancelled,
         );
-        // A sales invoice always prints both the tax invoice and the plain
-        // invoice copy together, as a single print action.
-        final invoiceCopyData = dualInvoiceCopies
+        // A sales invoice's first print hands over both the tax invoice and
+        // the plain invoice copy together, as a single print action.
+        final invoiceCopyData = showDualCopies
             ? ThermalReceiptData(
                 companyName: company.name,
                 companyAddress: company.address ?? outlet?.address,
@@ -402,7 +408,7 @@ Future<void> _showHistoricalDialog(
               )
             : null;
 
-        Future<Uint8List> buildPdf() => dualInvoiceCopies
+        Future<Uint8List> buildPdf() => showDualCopies
             ? buildInvoicePdfBytesForCopies(
                 companyName: company.name,
                 companyAddress: company.address ?? outlet?.address,
@@ -429,7 +435,7 @@ Future<void> _showHistoricalDialog(
                 companyAddress: company.address ?? outlet?.address,
                 companyPhone: company.phone,
                 companyVatNo: company.panVatNo,
-                title: resolvedTitle,
+                title: effectiveTitle,
                 copyLabel: copyLabel,
                 metaRows: metaRows,
                 items: lines,
@@ -459,7 +465,7 @@ Future<void> _showHistoricalDialog(
           companyAddress: company.address ?? outlet?.address,
           companyPhone: company.phone,
           companyVatNo: company.panVatNo,
-          title: resolvedTitle,
+          title: effectiveTitle,
           copyLabel: copyLabel,
           metaRows: metaRows,
           items: lines,

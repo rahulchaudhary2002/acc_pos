@@ -87,8 +87,10 @@ class TaxInvoiceDocument extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.field),
-          Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-          Text(copyLabel, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+          if (title.isNotEmpty)
+            Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          if (copyLabel.isNotEmpty)
+            Text(copyLabel, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
           _divider(),
           ..._metaFieldWidgets(),
           _divider(),

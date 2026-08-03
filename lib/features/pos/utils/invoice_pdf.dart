@@ -199,12 +199,14 @@ pw.MultiPage _invoicePage({
       ]),
     ),
     pw.SizedBox(height: 4),
-    pw.Center(
-      child: pw.Text(title, style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
-    ),
-    pw.Center(
-      child: pw.Text(copyLabel, style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold)),
-    ),
+    if (title.isNotEmpty)
+      pw.Center(
+        child: pw.Text(title, style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
+      ),
+    if (copyLabel.isNotEmpty)
+      pw.Center(
+        child: pw.Text(copyLabel, style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold)),
+      ),
     pw.Divider(color: border, thickness: 1, height: 9),
     ..._metaFieldWidgets(metaRows, border),
     pw.Divider(color: border, thickness: 1, height: 9),

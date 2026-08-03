@@ -203,10 +203,10 @@ String _trimTrailingZeroRate(double rate) {
 }
 
 /// The copy label for a given print count: the 1st print is the original
-/// (no label shown), every one after reads "copy-N(original)" where N is
-/// the copy number (2nd print = copy-1, 3rd print = copy-2, ...).
+/// (no label shown), every one after reads "Copy of Original (N)" where N is
+/// the copy number (2nd print = 1, 3rd print = 2, ...).
 String printCopyLabel(int count) {
   if (count <= 1) return '';
   final copyNumber = count - 1;
-  return 'copy-$copyNumber(original)';
+  return 'Copy of Original ($copyNumber)';
 }

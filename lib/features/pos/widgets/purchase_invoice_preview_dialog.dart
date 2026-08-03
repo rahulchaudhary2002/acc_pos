@@ -59,8 +59,8 @@ Future<void> showPurchaseInvoicePreview(
           ))
       .toList();
 
-  // Kept mutable so the copy label (blank -> copy-1(original) ->
-  // copy-2(original) -> ...) advances on every print made while this same
+  // Kept mutable so the copy label (blank -> Copy of Original (1) ->
+  // Copy of Original (2) -> ...) advances on every print made while this same
   // just-completed-purchase dialog stays open, not just across separate opens.
   var printCount = 0;
 

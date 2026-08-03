@@ -94,8 +94,8 @@ Future<void> showInvoicePreview(
     prepareBy: 'Prepare By',
   );
 
-  // Kept mutable so the copy label (blank -> copy-1(original) ->
-  // copy-2(original) -> ...) advances on every print made while this same
+  // Kept mutable so the copy label (blank -> Copy of Original (1) ->
+  // Copy of Original (2) -> ...) advances on every print made while this same
   // just-completed-sale dialog stays open, not just across separate opens.
   var printCount = 0;
 
@@ -104,15 +104,18 @@ Future<void> showInvoicePreview(
     document: StatefulBuilder(
       builder: (context, setState) {
         final copyLabel = printCopyLabel(printCount + 1);
+        // Only the very first print hands over both the tax invoice and the
+        // plain invoice copy together, as a single print action. Every
+        // reprint after that is a single page — no "TAX INVOICE"/"INVOICE"
+        // title, just the "Copy of Original (N)" label.
+        final isFirstPrint = printCount == 0;
 
-        // A sales invoice always prints both the tax invoice and the plain
-        // invoice copy together, as a single print action.
         final thermalData = ThermalReceiptData(
           companyName: company.name,
           companyAddress: company.address ?? outlet?.address,
           companyPhone: company.phone,
           companyVatNo: company.panVatNo,
-          title: 'TAX INVOICE',
+          title: isFirstPrint ? 'TAX INVOICE' : '',
           copyLabel: copyLabel,
           metaRows: metaRows,
           items: invoiceLines,
@@ -166,7 +169,7 @@ Future<void> showInvoicePreview(
               preparedBy: preparedBy ?? '',
               signatureRightLabel: 'Customer',
               labels: pdfLabels,
-              copies: [('TAX INVOICE', copyLabel), ('INVOICE', copyLabel)],
+              copies: isFirstPrint ? [('TAX INVOICE', copyLabel), ('INVOICE', copyLabel)] : [('', copyLabel)],
             );
 
         Future<void> markPrinted() async {
@@ -181,6 +184,7 @@ Future<void> showInvoicePreview(
           companyAddress: company.address ?? outlet?.address,
           companyPhone: company.phone,
           companyVatNo: company.panVatNo,
+          title: isFirstPrint ? 'TAX INVOICE' : '',
           copyLabel: copyLabel,
           metaRows: metaRows,
           items: invoiceLines,
@@ -199,7 +203,11 @@ Future<void> showInvoicePreview(
               onPressed: () => showPrintMethodSheet(
                 context,
                 onThermalPrint: () async {
-                  await printBillOnThermalPrinter(context, data: thermalData, extraCopies: [invoiceCopyData]);
+                  await printBillOnThermalPrinter(
+                    context,
+                    data: thermalData,
+                    extraCopies: isFirstPrint ? [invoiceCopyData] : [],
+                  );
                   await markPrinted();
                 },
                 onPdfPrint: () async {
