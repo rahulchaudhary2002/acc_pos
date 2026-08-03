@@ -227,11 +227,21 @@ String _money(double amount) {
 }
 
 /// Fixed-width Sn/H.S. Code/Description/Qty/Rate/Amount columns for the item
-/// table, proportioned like invoice_pdf.dart's FlexColumnWidth ratios
-/// (0.6 : 1.0 : 2.2 : 1.0 : 1.7 : 1.7) so the thermal ticket's table lines up
-/// the same way the PDF/on-screen table does — Rate/Amount get extra room so
-/// comma-grouped amounts (e.g. "3,00,000.00") don't get truncated.
+/// table. One space is reserved between each of the 6 columns (5 gaps) so a
+/// column that exactly fills its width (e.g. a 4-digit HS code, or "Amount"
+/// in a 6-char column) never runs into the next one (previously produced
+/// "RateAmount", "887.12887.12").
+///
+/// Sn/Qty get just enough room for realistic values (2 digits — most POS
+/// lines are single digit) instead of the PDF's proportional share, which
+/// left them mostly blank; the reclaimed width goes to Description, the
+/// column that actually needs it. Rate/Amount get more room on 80mm paper,
+/// where grouped totals ("3,000.00") are more likely and there's space to
+/// spare.
 class _ItemColumns {
+  static const _gap = ' ';
+  static const _gapCount = 5;
+
   final int sn;
   final int hsCode;
   final int description;
@@ -240,23 +250,29 @@ class _ItemColumns {
   final int amount;
 
   _ItemColumns(int charsPerLine)
-      : sn = (charsPerLine * 0.6 / 8.2).round(),
-        hsCode = (charsPerLine * 1.0 / 8.2).round(),
-        qty = (charsPerLine * 1.0 / 8.2).round(),
-        rate = (charsPerLine * 1.7 / 8.2).round(),
-        amount = charsPerLine -
-            (charsPerLine * 0.6 / 8.2).round() -
-            (charsPerLine * 1.0 / 8.2).round() -
-            (charsPerLine * 2.2 / 8.2).round() -
-            (charsPerLine * 1.0 / 8.2).round() -
-            (charsPerLine * 1.7 / 8.2).round(),
-        description = (charsPerLine * 2.2 / 8.2).round();
+      : sn = 2,
+        hsCode = charsPerLine >= 40 ? 4 : 3,
+        qty = 2,
+        rate = charsPerLine >= 40 ? 8 : 6,
+        amount = charsPerLine >= 40 ? 8 : 6,
+        description = (charsPerLine - _gapCount) -
+            2 -
+            (charsPerLine >= 40 ? 4 : 3) -
+            2 -
+            (charsPerLine >= 40 ? 8 : 6) -
+            (charsPerLine >= 40 ? 8 : 6);
 
   String _left(String s, int width) => s.length >= width ? s.substring(0, width) : s.padRight(width);
   String _right(String s, int width) => s.length >= width ? s.substring(0, width) : s.padLeft(width);
 
-  String header() =>
-      _left('Sn', sn) + _left('HS', hsCode) + _left('Description', description) + _right('Qty', qty) + _right('Rate', rate) + _right('Amount', amount);
+  String header() => [
+        _left('Sn', sn),
+        _left('HS Code', hsCode),
+        _left('Description', description),
+        _right('Qty', qty),
+        _right('Rate', rate),
+        _right('Amount', amount),
+      ].join(_gap);
 
   /// First line carries Sn/H.S. Code/Qty/Rate/Amount; the description wraps
   /// onto blank-column continuation lines when it doesn't fit (e.g.
@@ -288,14 +304,16 @@ class _ItemColumns {
     final out = <String>[];
     for (var i = 0; i < lines.length; i++) {
       if (i == 0) {
-        out.add(_left(snValue, sn) +
-            _left(hsCodeValue, hsCode) +
-            _left(lines[i], description) +
-            _right(qtyValue, qty) +
-            _right(rateValue, rate) +
-            _right(amountValue, amount));
+        out.add([
+          _left(snValue, sn),
+          _left(hsCodeValue, hsCode),
+          _left(lines[i], description),
+          _right(qtyValue, qty),
+          _right(rateValue, rate),
+          _right(amountValue, amount),
+        ].join(_gap));
       } else {
-        out.add(_left('', sn) + _left('', hsCode) + _left(lines[i], description));
+        out.add([_left('', sn), _left('', hsCode), _left(lines[i], description)].join(_gap));
       }
     }
     return out;

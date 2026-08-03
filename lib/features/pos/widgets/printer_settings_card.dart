@@ -7,10 +7,6 @@ import '../../../l10n/app_localizations.dart';
 import '../providers/printer_provider.dart';
 import 'printer_picker_sheet.dart';
 
-/// Others-tab "Printer Connection" card: pick a paired Bluetooth thermal
-/// printer once (MYXprint-style), choose the paper width, and fire a test
-/// print — the saved printer is then used by the invoice previews' "Print
-/// Bill" action.
 class PrinterSettingsCard extends StatelessWidget {
   const PrinterSettingsCard({super.key});
 
@@ -99,6 +95,7 @@ class PrinterSettingsCard extends StatelessWidget {
               Text(l10n.printerCardPaperSizeLabel, style: AppTextStyles.label),
               const SizedBox(height: 4),
               DropdownButtonFormField<int>(
+                key: ValueKey(printer.paperWidthMm),
                 isExpanded: true,
                 initialValue: printer.paperWidthMm,
                 items: [
@@ -118,13 +115,17 @@ class PrinterSettingsCard extends StatelessWidget {
             children: [
               ElevatedButton.icon(
                 onPressed: printer.isPrinting ? null : () => showPrinterPickerSheet(context),
-                style: AppButtonStyles.filled(AppColors.info),
+                style: AppButtonStyles.filled(
+                  AppColors.info,
+                ).copyWith(padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 16, horizontal: 16))),
                 icon: const Icon(Icons.bluetooth_searching, size: 18),
                 label: Text(saved != null ? l10n.printerCardChangePrinterButton : l10n.printerCardSelectPrinterButton),
               ),
               ElevatedButton.icon(
                 onPressed: saved == null || printer.isPrinting ? null : () => _testPrint(context),
-                style: AppButtonStyles.filled(AppColors.success),
+                style: AppButtonStyles.filled(
+                  AppColors.success,
+                ).copyWith(padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 16, horizontal: 16))),
                 icon: printer.isPrinting
                     ? const SizedBox(
                         width: 16,

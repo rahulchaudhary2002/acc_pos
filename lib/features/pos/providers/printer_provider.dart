@@ -43,7 +43,7 @@ class PrinterDevice {
 /// size cleanly to whichever paper width is configured.
 class PrinterProvider extends ChangeNotifier {
   PrinterDevice? savedPrinter;
-  int paperWidthMm = 58; // 58 | 80
+  int paperWidthMm = 80; // 58 | 80
   bool isPrinting = false;
 
   bool get hasSavedPrinter => savedPrinter != null;
