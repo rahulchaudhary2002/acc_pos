@@ -9,7 +9,12 @@ class SaleCartItem {
   double qty;
   double rate;
 
-  SaleCartItem({required this.product, this.qty = 1, double? rate})
+  /// Remaining returnable quantity for this line, set only in Sell-Return
+  /// mode (mirrors the web POS's `maxQty` on `sellReturnCart` items). `null`
+  /// for a normal sale cart, where no such cap applies.
+  final double? maxQty;
+
+  SaleCartItem({required this.product, this.qty = 1, double? rate, this.maxQty})
       : rate = rate ?? product.price;
 
   double get taxRate => product.taxRate;

@@ -89,6 +89,10 @@ class AppLocalizationsNe extends AppLocalizations {
       'यो बिक्री कुन विक्रेतासँग सम्बन्धित छ भनी रेकर्ड गर्दछ।';
 
   @override
+  String get sellScreenVendorReturnFooterHint =>
+      'चयन गरिएको बिलको विक्रेताबाट स्वतः भरिएको।';
+
+  @override
   String get sellScreenSelectVendorError => 'कृपया विक्रेता छान्नुहोस्।';
 
   @override
@@ -282,6 +286,10 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get buyScreenReturnReasonHint => 'जस्तै: बिग्रेको सामान';
+
+  @override
+  String get buyScreenReturnVendorPlaceholder =>
+      'आपूर्तिकर्ता सेट गर्न बिल छान्नुहोस्';
 
   @override
   String get buyScreenReturnBillNumberLabel => 'बिल नम्बर';

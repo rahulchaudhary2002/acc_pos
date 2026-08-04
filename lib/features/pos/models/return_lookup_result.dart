@@ -11,13 +11,21 @@ class ReturnLookupLine {
   final int? taxCodeId;
   final double? taxRate;
 
+  /// How much of this line is still returnable — original `qty` minus
+  /// whatever other returns already referencing this document have taken.
+  /// Falls back to `qty` if the server hasn't annotated it (defensive only;
+  /// the `/admin/sales-invoices/{id}` and `/admin/purchase-bills/{id}` show
+  /// endpoints always include it).
+  final double remainingQty;
+
   ReturnLookupLine({
     required this.productId,
     required this.qty,
     required this.rate,
     this.taxCodeId,
     this.taxRate,
-  });
+    double? remainingQty,
+  }) : remainingQty = remainingQty ?? qty;
 
   factory ReturnLookupLine.fromJson(Map<String, dynamic> json) {
     final taxCode = json['tax_code'] ?? json['taxCode'];
@@ -27,6 +35,7 @@ class ReturnLookupLine {
       rate: asDouble(json['rate']),
       taxCodeId: asIntOrNull(json['tax_code_id']),
       taxRate: taxCode is Map<String, dynamic> ? asDoubleOrNull(taxCode['rate']) : null,
+      remainingQty: asDoubleOrNull(json['remaining_qty']),
     );
   }
 }
@@ -38,12 +47,19 @@ class ReturnLookupResult {
   final int documentId;
   final String documentNo;
   final int? partyId;
+
+  /// Sales invoices carry a separate `vendor_id` — which salesperson/vendor
+  /// the *sale* is attributed to for reporting, distinct from `partyId`
+  /// (the customer). Only populated by [fromSalesInvoiceJson]; `null` for
+  /// purchase bills, where [partyId] already carries the vendor.
+  final int? attributionVendorId;
   final List<ReturnLookupLine> lines;
 
   ReturnLookupResult({
     required this.documentId,
     required this.documentNo,
     this.partyId,
+    this.attributionVendorId,
     required this.lines,
   });
 
@@ -55,6 +71,7 @@ class ReturnLookupResult {
       documentId: asInt(json['id']),
       documentNo: json['invoice_no'] as String? ?? '',
       partyId: asIntOrNull(json['customer_id']),
+      attributionVendorId: asIntOrNull(json['vendor_id']),
       lines: lines,
     );
   }

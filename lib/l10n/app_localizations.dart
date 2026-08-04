@@ -242,6 +242,12 @@ abstract class AppLocalizations {
   /// **'Records which vendor this sale is attributed to for reporting.'**
   String get sellScreenVendorFooterHint;
 
+  /// No description provided for @sellScreenVendorReturnFooterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-filled from the selected invoice\'s attributed vendor.'**
+  String get sellScreenVendorReturnFooterHint;
+
   /// No description provided for @sellScreenSelectVendorError.
   ///
   /// In en, this message translates to:
@@ -605,6 +611,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'e.g. Goods Defective'**
   String get buyScreenReturnReasonHint;
+
+  /// No description provided for @buyScreenReturnVendorPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a bill to set the vendor'**
+  String get buyScreenReturnVendorPlaceholder;
 
   /// No description provided for @buyScreenReturnBillNumberLabel.
   ///

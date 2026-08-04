@@ -147,7 +147,12 @@ class _SellScreenState extends State<SellScreen> {
           }
         }
         if (product == null) continue;
-        nextItems.add(SaleCartItem(product: product, qty: line.qty, rate: line.rate));
+        nextItems.add(SaleCartItem(
+          product: product,
+          qty: line.remainingQty,
+          rate: line.rate,
+          maxQty: line.remainingQty,
+        ));
       }
 
       // Only accept the invoice's customer id if it's actually present in the
@@ -158,12 +163,23 @@ class _SellScreenState extends State<SellScreen> {
       final matchesDropdownOption = result.partyId != null &&
           posData.customers.any((c) => c.id == result.partyId && (c.type ?? '').toLowerCase() != 'walk-in');
 
+      Party? matchedVendor;
+      if (result.attributionVendorId != null) {
+        for (final v in posData.suppliers) {
+          if (v.id == result.attributionVendorId) {
+            matchedVendor = v;
+            break;
+          }
+        }
+      }
+
       setState(() {
         _returnItems
           ..clear()
           ..addAll(nextItems);
         _returnReferenceInvoiceId = result.documentId;
         if (matchesDropdownOption) _returnCustomerId = result.partyId;
+        _selectedVendor = matchedVendor;
         _returnLookupLoading = false;
         _returnLookupMessage = l10n.sellScreenInvoiceLookupFound(
           nextItems.length,
@@ -179,6 +195,13 @@ class _SellScreenState extends State<SellScreen> {
         _returnReferenceInvoiceId = null;
       });
     }
+  }
+
+  String _returnCustomerName(List<Party> customers) {
+    for (final c in customers) {
+      if (c.id == _returnCustomerId) return c.name;
+    }
+    return AppLocalizations.of(context)!.sellScreenWalkInNoCustomerLabel;
   }
 
   void _announce(String key) => context.read<VoiceAnnouncer>().announceAction(key);
@@ -477,19 +500,34 @@ class _SellScreenState extends State<SellScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      DropdownButtonFormField<Party?>(
-                        isExpanded: true,
-                        initialValue: _selectedVendor,
-                        decoration: InputDecoration(labelText: AppLocalizations.of(context)!.sellScreenVendorLabel),
-                        items: [
-                          DropdownMenuItem<Party?>(value: null, child: Text(AppLocalizations.of(context)!.sellScreenSelectVendorHint)),
-                          ...data.suppliers.map((s) => DropdownMenuItem<Party?>(value: s, child: Text(s.name, overflow: TextOverflow.ellipsis))),
-                        ],
-                        onChanged: (v) => setState(() => _selectedVendor = v),
-                      ),
+                      if (_mode == 'return')
+                        InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.sellScreenVendorLabel,
+                            filled: true,
+                            fillColor: AppColors.surfaceLight,
+                          ),
+                          child: Text(
+                            _selectedVendor?.name ?? AppLocalizations.of(context)!.sellScreenSelectVendorHint,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        )
+                      else
+                        DropdownButtonFormField<Party?>(
+                          isExpanded: true,
+                          initialValue: _selectedVendor,
+                          decoration: InputDecoration(labelText: AppLocalizations.of(context)!.sellScreenVendorLabel),
+                          items: [
+                            DropdownMenuItem<Party?>(value: null, child: Text(AppLocalizations.of(context)!.sellScreenSelectVendorHint)),
+                            ...data.suppliers.map((s) => DropdownMenuItem<Party?>(value: s, child: Text(s.name, overflow: TextOverflow.ellipsis))),
+                          ],
+                          onChanged: (v) => setState(() => _selectedVendor = v),
+                        ),
                       const SizedBox(height: AppSpacing.item),
                       Text(
-                        AppLocalizations.of(context)!.sellScreenVendorFooterHint,
+                        _mode == 'return'
+                            ? AppLocalizations.of(context)!.sellScreenVendorReturnFooterHint
+                            : AppLocalizations.of(context)!.sellScreenVendorFooterHint,
                         style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                       ),
                     ],
@@ -708,20 +746,15 @@ class _SellScreenState extends State<SellScreen> {
             const SizedBox(height: AppSpacing.item),
             Text(AppLocalizations.of(context)!.sellScreenCustomerOptionalLabel, style: AppTextStyles.label),
             const SizedBox(height: 4),
-            DropdownButtonFormField<int?>(
-              isExpanded: true,
-              initialValue: _returnCustomerId,
+            InputDecorator(
               decoration: const InputDecoration(
                 filled: true,
-                fillColor: AppColors.surface,
+                fillColor: AppColors.surfaceLight,
               ),
-              items: [
-                DropdownMenuItem<int?>(value: null, child: Text(AppLocalizations.of(context)!.sellScreenWalkInNoCustomerLabel)),
-                ...data.customers
-                    .where((c) => (c.type ?? '').toLowerCase() != 'walk-in')
-                    .map((c) => DropdownMenuItem<int?>(value: c.id, child: Text(c.name, overflow: TextOverflow.ellipsis))),
-              ],
-              onChanged: (value) => setState(() => _returnCustomerId = value),
+              child: Text(
+                _returnCustomerName(data.customers),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const SizedBox(height: AppSpacing.item),
             Text(AppLocalizations.of(context)!.sellScreenReturnReasonLabel, style: AppTextStyles.label),
@@ -775,9 +808,15 @@ class _SellScreenState extends State<SellScreen> {
                               rate: item.rate,
                               // Web return rows show qty × rate (tax-exclusive).
                               lineTotal: item.lineSubtotal,
-                              onIncrement: () => setState(() => item.qty += 1),
+                              maxQty: item.maxQty,
+                              onIncrement: () => setState(() {
+                                final next = item.qty + 1;
+                                item.qty = item.maxQty != null && next > item.maxQty! ? item.maxQty! : next;
+                              }),
                               onDecrement: () => setState(() => item.qty = item.qty > 1 ? item.qty - 1 : 1),
-                              onQtyChanged: (v) => setState(() => item.qty = v),
+                              onQtyChanged: (v) => setState(
+                                () => item.qty = item.maxQty != null && v > item.maxQty! ? item.maxQty! : v,
+                              ),
                               onRateChanged: (v) => setState(() => item.rate = v),
                               onRemove: () => setState(() => _returnItems.removeAt(index)),
                             );

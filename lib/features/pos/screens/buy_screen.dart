@@ -142,7 +142,12 @@ class _BuyScreenState extends State<BuyScreen> {
           }
         }
         if (product == null) continue;
-        nextItems.add(PurchaseCartItem(product: product, qty: line.qty, unitCost: line.rate));
+        nextItems.add(PurchaseCartItem(
+          product: product,
+          qty: line.remainingQty,
+          unitCost: line.rate,
+          maxQty: line.remainingQty,
+        ));
       }
 
       Party? matchedVendor;
@@ -608,15 +613,12 @@ class _BuyScreenState extends State<BuyScreen> {
             const SizedBox(height: AppSpacing.item),
             Text(AppLocalizations.of(context)!.buyScreenSupplierLabel, style: AppTextStyles.label),
             const SizedBox(height: 4),
-            DropdownButtonFormField<Party>(
-              isExpanded: true,
-              initialValue: _returnVendor,
-              decoration: const InputDecoration(filled: true, fillColor: AppColors.surface),
-              items: {for (final s in data.suppliers) s.id: s}
-                  .values
-                  .map((s) => DropdownMenuItem(value: s, child: Text(s.name, overflow: TextOverflow.ellipsis)))
-                  .toList(),
-              onChanged: (v) => setState(() => _returnVendor = v),
+            InputDecorator(
+              decoration: const InputDecoration(filled: true, fillColor: AppColors.surfaceLight),
+              child: Text(
+                _returnVendor?.name ?? AppLocalizations.of(context)!.buyScreenReturnVendorPlaceholder,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const SizedBox(height: AppSpacing.item),
             Text(AppLocalizations.of(context)!.buyScreenReturnReasonLabel, style: AppTextStyles.label),
@@ -668,9 +670,15 @@ class _BuyScreenState extends State<BuyScreen> {
                               qty: item.qty,
                               unitCost: item.unitCost,
                               lineTotal: item.lineTotal,
-                              onIncrement: () => setState(() => item.qty += 1),
+                              maxQty: item.maxQty,
+                              onIncrement: () => setState(() {
+                                final next = item.qty + 1;
+                                item.qty = item.maxQty != null && next > item.maxQty! ? item.maxQty! : next;
+                              }),
                               onDecrement: () => setState(() => item.qty = item.qty > 1 ? item.qty - 1 : 1),
-                              onQtyChanged: (v) => setState(() => item.qty = v),
+                              onQtyChanged: (v) => setState(
+                                () => item.qty = item.maxQty != null && v > item.maxQty! ? item.maxQty! : v,
+                              ),
                               onUnitCostChanged: (v) => setState(() => item.unitCost = v),
                               onRemove: () => setState(() => _returnItems.removeAt(index)),
                             );

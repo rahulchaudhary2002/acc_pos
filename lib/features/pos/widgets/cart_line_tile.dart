@@ -16,6 +16,11 @@ class CartLineTile extends StatelessWidget {
   final double lineTotal;
   final String? rateLabel;
   final bool rateEditable;
+
+  /// Remaining returnable quantity, shown as a hint under the qty stepper
+  /// when set (Sell-Return mode only) — the screen itself clamps `qty`
+  /// against this via [onIncrement]/[onDecrement]/[onQtyChanged].
+  final double? maxQty;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
   final ValueChanged<double> onQtyChanged;
@@ -31,6 +36,7 @@ class CartLineTile extends StatelessWidget {
     required this.lineTotal,
     this.rateLabel,
     this.rateEditable = true,
+    this.maxQty,
     required this.onIncrement,
     required this.onDecrement,
     required this.onQtyChanged,
@@ -82,12 +88,24 @@ class CartLineTile extends StatelessWidget {
               Expanded(
                 child: _labeledColumn(
                   AppLocalizations.of(context)!.cartLineQtyLabel,
-                  QtyStepperField(
-                    qty: qty,
-                    fieldWidth: 56,
-                    onIncrement: onIncrement,
-                    onDecrement: onDecrement,
-                    onQtyChanged: onQtyChanged,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      QtyStepperField(
+                        qty: qty,
+                        fieldWidth: 56,
+                        onIncrement: onIncrement,
+                        onDecrement: onDecrement,
+                        onQtyChanged: onQtyChanged,
+                      ),
+                      if (maxQty != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          'Max: ${maxQty!.toStringAsFixed(0)}',
+                          style: const TextStyle(fontSize: 10, color: AppColors.textFaint),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ),

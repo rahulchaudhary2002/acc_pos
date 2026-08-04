@@ -9,7 +9,11 @@ class PurchaseCartItem {
   double qty;
   double unitCost;
 
-  PurchaseCartItem({required this.product, this.qty = 1, double? unitCost})
+  /// Remaining returnable quantity for this line, set only in
+  /// Purchase-Return mode. `null` for a normal purchase cart.
+  final double? maxQty;
+
+  PurchaseCartItem({required this.product, this.qty = 1, double? unitCost, this.maxQty})
       : unitCost = unitCost ?? product.purchasePrice;
 
   double get lineTotal => qty * unitCost;

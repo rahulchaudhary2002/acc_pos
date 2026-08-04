@@ -14,6 +14,11 @@ class PurchaseCartLineTile extends StatelessWidget {
   final double unitCost;
   final double lineTotal;
   final bool unitCostEditable;
+
+  /// Remaining returnable quantity, shown as a hint under the qty stepper
+  /// when set (Purchase-Return mode only) — the screen itself clamps `qty`
+  /// against this via [onIncrement]/[onDecrement]/[onQtyChanged].
+  final double? maxQty;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
   final ValueChanged<double> onQtyChanged;
@@ -27,6 +32,7 @@ class PurchaseCartLineTile extends StatelessWidget {
     required this.unitCost,
     required this.lineTotal,
     this.unitCostEditable = true,
+    this.maxQty,
     required this.onIncrement,
     required this.onDecrement,
     required this.onQtyChanged,
@@ -64,12 +70,24 @@ class PurchaseCartLineTile extends StatelessWidget {
           const SizedBox(height: AppSpacing.item),
           Row(
             children: [
-              QtyStepperField(
-                qty: qty,
-                fieldWidth: 56,
-                onIncrement: onIncrement,
-                onDecrement: onDecrement,
-                onQtyChanged: onQtyChanged,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  QtyStepperField(
+                    qty: qty,
+                    fieldWidth: 56,
+                    onIncrement: onIncrement,
+                    onDecrement: onDecrement,
+                    onQtyChanged: onQtyChanged,
+                  ),
+                  if (maxQty != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      'Max: ${maxQty!.toStringAsFixed(0)}',
+                      style: const TextStyle(fontSize: 10, color: AppColors.textFaint),
+                    ),
+                  ],
+                ],
               ),
               const SizedBox(width: AppSpacing.field),
               Expanded(

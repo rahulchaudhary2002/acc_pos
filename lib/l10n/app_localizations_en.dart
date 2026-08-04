@@ -89,6 +89,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Records which vendor this sale is attributed to for reporting.';
 
   @override
+  String get sellScreenVendorReturnFooterHint =>
+      'Auto-filled from the selected invoice\'s attributed vendor.';
+
+  @override
   String get sellScreenSelectVendorError => 'Please select a vendor.';
 
   @override
@@ -281,6 +285,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get buyScreenReturnReasonHint => 'e.g. Goods Defective';
+
+  @override
+  String get buyScreenReturnVendorPlaceholder =>
+      'Select a bill to set the vendor';
 
   @override
   String get buyScreenReturnBillNumberLabel => 'Bill Number';
